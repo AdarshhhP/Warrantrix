@@ -31,29 +31,38 @@ const App = () => {
     return () => clearInterval(checkToken);
   }, []);
 
-  return (
-    <Router>
-      {token ? (
-        <>
-          <Sidebar />
-          <div className="ml-64 min-h-screen bg-gray-100 p-6">
-            <Routes>
-              <Route path="/company" element={<Company />} />
-              <Route path="/seller" element={<Seller />} />
-              <Route path="/customer" element={<Customer />} />
-              <Route path="/reports/companyreport" element={<CompanyReport />} />
-              <Route path="/reports/sellerreports" element={<SellerReport />} />
-              <Route path="*" element={<Dashboard />} />
-            </Routes>
-          </div>
-        </>
-      ) : (
+ return (
+
+
+
+<Router>
+  {token ? (
+    <div className="flex h-screen w-screen">
+      <Sidebar />
+      <main className="flex-1 overflow-y-auto h-full">
         <Routes>
-          <Route path="*" element={<Login setToken={setToken} />} />
+          <Route path="/company" element={<Company />} />
+          <Route path="/seller" element={<Seller />} />
+          <Route path="/customer" element={<Customer />} />
+          <Route path="/reports/companyreport" element={<CompanyReport />} />
+          <Route path="/reports/sellerreports" element={<SellerReport />} />
+          <Route path="*" element={<Dashboard />} />
         </Routes>
-      )}
-    </Router>
-  );
+      </main>
+    </div>
+  ) : (
+
+    <Routes>
+      <Route path="*" element={<Login setToken={setToken} />} />
+    </Routes>
+
+  )}
+</Router>
+
+
+  
+);
+
 };
 
 export default App;

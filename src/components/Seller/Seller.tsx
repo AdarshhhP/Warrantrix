@@ -271,7 +271,7 @@ const Seller = () => {
   };
 
   return (
-    <div className="p-6 min-w-sc mx-auto space-y-6 bg-white h-full text-gray-900">
+    <div className="p-6 min-w-sc mx-auto space-y-6 bg-white h-fit text-gray-900">
   <h1 className="text-4xl font-bold text-center text-gray-900">Seller Dashboard</h1>
 
   {/* Tabs */}

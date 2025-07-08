@@ -257,7 +257,7 @@ const [searchModelNo, setSearchModelNo] = useState("");
   console.log(productDetailsMap,"productDetailsMap")
 
   return (
- <div className="p-6 max-w-screen bg-white h-full text-gray-800">
+ <div className="p-6 max-w-screen bg-white h-fit text-gray-800">
   <h1 className="text-4xl font-bold mb-6 text-center text-gray-900">Customer Dashboard</h1>
 
   {/* Tabs */}

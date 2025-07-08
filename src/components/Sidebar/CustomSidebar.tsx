@@ -25,7 +25,7 @@ const Sidebar: React.FC = () => {
       : "w-full text-left px-4 py-2 hover:bg-gray-700 rounded";
 
   return (
-    <div className="fixed top-0 left-0 h-screen w-64 bg-gray-900 text-white p-4 flex flex-col z-50">
+<div className="h-screen w-64 bg-gray-900 text-white p-4 flex flex-col z-50">
       <div className="space-y-4">
         <h2 className="text-xl font-bold mb-6">Dashboard</h2>
 

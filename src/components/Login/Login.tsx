@@ -95,7 +95,7 @@ export default function Login({ setToken }: LoginProps) {
     }
   };
 return (
-  <div className="min-h-screen min-w-screen bg-gray-900 flex items-center justify-center p-4 sm:p-8 font-[family-name:var(--font-geist-sans)]">
+<div className="w-screen h-screen bg-gray-900 flex items-center justify-center p-4 sm:p-8">
   <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 space-y-6 border border-gray-300">
     
     {/* Tabs */}
@@ -136,7 +136,7 @@ return (
           type="text"
           placeholder="Username"
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder:text-gray-700 text-gray-700"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 text-white"
         />
       )}
       <input
@@ -144,14 +144,14 @@ return (
         type="email"
         placeholder="Email"
         required
-        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder:text-gray-700 text-gray-700"
+        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500  text-white"
       />
       <input
         {...register("password")}
         type="password"
         placeholder="Password"
         required
-        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder:text-gray-700 text-gray-700"
+        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500  text-white"
       />
       <button
         type="submit"

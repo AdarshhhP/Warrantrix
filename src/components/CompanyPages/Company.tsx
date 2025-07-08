@@ -150,7 +150,7 @@ const Company = () => {
   }
 
   return (
-    <div className="p-6 bg-white h-full text-black space-y-8">
+    <div className="p-6 bg-white h-fit text-black space-y-8">
       <div className="relative flex justify-center items-center">
         <h1 className="text-4xl font-bold text-gray-900">Company Dashboard</h1>
 

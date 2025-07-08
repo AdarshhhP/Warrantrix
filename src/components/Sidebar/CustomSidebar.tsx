@@ -1,25 +1,95 @@
-// CustomSidebar.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const CustomSidebar = ({ children }: { children: React.ReactNode }) => {
+const Sidebar: React.FC = () => {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<string>("company");
+  const [userType, setUserType] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedTab = localStorage.getItem("activetab") || "company";
+    const storedUserType = localStorage.getItem("user_type");
+    setActiveTab(storedTab);
+    setUserType(storedUserType);
+  }, []);
+
+  const handleTabClick = (tab: string, route: string) => {
+    setActiveTab(tab);
+    localStorage.setItem("activetab", tab);
+    navigate(route);
+  };
+
+  const isActive = (tab: string) =>
+    activeTab === tab
+      ? "w-full text-left px-4 py-2 bg-gray-300 text-black rounded"
+      : "w-full text-left px-4 py-2 hover:bg-gray-700 rounded";
+
   return (
-    <div className="flex h-screen w-screen">
-      {/* Sidebar */}
-      <aside className="w-64 bg-gray-800 text-white p-4">
-        <h2 className="text-xl font-bold mb-4">Sidebar</h2>
-        {/* Add your sidebar nav here */}
-        <ul>
-          <li className="mb-2"><a href="/dashboard">Dashboard</a></li>
-          {/* More links */}
-        </ul>
-      </aside>
+    <div className="fixed top-0 left-0 h-screen w-64 bg-gray-900 text-white p-4 flex flex-col z-50">
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold mb-6">Dashboard</h2>
 
-      {/* Page Content */}
-      <main className="flex-1 p-6 bg-gray-100 overflow-auto">
-        {children}
-      </main>
+        {userType === "3" && (
+          <>
+            <button
+              className={isActive("company")}
+              onClick={() => handleTabClick("company", "/company")}
+            >
+              Company
+            </button>
+            <button
+              className={isActive("rcompany")}
+              onClick={() =>
+                handleTabClick("rcompany", "/reports/companyreport")
+              }
+            >
+              Company Report
+            </button>
+          </>
+        )}
+
+        {userType === "2" && (
+          <>
+            <button
+              className={isActive("seller")}
+              onClick={() => handleTabClick("seller", "/seller")}
+            >
+              Seller
+            </button>
+            <button
+              className={isActive("rseller")}
+              onClick={() =>
+                handleTabClick("rseller", "/reports/sellerreports")
+              }
+            >
+              Seller Report
+            </button>
+          </>
+        )}
+
+        {userType === "1" && (
+          <button
+            className={isActive("customer")}
+            onClick={() => handleTabClick("customer", "/customer")}
+          >
+            Customer
+          </button>
+        )}
+      </div>
+
+      <div className="mt-auto pt-4">
+        <button
+          className="w-full bg-red-600 px-4 py-2 rounded hover:bg-red-700 transition"
+          onClick={() => {
+            localStorage.clear();
+            navigate("/");
+          }}
+        >
+          Logout
+        </button>
+      </div>
     </div>
   );
 };
 
-export default CustomSidebar;
+export default Sidebar;

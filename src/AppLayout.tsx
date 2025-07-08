@@ -9,7 +9,10 @@ const AppLayout = ({ children }: any) => {
     // <ProtectedLayout>
         <div className="flex sm:h-[100vh] w-[100vw] bg-gray-100">
           {/* Sidebar */}
-          <CustomSidebar children={children} />
+          <CustomSidebar />
+          {
+            children
+          }
           {/* Main Content */}
         </div>
     //   </ProtectedLayout>

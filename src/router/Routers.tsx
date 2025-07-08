@@ -55,10 +55,8 @@ const Routers = () => {
         <Route
           path="/"
           element={
-            <CustomSidebar>
-                sdzxc
-              {/* <Userlist /> <Dashboard /> */}
-            </CustomSidebar>
+            <CustomSidebar/>
+            
           }
         />
 

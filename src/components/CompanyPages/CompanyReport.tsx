@@ -1,9 +1,10 @@
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import * as XLSX from "xlsx";
+import companyService from "../../services/CompanyServices";
 
 type Product = {
   holderStatus: number;
@@ -52,48 +53,41 @@ const CompanyReport = () => {
   const requestSize = 5;
   const [totalRequestPages, setTotalRequestPages] = useState(1);
 
-  const fetchProducts = async () => {
+  const loadProducts = async () => {
     try {
-      const res = await axios.get(`http://localhost:1089/getProducts`, {
-        params: {
-          company_id: companyId,
-          page,
-          size,
-          holderStatus: holderStatus,
-          productCategory: productCategory,
-          ModelNo: modelNo,
-        },
+      const res = await companyService.fetchProductsreport({
+        company_id: companyId,
+        page,
+        size,
+        holderStatus,
+        productCategory,
+        modelNo,
       });
-
-      console.log(res.data.content,"aaaaaaaaaaaaaa");
-      setProducts(res.data.content || []);
-      setTotalPages(res.data.totalPages || 1);
-    } catch (error: any) {
-      alert("Error fetching products: " + error.message);
+      setProducts(res.content || []);
+      setTotalPages(res.totalPages || 1);
+    } catch (err: any) {
+      alert("Error loading products: " + err.message);
     }
   };
 
-  const fetchRequests = async () => {
+  const loadRequests = async () => {
     try {
-      const res = await axios.get(`http://localhost:4089/getraised-warranty-requests`, {
-        params: {
-          company_id: companyId,
-          status: astatus,
-          modelNo: amodelNo,
-          page: requestPage,
-          size: requestSize,
-        },
+      const res = await companyService.fetchWarrantyRequestsreport({
+        company_id: companyId,
+        page: requestPage,
+        size: requestSize,
+        status: astatus,
+        modelNo: amodelNo,
       });
-      setRequests(res.data.content || []);
-      setTotalRequestPages(res.data.totalPages || 1);
-    } catch (error: any) {
-      alert("Error fetching requests: " + error.message);
+      setRequests(res.content || []);
+      setTotalRequestPages(res.totalPages || 1);
+    } catch (err: any) {
+      alert("Error loading warranty requests: " + err.message);
     }
   };
 
   const handleDownload = () => {
     const data = activeTab === "products" ? products : requests;
-
     if (!data || data.length === 0) {
       alert("No data to download");
       return;
@@ -136,13 +130,13 @@ const CompanyReport = () => {
 
   useEffect(() => {
     if (companyId) {
-      fetchProducts();
+      loadProducts();
     }
   }, [companyId, page]);
 
   useEffect(() => {
     if (companyId) {
-      fetchRequests();
+      loadRequests();
     }
   }, [companyId, requestPage]);
 
@@ -203,7 +197,7 @@ const CompanyReport = () => {
             <button
               onClick={() => {
                 setRequestPage(0);
-                fetchRequests();
+                loadRequests();
               }}
               className="bg-gray-900 text-gray-100 px-4 py-1.5 rounded hover:bg-gray-800 transition"
             >
@@ -249,7 +243,7 @@ const CompanyReport = () => {
             <button
               onClick={() => {
                 setPage(0);
-                fetchProducts();
+                loadProducts();
               }}
               className="bg-gray-900 text-gray-100 px-4 py-1.5 rounded hover:bg-gray-800 transition"
             >
@@ -396,3 +390,4 @@ const CompanyReport = () => {
 };
 
 export default CompanyReport;
+

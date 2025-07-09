@@ -1,12 +1,16 @@
+
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import * as XLSX from "xlsx";
 import DownloadIcon from "../Icons/DownloadIcon";
+import SellerService from "../../services/SellerService";
 
 const SellerReport = () => {
+
   const [activeTab, setActiveTab] = useState<"inventory" | "purchases">("inventory");
   const [inventory, setInventory] = useState<any[]>([]);
   const [purchases, setPurchases] = useState<any[]>([]);
@@ -27,67 +31,54 @@ const SellerReport = () => {
   const [purchaseTotalPages, setPurchaseTotalPages] = useState(1);
 
   const fetchInventory = async () => {
-    const res = await axios.get(
-      `http://localhost:3089/allinventory`, {
-        params: {
-          Seller_Id: sellerId,
-          categoryId: categoryIds,
-          modelNo: modelNoss,
-          warranty: warrantys == 0 ? "" : warrantys,
-          page: inventoryPage,
-          size: inventorySize
-        }
-      }
-    );
-    const data = res.data.content || [];
-    setInventory(data);
-    setInventoryTotalPages(res.data.totalPages || 1);
-    enrichWithProductDetails(data.map((i: any) => i.model_no));
+    try {
+      const data = await SellerService.getInventory({
+        Seller_Id: sellerId,
+        categoryId: categoryIds,
+        modelNo: modelNoss,
+        warranty: warrantys === 0 ? "" : warrantys,
+        page: inventoryPage,
+        size: inventorySize,
+      });
+      setInventory(data.content || []);
+      setInventoryTotalPages(data.totalPages || 1);
+      enrichWithProductDetails(data.content.map((i: any) => i.model_no));
+    } catch (err) {
+      console.error("Inventory fetch error", err);
+    }
   };
 
   const fetchPurchases = async () => {
-    const res = await axios.get(`http://localhost:3089/GetPurchases`, {
-      params: {
+    try {
+      const data = await SellerService.getPurchases({
         Seller_Id: sellerId,
         modelNo: modelnopurchase,
         page: purchasePage,
-        size: purchaseSize
-      }
-    });
-    const data = res.data.content || [];
-    setPurchases(data);
-    setPurchaseTotalPages(res.data.totalPages || 1);
-    enrichWithProductDetails(data.map((p: any) => p.modelNo));
+        size: purchaseSize,
+      });
+      setPurchases(data.content || []);
+      setPurchaseTotalPages(data.totalPages || 1);
+      enrichWithProductDetails(data.content.map((p: any) => p.modelNo));
+    } catch (err) {
+      console.error("Purchases fetch error", err);
+    }
   };
 
   const enrichWithProductDetails = async (modelNos: string[]) => {
-    const unique = [...new Set(modelNos)].filter(Boolean);
-    if (unique.length === 0) return;
     try {
-      const prodRes = await axios.post(
-        "http://localhost:1089/products/by-models",
-        unique
-      );
-      const map: Record<string, any> = {};
-      prodRes.data.forEach((prod: any) => {
-        map[prod.model_no] = prod;
-      });
+      const map = await SellerService.getProductDetails(modelNos);
       setProductDetailsMap((prev) => ({ ...prev, ...map }));
     } catch (err) {
-      console.error("Error fetching product details:", err);
+      console.error("Product enrichment error", err);
     }
   };
 
   useEffect(() => {
-    if (sellerId) {
-      fetchInventory();
-    }
+    if (sellerId) fetchInventory();
   }, [sellerId, inventoryPage]);
 
   useEffect(() => {
-    if (sellerId) {
-      fetchPurchases();
-    }
+    if (sellerId) fetchPurchases();
   }, [sellerId, purchasePage]);
 
   const handleDownload = () => {
@@ -96,6 +87,7 @@ const SellerReport = () => {
       alert("No data available to download");
       return;
     }
+
     const keyLabelMap: Record<string, string> = {
       sale_id: "Sale ID",
       purchase_id: "Purchase ID",
@@ -108,7 +100,7 @@ const SellerReport = () => {
       warranty: "Warranty (months)",
       warrany_tenure: "Warranty (years)",
       purchase_date: "Purchase Date",
-      man_date: "Manufactured Date",
+      man_date: "Manufacture Date",
       seller_id: "Seller ID",
       customer_email: "Customer Email",
       phone_number: "Phone",
@@ -118,9 +110,7 @@ const SellerReport = () => {
     };
 
     const excludedKeys = ["is_deleted", "image", "product_image"];
-    const filteredKeys = Object.keys(data[0]).filter(
-      (key) => !excludedKeys.includes(key)
-    );
+    const filteredKeys = Object.keys(data[0]).filter((key) => !excludedKeys.includes(key));
 
     const formattedData = data.map((row) => {
       const newRow: Record<string, any> = {};
@@ -132,14 +122,13 @@ const SellerReport = () => {
     });
 
     const worksheet = XLSX.utils.json_to_sheet(formattedData);
-    const colWidths = filteredKeys.map((key) => {
+    worksheet["!cols"] = filteredKeys.map((key) => {
       const maxLength = Math.max(
         keyLabelMap[key]?.length || key.length,
         ...data.map((row) => (row[key] ? row[key].toString().length : 0))
       );
       return { wch: maxLength + 4 };
     });
-    worksheet["!cols"] = colWidths;
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
@@ -380,3 +369,4 @@ const SellerReport = () => {
 };
 
 export default SellerReport;
+

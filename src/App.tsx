@@ -30,7 +30,7 @@ const App = () => {
 
     return () => clearInterval(checkToken);
   }, []);
-
+console.log("Token in App:", token);
  return (
 
 

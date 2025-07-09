@@ -1,81 +1,51 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
 
+"use client";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
+import customerService from "../../services/CustomerServices";
 
 const CustomerWarrantyPage = () => {
-  const [activeTab, setActiveTab] = useState<"registered" | "requests">(
-    "registered"
-  );
+  const [activeTab, setActiveTab] = useState<"registered" | "requests">("registered");
   const [registered, setRegistered] = useState<any[]>([]);
   const [requests, setRequests] = useState<any[]>([]);
-  const [productDetailsMap, setProductDetailsMap] = useState<
-    Record<string, any>
-  >({});
+  const [productDetailsMap, setProductDetailsMap] = useState<Record<string, any>>({});
   const [showRegisterForm, setShowRegisterForm] = useState(false);
   const [showRequestForm, setShowRequestForm] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [editItem, setEditItem] = useState<any | null>(null);
+  const [searchModelNo, setSearchModelNo] = useState("");
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [modelData, setModelData] = useState<any>(null);
   const [modelValid, setModelValid] = useState(false);
-  const [editItem, setEditItem] = useState<any | null>(null);
-const [searchModelNo, setSearchModelNo] = useState("");
-  const customerId = Number(localStorage.getItem("user_id"));
-    const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-  
+  const customerId = Number(localStorage.getItem("user_id"));
 
   const registerForm = useForm();
   const requestForm = useForm();
 
   const fetchRegistered = async () => {
-    const res = await axios.get(
-      `http://localhost:4089/warranty-requests-customer?customerId=${customerId}&modelNo=${searchModelNo}`
-    );
-    const data = res.data || [];
+    const data = await customerService.getRegisteredWarranties(customerId, searchModelNo);
     setRegistered(data);
 
-    const modelNos = [...new Set(data.map((item: any) => item.model_no))];
+    const modelNos = [...new Set(data.map((item: any) => String(item.model_no)))] as string[];
     if (modelNos.length > 0) {
-      try {
-        const prodRes = await axios.post(
-          "http://localhost:1089/products/by-models",
-          modelNos
-        );
-        const productMap: Record<string, any> = {};
-        prodRes.data.forEach((prod: any) => {
-          productMap[prod.model_no] = prod;
-        });
-        setProductDetailsMap((prev) => ({ ...prev, ...productMap }));
-      } catch (error) {
-        console.error("Failed to fetch product details for registered:", error);
-      }
+      const productDetails = await customerService.getProductDetailsByModels(modelNos);
+      const productMap: Record<string, any> = {};
+      productDetails.forEach((prod: any) => (productMap[prod.model_no] = prod));
+      setProductDetailsMap((prev) => ({ ...prev, ...productMap }));
     }
   };
 
   const fetchRequests = async () => {
-    const res = await axios.get(
-      `http://localhost:4089/raised-warranty-requests-customer?userId=${customerId}&modelNo=${searchModelNo}`
-    );
-    const data = res.data || [];
+    const data = await customerService.getWarrantyRequests(customerId, searchModelNo);
     setRequests(data);
 
-    const modelNos = [...new Set(data.map((req: any) => req.model_no))];
+    const modelNos = [...new Set(data.map((req: any) => String(req.model_no)))] as string[];
     if (modelNos.length > 0) {
-      try {
-        const prodRes = await axios.post(
-          "http://localhost:1089/products/by-models",
-          modelNos
-        );
-        const productMap: Record<string, any> = {};
-        prodRes.data.forEach((prod: any) => {
-          productMap[prod.model_no] = prod;
-        });
-        setProductDetailsMap((prev) => ({ ...prev, ...productMap }));
-      } catch (error) {
-        console.error("Failed to fetch product details for requests:", error);
-      }
+      const productDetails = await customerService.getProductDetailsByModels(modelNos);
+      const productMap: Record<string, any> = {};
+      productDetails.forEach((prod:any) => (productMap[prod.model_no] = prod));
+      setProductDetailsMap((prev) => ({ ...prev, ...productMap }));
     }
   };
 
@@ -86,26 +56,6 @@ const [searchModelNo, setSearchModelNo] = useState("");
     }
   }, [customerId]);
 
-  // const fetchModelDetails = async (modelNo: string) => {
-  //   try {
-  //     const res = await axios.get(
-  //       `http://localhost:1089/getProductDetailsByModelNo?Model_no=${modelNo}`
-  //     );
-  //     if (res.data && res.data.model_no) {
-  //       setModelData(res.data);
-  //       requestForm.setValue("company_id", res.data.company_id);
-  //       requestForm.setValue("purchase_date", res.data.man_date);
-  //       setModelValid(true);
-  //     } else {
-  //       alert("Invalid model number");
-  //       setModelValid(false);
-  //     }
-  //   } catch {
-  //     alert("Model number fetch failed");
-  //     setModelValid(false);
-  //   }
-  // };
-
   const handleEdit = (item: any) => {
     setEditItem(item);
     registerForm.setValue("model_no", item.model_no);
@@ -115,9 +65,7 @@ const [searchModelNo, setSearchModelNo] = useState("");
 
   const handleDelete = async (purchaseId: number) => {
     try {
-      const res = await axios.post(
-        `http://localhost:4089/delete-registered-warranty?purchase_Id=${purchaseId}`
-      );
+      const res = await customerService.deleteRegisteredWarranty(purchaseId);
       if (res.data?.message === "Cant Delete") {
         alert("Cannot delete this warranty");
       } else {
@@ -130,58 +78,30 @@ const [searchModelNo, setSearchModelNo] = useState("");
 
   const handleRegisterSubmit = async (data: any) => {
     const payload = { ...data, customerId };
-    if (editItem) {
-      try {
-        await axios.post(
-          `http://localhost:4089/editregistered-warranty?purchase_Id=${editItem.purchase_Id}`,
-          payload
-        );
-        setShowRegisterForm(false);
-        setEditItem(null);
-        registerForm.reset();
-        fetchRegistered();
-      } catch (err: any) {
-        alert(err.response?.data?.message || err.message);
+    try {
+      const eligible = await customerService.checkEligibility(data.model_no, 4);
+      if (!eligible) {
+        alert("You are not eligible to register this product. Please contact support.");
+        return;
       }
-    } else {
-      try {
-        await axios
-          .get(
-            `http://localhost:1089/checkeligibility?Model_no=${data.model_no}&checkvalue=4`
-          )
-          .then((response) => {
-            if (response.data === true) {
-              axios
-                .post("http://localhost:4089/register-warranty", payload)
-                .then((response) => {
-                  if (response.status === 200) {
 
-                    axios.post(
-                      `http://localhost:1089/changeholderstatus?Model_no=${data.model_no}&status=4`
-                    );
-                    setShowRegisterForm(false);
-                    registerForm.reset();
-                    fetchRegistered();
-                   return;
-
-                  }
-                });
-              setShowRegisterForm(false);
-              registerForm.reset();
-              fetchRegistered();
-            } else {
-              alert(
-                "You are not eligible to register this product. Please contact support."
-              );
-            }
-          });
-      } catch (err: any) {
-        alert(err.response?.data?.message || err.message);
+      if (editItem) {
+        await customerService.editRegisteredWarranty(editItem.purchase_Id, payload);
+      } else {
+        await customerService.registerWarranty(payload);
+        await customerService.updateHolderStatus(data.model_no, 4);
       }
+
+      setShowRegisterForm(false);
+      setEditItem(null);
+      registerForm.reset();
+      fetchRegistered();
+    } catch (err: any) {
+      alert(err.response?.data?.message || err.message);
     }
   };
 
- const convertToBase64 = (file: File): Promise<string> => {
+  const convertToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -190,73 +110,47 @@ const [searchModelNo, setSearchModelNo] = useState("");
     });
   };
 
- const handleRequestSubmit = async (data: any) => {
-  // if (!modelValid) {
-  //   alert("Please validate model number first");
-  //   return;
-  // }
+  const handleRequestSubmit = async (data: any) => {
+    try {
+      const base64Image = await convertToBase64(data.image[0]);
+      const payload = {
+        ...data,
+        customer_id: customerId,
+        company_id: modelData?.company_id || 0,
+        request_date: "2025-07-01",
+        purchase_date: "2025-07-03",
+        reason: data.reason || "No reason provided",
+        image: base64Image,
+      };
 
-  try {
-    // const response = await axios.get(
-    //   `http://localhost:3089/warranty-reg-valid?ModelNo=${data.model_no}&PhoneNo=${data.phone_number}`
-    // );
-
-    // if (response.data === false) {
-    //   alert("Entered Phono No not linked to this product. Contact seller for more details.");
-    //   return;
-    // }
- const file = data.image[0]; // data.image is a FileList
-    const base64Image = await convertToBase64(file);
-    const payload = {
-      ...data,
-      customer_id: customerId,
-      // request_date: new Date().toISOString().split("T")[0],
-      purchase_date: "2025-07-03",
-      company_id: modelData?.company_id || 0,
-      phone_number: data.phone_number,
-      request_date:  "2025-07-01",
-      reason: data.reason || "No reason provided",
-      image:base64Image
-    };
-
-    const eligibilityResponse = await axios.get(
-      `http://localhost:1089/checkeligibility?Model_no=${data.model_no}&checkvalue=5`
-    );
-
-    if (eligibilityResponse.data === true) {
-      const postResponse = await axios.post(
-        "http://localhost:4089/raise-warranty-request",
-        payload
-      );
-
-      if (postResponse.status === 200) {
-        await axios.post(
-          `http://localhost:1089/changeholderstatus?Model_no=${data.model_no}&status=5`
-        );
-
-        // Reset and fetch data only after successful post
-        setShowRequestForm(false);
-        requestForm.reset();
-        setModelData(null);
-        setModelValid(false);
-        fetchRequests();
+      const eligible = await customerService.checkEligibility(data.model_no, 5);
+      if (!eligible) {
+        alert("You are not eligible to raise a warranty request for this product.");
+        return;
       }
-    } else {
-      alert("You are not eligible to raise a warranty request for this product. Please register the product first.");
-    }
-  } catch (err: any) {
-    alert(err.response?.data?.message || err.message);
-  }
-};
 
-  const handleRaiseReqeust = (purchaseId: number, modelNo: string) => {
+      await customerService.raiseWarrantyRequest(payload);
+      await customerService.updateHolderStatus(data.model_no, 5);
+
+      setShowRequestForm(false);
+      requestForm.reset();
+      setModelData(null);
+      setModelValid(false);
+      fetchRequests();
+    } catch (err: any) {
+      alert(err.response?.data?.message || err.message);
+    }
+  };
+
+  const handleRaiseRequest = (purchaseId: number, modelNo: string) => {
     setShowRequestForm(true);
     requestForm.setValue("model_no", modelNo);
   };
 
-  console.log(productDetailsMap,"productDetailsMap")
+  // Keep all the existing UI rendering code (tabs, modals, lists, etc.) here unchanged
+  // since it's not necessary to rewrite the entire JSX if only service refactoring is needed
 
-  return (
+ return (
  <div className="p-6 max-w-screen bg-white h-fit text-gray-800">
   <h1 className="text-4xl font-bold mb-6 text-center text-gray-900">Customer Dashboard</h1>
 
@@ -383,7 +277,7 @@ const [searchModelNo, setSearchModelNo] = useState("");
               </button>
               <button
                 onClick={() =>
-                  handleRaiseReqeust(item.purchase_Id, item.model_no)
+                  handleRaiseRequest(item.purchase_Id, item.model_no)
                 }
                 className="text-gray-700 hover:underline"
               >
@@ -617,7 +511,7 @@ const [searchModelNo, setSearchModelNo] = useState("");
 </div>
 
 );
-
 };
 
 export default CustomerWarrantyPage;
+

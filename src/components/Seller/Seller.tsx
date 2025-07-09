@@ -1,20 +1,19 @@
+
+
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
-
+import SellerService from "../../services/SellerService";
 
 const Seller = () => {
-  const [activeTab, setActiveTab] = useState<"inventory" | "purchases">(
-    "inventory"
-  );
+  const [activeTab, setActiveTab] = useState<"inventory" | "purchases">("inventory");
   const [inventory, setInventory] = useState<any[]>([]);
   const [purchases, setPurchases] = useState<any[]>([]);
-  const [productDetailsMap, setProductDetailsMap] = useState<
-    Record<string, any>
-  >({});
+  const [productDetailsMap, setProductDetailsMap] = useState<Record<string, any>>({});
   const [showInventoryForm, setShowInventoryForm] = useState(false);
   const [showPurchaseForm, setShowPurchaseForm] = useState(false);
   const [editingItem, setEditingItem] = useState<any | null>(null);
@@ -27,46 +26,25 @@ const Seller = () => {
   const [warrantys, setWarrantys] = useState<number | "">("");
   const [modelnopurchase, setModelNoPurchase] = useState<string>("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  
 
   const inventoryForm = useForm();
   const purchaseForm = useForm();
+
   const fetchInventory = async () => {
-    const res = await axios.get(
-      `http://localhost:3089/allinventory?Seller_Id=${sellerId}&page=0&size=1000&categoryId=${categoryIds}&modelNo=${modelNoss}&warranty=${
-        warrantys == 0 ? "" : warrantys
-      }`
-    );
-    const data = res.data.content || [];
+    const data = await SellerService.fetchInventory(sellerId, categoryIds, modelNoss, warrantys);
     setInventory(data);
     enrichWithProductDetails(data.map((i: any) => i.model_no));
   };
 
   const fetchPurchases = async () => {
-    const res = await axios.get(
-      `http://localhost:3089/GetPurchases?Seller_Id=${sellerId}&modelNo=${modelnopurchase}&page=0&size=1000`
-    );
-    const data = res.data.content || [];
+    const data = await SellerService.fetchPurchases(sellerId, modelnopurchase);
     setPurchases(data);
     enrichWithProductDetails(data.map((p: any) => p.modelNo));
   };
 
   const enrichWithProductDetails = async (modelNos: string[]) => {
-    const unique = [...new Set(modelNos)].filter(Boolean);
-    if (unique.length === 0) return;
-    try {
-      const prodRes = await axios.post(
-        "http://localhost:1089/products/by-models",
-        unique
-      );
-      const map: Record<string, any> = {};
-      prodRes.data.forEach((prod: any) => {
-        map[prod.model_no] = prod;
-      });
-      setProductDetailsMap((prev) => ({ ...prev, ...map }));
-    } catch (err) {
-      console.error("Error fetching product details:", err);
-    }
+    const map = await SellerService.getProductDetailsByModelNos(modelNos);
+    setProductDetailsMap((prev) => ({ ...prev, ...map }));
   };
 
   useEffect(() => {
@@ -76,15 +54,9 @@ const Seller = () => {
     }
   }, [sellerId]);
 
-  const fetchModelDetails = async (
-    modelNo: string,
-    formType: "inventory" | "purchase"
-  ) => {
+  const fetchModelDetails = async (modelNo: string, formType: "inventory" | "purchase") => {
     try {
-      const res = await axios.get(
-        `http://localhost:1089/getProductDetailsByModelNo?Model_no=${modelNo}`
-      );
-      const prod = res.data;
+      const prod = await SellerService.getProductByModelNo(modelNo);
       if (!prod || !prod.model_no) {
         alert("Invalid model number");
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -109,7 +81,6 @@ const Seller = () => {
         purchaseForm.setValue("company_id", prod.company_id);
         purchaseForm.setValue("category_id", prod.product_category);
         inventoryForm.setValue("holderStatus", prod.holderStatus);
-
         setPurchaseModelValid(true);
       }
     } catch (err) {
@@ -127,6 +98,7 @@ const Seller = () => {
       alert("Please fetch & validate model number first.");
       return;
     }
+
     const payload = {
       purchase_date: data.purchase_date,
       price: data.price,
@@ -139,43 +111,19 @@ const Seller = () => {
 
     try {
       if (editingItem) {
-        await axios
-          .post(
-            `http://localhost:3089/editinventory?purchaseId=${editingItem.purchase_id}`,
-            payload
-          )
-          .then((response) => {
-            console.log(response);
-          });
+        await SellerService.editInventory(editingItem.purchase_id, payload);
         setEditingItem(null);
       } else {
-        await axios
-          .get(
-            `http://localhost:1089/checkeligibility?Model_no=${data.model_no}&checkvalue=2`
-          )
-          .then((response) => {
-            if (response.data == true) {
-              axios
-                .post("http://localhost:3089/inventory", payload)
-                .then((response) => {
-                  if (response) {
-                    axios.post(
-                      `http://localhost:1089/changeholderstatus?Model_no=${data.model_no}&status=2`
-                    );
-                    inventoryForm.reset();
-                    setShowInventoryForm(false);
-                    setInventoryModelValid(false);
-                    fetchInventory();
-                  }
-                });
-            } else {
-              alert(
-                "Model number is not eligible for inventory. Please check the model number or contact support."
-              );
-              return;
-            }
-          });
+        const eligible = await SellerService.checkEligibility(data.model_no, 2);
+        if (!eligible) {
+          alert("Model number is not eligible for inventory. Please check the model number or contact support.");
+          return;
+        }
+
+        await SellerService.saveInventory(payload);
+        await SellerService.changeHolderStatus(data.model_no, 2);
       }
+
       inventoryForm.reset();
       setShowInventoryForm(false);
       setInventoryModelValid(false);
@@ -190,17 +138,6 @@ const Seller = () => {
       alert("Please fetch & validate model number first.");
       return;
     }
-    // const payload: any = {
-    //   customer_id: 0,
-    //   modelNo: data.modelNo,
-    //   purchase_date: data.purchase_date,
-    //   seller_id: sellerId,
-    //   name: data.name,
-    //   email: data.email,
-    //   phono: Number(data.phono),
-    //   price: data.price,
-    //   warranty: data.warranty,
-    // };
 
     const payload = {
       modelNo: data.modelNo,
@@ -212,40 +149,22 @@ const Seller = () => {
       phono: data.phono,
       email: data.email,
     };
+
     try {
       if (editingPurchase) {
-        await axios.post(
-          `http://localhost:3089/editpurchase?sale_id=${editingPurchase.sale_id}`,
-          payload
-        );
+        await SellerService.editPurchase(editingPurchase.sale_id, payload);
         setEditingPurchase(null);
       } else {
-        await axios
-          .get(
-            `http://localhost:1089/checkeligibility?Model_no=${data.modelNo}&checkvalue=3`
-          )
-          .then((response) => {
-            if (response.data == true) {
-              axios
-                .post("http://localhost:3089/purchase", payload)
-                .then((response) => {
-                  purchaseForm.reset();
-                  setShowPurchaseForm(false);
-                  setPurchaseModelValid(false);
-                  fetchPurchases();
-                  console.log(response);
-                  axios.post(
-                    `http://localhost:1089/changeholderstatus?Model_no=${data.modelNo}&status=3`
-                  );
-                });
-            } else {
-              alert(
-                "Model number is not eligible for purchase. Add it to the inventory first."
-              );
-              return false;
-            }
-          });
+        const eligible = await SellerService.checkEligibility(data.modelNo, 3);
+        if (!eligible) {
+          alert("Model number is not eligible for purchase. Add it to the inventory first.");
+          return;
+        }
+
+        await SellerService.savePurchase(payload);
+        await SellerService.changeHolderStatus(data.modelNo, 3);
       }
+
       purchaseForm.reset();
       setShowPurchaseForm(false);
       setPurchaseModelValid(false);
@@ -256,11 +175,12 @@ const Seller = () => {
   };
 
   const deleteInventory = async (id: number) => {
-    await axios.post(`http://localhost:3089/deleteinventory?purchase_id=${id}`);
+    await SellerService.deleteInventory(id);
     fetchInventory();
   };
+
   const deletePurchase = async (id: number) => {
-    await axios.get(`http://localhost:3089/deletepurchase?sale_id=${id}`);
+    await SellerService.deletePurchase(id);
     fetchPurchases();
   };
 
@@ -269,6 +189,8 @@ const Seller = () => {
     purchaseForm.setValue("modelNo", item.model_no);
     fetchModelDetails(item.model_no, "purchase");
   };
+
+  // ... your JSX return block remains the same ...
 
   return (
     <div className="p-6 min-w-sc mx-auto space-y-6 bg-white h-fit text-gray-900">
@@ -775,3 +697,4 @@ const Seller = () => {
 };
 
 export default Seller;
+

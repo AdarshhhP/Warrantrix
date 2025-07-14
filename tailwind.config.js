@@ -21,6 +21,10 @@ export default {
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
+		 placeholderColor: {
+        DEFAULT: '#FFFFFF', // white
+        dark: '#F3F4F6',    // light gray for dark mode if needed
+      },
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

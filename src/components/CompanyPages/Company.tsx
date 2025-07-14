@@ -375,6 +375,8 @@ const Company = () => {
               const foundProduct = products.find((p) =>
                 p.productImages?.includes(previewImage)
               );
+                            console.log(foundProduct,"foundProduct")
+
               return foundProduct &&
                 foundProduct.productImages &&
                 foundProduct.productImages.length > 1 ? (
@@ -383,6 +385,71 @@ const Company = () => {
                     <button
                       key={idx}
                       onClick={() => setPreviewImage(img)}
+                      className={`flex-shrink-0 w-16 h-16 rounded border-2 ${
+                        img === previewImage
+                          ? "border-gray-600"
+                          : "border-transparent"
+                      }`}
+                    >
+                      <img
+                        src={img}
+                        alt={`Thumbnail ${idx + 1}`}
+                        className="w-full h-full object-cover rounded"
+                      />
+                    </button>
+                  ))}
+                </div>
+              ) : null;
+            })()}
+          </div>
+        </div>
+      )}
+
+       {previewImageREquest && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white p-6 rounded-xl shadow-xl relative max-w-4xl w-full">
+            <button
+              onClick={() => setpreviewImageREquest(null)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            {/* Main Image */}
+            <div className="max-h-[60vh] overflow-auto mb-4">
+              <img
+                src={previewImageREquest}
+                alt="Product Preview"
+                className="object-contain rounded-lg mx-auto max-w-full"
+              />
+            </div>
+
+            {/* Thumbnail Gallery */}
+            {(() => {
+              const foundProduct = requests.find((p) =>
+                p.productImages?.includes(previewImageREquest)
+              );
+              return foundProduct &&
+                foundProduct.productImages &&
+                foundProduct.productImages.length > 1 ? (
+                <div className="flex gap-2 overflow-x-auto py-2">
+                  {foundProduct.productImages.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setpreviewImageREquest(img)}
                       className={`flex-shrink-0 w-16 h-16 rounded border-2 ${
                         img === previewImage
                           ? "border-gray-600"
@@ -452,7 +519,7 @@ const Company = () => {
                   <h2 className="text-lg font-semibold text-gray-800 truncate">
                     {product.product_name}
                   </h2>
-                  {product.productImages && product.productImages.length > 0 ? (
+                  {/* {product.productImages && product.productImages.length > 0 ? (
                     <button
                       onClick={() => setPreviewImage(product.productImages[0])}
                       className="text-gray-600 hover:text-gray-800 text-sm rounded-full bg-white flex items-center justify-center"
@@ -482,7 +549,7 @@ const Company = () => {
                     <span className="text-xs text-gray-400 italic">
                       No images
                     </span>
-                  )}
+                  )} */}
                 </div>
 
                 <div className="space-y-2">
@@ -636,70 +703,7 @@ const Company = () => {
         </div>
       )}
 
-      {previewImageREquest && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white p-6 rounded-xl shadow-xl relative max-w-4xl w-full">
-            <button
-              onClick={() => setpreviewImageREquest(null)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-
-            {/* Main Image */}
-            <div className="max-h-[60vh] overflow-auto mb-4">
-              <img
-                src={previewImageREquest}
-                alt="Product Preview"
-                className="object-contain rounded-lg mx-auto max-w-full"
-              />
-            </div>
-
-            {/* Thumbnail Gallery */}
-            {(() => {
-              const foundProduct = requests.find((p) =>
-                p.productImages?.includes(previewImageREquest)
-              );
-              return foundProduct &&
-                foundProduct.productImages &&
-                foundProduct.productImages.length > 1 ? (
-                <div className="flex gap-2 overflow-x-auto py-2">
-                  {foundProduct.productImages.map((img, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setpreviewImageREquest(img)}
-                      className={`flex-shrink-0 w-16 h-16 rounded border-2 ${
-                        img === previewImage
-                          ? "border-gray-600"
-                          : "border-transparent"
-                      }`}
-                    >
-                      <img
-                        src={img}
-                        alt={`Thumbnail ${idx + 1}`}
-                        className="w-full h-full object-cover rounded"
-                      />
-                    </button>
-                  ))}
-                </div>
-              ) : null;
-            })()}
-          </div>
-        </div>
-      )}
+     
 
       {/* Requests Grid */}
       {activeTab === "requests" && (
@@ -752,7 +756,7 @@ const Company = () => {
                     </svg>
                     Model: {req.model_no}
                   </p>
-                  {req.productImages && (
+                  {/* {req.productImages && (
                     <button
                       onClick={() => setPreviewImage(req.productImages[0])}
                       className="text-gray-600 hover:text-gray-800 text-sm font-medium flex items-center gap-1 bg-white"
@@ -779,7 +783,7 @@ const Company = () => {
                       </svg>
                       View
                     </button>
-                  )}
+                  )} */}
                 </div>
 
                 <div className="space-y-2">

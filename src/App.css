@@ -40,3 +40,18 @@
 .read-the-docs {
   color: #888;
 }
+/* This will style all inputs and textareas */
+input, textarea, select {
+  color: black; /* Or your preferred text color */
+}
+
+/* Style for placeholders */
+::placeholder {
+  color: #9CA3AF; /* Tailwind's gray-400 */
+  opacity: 1; /* Firefox reduces opacity by default */
+}
+
+/* For date inputs specifically */
+input[type="date"] {
+  color-scheme: light; /* Ensures consistent appearance */
+}

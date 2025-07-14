@@ -107,14 +107,14 @@ export default function Login({ setToken }: LoginProps) {
             type="email"
             placeholder="Email"
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 text-white"
+            className="w-full bg-white text-black px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 "
           />
           <input
             {...register("password")}
             type="password"
             placeholder="Password"
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 text-white"
+            className="w-full px-4 bg-white text-black py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
           />
           <button
             type="submit"

@@ -1,6 +1,3 @@
-
-
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -10,7 +7,6 @@ import DownloadIcon from "../Icons/DownloadIcon";
 import SellerService from "../../services/SellerService";
 
 const SellerReport = () => {
-
   const [activeTab, setActiveTab] = useState<"inventory" | "purchases">("inventory");
   const [inventory, setInventory] = useState<any[]>([]);
   const [purchases, setPurchases] = useState<any[]>([]);
@@ -23,11 +19,11 @@ const SellerReport = () => {
   const [modelnopurchase, setModelNoPurchase] = useState<string>("");
 
   const [inventoryPage, setInventoryPage] = useState(0);
-  const [inventorySize] = useState(5);
+  const [inventorySize, setInventorySize] = useState(5);
   const [inventoryTotalPages, setInventoryTotalPages] = useState(1);
 
   const [purchasePage, setPurchasePage] = useState(0);
-  const [purchaseSize] = useState(5);
+  const [purchaseSize, setPurchaseSize] = useState(5);
   const [purchaseTotalPages, setPurchaseTotalPages] = useState(1);
 
   const fetchInventory = async () => {
@@ -75,11 +71,22 @@ const SellerReport = () => {
 
   useEffect(() => {
     if (sellerId) fetchInventory();
-  }, [sellerId, inventoryPage]);
+  }, [sellerId, inventoryPage, inventorySize]);
 
   useEffect(() => {
     if (sellerId) fetchPurchases();
-  }, [sellerId, purchasePage]);
+  }, [sellerId, purchasePage, purchaseSize]);
+
+  const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>, type: "inventory" | "purchases") => {
+    const value = Number(e.target.value);
+    if (type === "inventory") {
+      setInventorySize(value);
+      setInventoryPage(0); // Reset to first page when changing size
+    } else {
+      setPurchaseSize(value);
+      setPurchasePage(0); // Reset to first page when changing size
+    }
+  };
 
   const handleDownload = () => {
     const data = activeTab === "inventory" ? inventory : purchases;
@@ -179,7 +186,7 @@ const SellerReport = () => {
               <input
                 type="text"
                 placeholder="Model No"
-                className="p-1.5 border border-gray-300 rounded-md w-36"
+                className="p-1.5 border border-gray-300 rounded-md w-36 bg-white text-black"
                 value={modelNoss}
                 onChange={(e) => setModelNos(e.target.value)}
               />
@@ -187,7 +194,7 @@ const SellerReport = () => {
                 type="number"
                 min={0}
                 placeholder="Warranty"
-                className="p-1.5 border border-gray-300 rounded-md w-28"
+                className="p-1.5 border border-gray-300 rounded-md w-28 bg-white text-black"
                 value={warrantys || ""}
                 onChange={(e) =>
                   setWarrantys(e.target.value === "" ? "" : Number(e.target.value))
@@ -198,7 +205,7 @@ const SellerReport = () => {
                   setCategoryIds(e.target.value === "" ? "" : Number(e.target.value))
                 }
                 value={categoryIds || ""}
-                className="p-1.5 border border-gray-300 rounded-md w-36"
+                className="p-1.5 border border-gray-300 rounded-md w-36 bg-white text-black"
               >
                 <option value="">Select Category</option>
                 <option value="1">Electronics</option>
@@ -218,7 +225,7 @@ const SellerReport = () => {
               <input
                 type="text"
                 placeholder="Model No"
-                className="p-1.5 border border-gray-300 rounded-md w-36"
+                className="p-1.5 border border-gray-300 rounded-md w-36 bg-white text-black"
                 value={modelnopurchase}
                 onChange={(e) => setModelNoPurchase(e.target.value)}
               />
@@ -233,140 +240,173 @@ const SellerReport = () => {
         </div>
       </div>
 
-      {activeTab === "inventory" && (
-       <div className="border border-gray-300 shadow-sm flex flex-col justify-between min-h-[300px] overflow-x-auto max-h-[300px]">
-          <table className="min-w-full table-auto text-sm text-left text-gray-800">
-            <thead className="bg-gray-100 text-gray-900">
-              <tr>
-                <th className="p-2 border">Sl No</th>
-                <th className="p-2 border">Model No</th>
-                <th className="p-2 border">Price</th>
-                <th className="p-2 border">Warranty (months)</th>
-                <th className="p-2 border">Purchase Date</th>
-                <th className="p-2 border">Product Name</th>
-                <th className="p-2 border">Tenure (years)</th>
-                <th className="p-2 border">Mfg Date</th>
-                <th className="p-2 border">Item Status</th>
+     {activeTab === "inventory" && (
+  <div className="border border-gray-300 shadow-sm flex flex-col justify-between" style={{ height: '400px' }}>
+    <div className="overflow-auto flex-1">
+      <table className="min-w-full table-auto text-sm text-left text-gray-800">
+        <thead className="bg-gray-100 text-gray-900 sticky top-0">
+          <tr>
+            <th className="p-2 border">Sl No</th>
+            <th className="p-2 border">Model No</th>
+            <th className="p-2 border">Price</th>
+            <th className="p-2 border">Warranty (months)</th>
+            <th className="p-2 border">Purchase Date</th>
+            <th className="p-2 border">Product Name</th>
+            <th className="p-2 border">Tenure (years)</th>
+            <th className="p-2 border">Mfg Date</th>
+            <th className="p-2 border">Item Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {inventory.map((item, index) => {
+            const prod = productDetailsMap[item.model_no] || {};
+            return (
+              <tr key={index + 1} className="text-center hover:bg-gray-50">
+                <td className="p-2 border">{inventoryPage * inventorySize + index + 1}</td>
+                <td className="p-2 border">{item.model_no}</td>
+                <td className="p-2 border">₹{item.price}</td>
+                <td className="p-2 border">{item.warranty}</td>
+                <td className="p-2 border">{item.purchase_date}</td>
+                <td className="p-2 border">{prod.product_name || "-"}</td>
+                <td className="p-2 border">{prod.warrany_tenure || "-"}</td>
+                <td className="p-2 border">{prod.man_date || "-"}</td>
+                <td className="p-2 border">
+                  {prod.holderStatus === 2
+                    ? "Item Available"
+                    : prod.holderStatus === 3
+                    ? "Item Sold"
+                    : prod.holderStatus === 4
+                    ? "With Customer"
+                    : prod.holderStatus === 1
+                    ? "Product Shipped"
+                    : prod.holderStatus === 5
+                    ? "Warranty Requested"
+                    : "No Data"}
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {inventory.map((item, index) => {
-                const prod = productDetailsMap[item.model_no] || {};
-                return (
-                  <tr key={index + 1} className="text-center hover:bg-gray-50">
-                    <td className="p-2 border">{item.purchase_id}</td>
-                    <td className="p-2 border">{item.model_no}</td>
-                    <td className="p-2 border">₹{item.price}</td>
-                    <td className="p-2 border">{item.warranty}</td>
-                    <td className="p-2 border">{item.purchase_date}</td>
-                    <td className="p-2 border">{prod.product_name || "-"}</td>
-                    <td className="p-2 border">{prod.warrany_tenure || "-"}</td>
-                    <td className="p-2 border">{prod.man_date || "-"}</td>
-                    <td className="p-2 border">
-                      {prod.holderStatus === 2
-                        ? "Item Available"
-                        : prod.holderStatus === 3
-                        ? "Item Sold"
-                        : prod.holderStatus === 4
-                        ? "With Customer"
-                        : prod.holderStatus === 1
-                        ? "Product Shipped"
-                        : prod.holderStatus === 5
-                        ? "Warranty Requested"
-                        : "No Data"}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
 
-          <div className="flex justify-center items-center gap-2 py-2 bg-white">
-            <button
-              onClick={() => setInventoryPage((prev) => Math.max(prev - 1, 0))}
-              disabled={inventoryPage === 0}
-              className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
-            >
-              Prev
-            </button>
-            <span className="px-4 py-1.5">{`Page ${inventoryPage+1} of ${inventoryTotalPages}`}</span>
-            <button
-              onClick={() =>
-                setInventoryPage((prev) => Math.min(prev + 1, inventoryTotalPages - 1))
-              }
-              disabled={inventoryPage >= inventoryTotalPages - 1}
-              className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
+    <div className="sticky bottom-0 bg-white border-t border-gray-200 py-2 px-4">
+      <div className="flex justify-center items-center gap-2">
+        <button
+          onClick={() => setInventoryPage((prev) => Math.max(prev - 1, 0))}
+          disabled={inventoryPage === 0}
+          className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+        >
+          Prev
+        </button>
+        <span className="px-4 py-1.5">{`Page ${inventoryPage+1} of ${inventoryTotalPages}`}</span>
+        <button
+          onClick={() =>
+            setInventoryPage((prev) => Math.min(prev + 1, inventoryTotalPages - 1))
+          }
+          disabled={inventoryPage >= inventoryTotalPages - 1}
+          className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+        >
+          Next
+        </button>
+        <div className="flex items-center gap-2 ml-4">
+          <select
+            className="bg-white border border-gray-300 rounded text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500"
+            onChange={(e) => handlePageSizeChange(e, "inventory")}
+            value={inventorySize}
+          >
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+          <span className="text-sm">per page</span>
         </div>
-      )}
+      </div>
+    </div>
+  </div>
+)}
 
-      {activeTab === "purchases" && (
-       <div className="border border-gray-300 shadow-sm flex flex-col justify-between min-h-[300px] overflow-x-auto max-h-[300px]">
-          <table className="min-w-full table-auto text-sm text-left text-gray-800">
-            <thead className="bg-gray-100 text-gray-900">
-              <tr>
-                <th className="p-2 border">Sl.No</th>
-                <th className="p-2 border">Customer Name</th>
-                <th className="p-2 border">Model No</th>
-                <th className="p-2 border">Price</th>
-                <th className="p-2 border">Purchase Date</th>
-                <th className="p-2 border">Product Name</th>
-                <th className="p-2 border">Warranty Years</th>
-                <th className="p-2 border">Mfg Date</th>
-                <th className="p-2 border">Item Status</th>
+{activeTab === "purchases" && (
+  <div className="border border-gray-300 shadow-sm flex flex-col justify-between" style={{ height: '400px' }}>
+    <div className="overflow-auto flex-1">
+      <table className="min-w-full table-auto text-sm text-left text-gray-800">
+        <thead className="bg-gray-100 text-gray-900 sticky top-0">
+          <tr>
+            <th className="p-2 border">Sl.No</th>
+            <th className="p-2 border">Customer Name</th>
+            <th className="p-2 border">Model No</th>
+            <th className="p-2 border">Price</th>
+            <th className="p-2 border">Purchase Date</th>
+            <th className="p-2 border">Product Name</th>
+            <th className="p-2 border">Warranty Years</th>
+            <th className="p-2 border">Mfg Date</th>
+            <th className="p-2 border">Item Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {purchases.map((purchase, index) => {
+            const prod = productDetailsMap[purchase.modelNo] || {};
+            return (
+              <tr key={purchase.sale_id} className="text-center hover:bg-gray-50">
+                <td className="p-2 border">{purchasePage * purchaseSize + index + 1}</td>
+                <td className="p-2 border">{purchase.name}</td>
+                <td className="p-2 border">{purchase.modelNo}</td>
+                <td className="p-2 border">₹{purchase.price}</td>
+                <td className="p-2 border">{purchase.purchase_date}</td>
+                <td className="p-2 border">{prod.product_name || "-"}</td>
+                <td className="p-2 border">{prod.warrany_tenure || "-"}</td>
+                <td className="p-2 border">{prod.man_date || "-"}</td>
+                <td className="p-2 border text-gray-700 font-medium">
+                  {prod.holderStatus === 4
+                    ? "With Customer"
+                    : "Requested for warranty"}
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {purchases.map((purchase, index) => {
-                const prod = productDetailsMap[purchase.modelNo] || {};
-                return (
-                  <tr key={purchase.sale_id} className="text-center hover:bg-gray-50">
-                    <td className="p-2 border">{purchasePage * purchaseSize + index + 1}</td>
-                    <td className="p-2 border">{purchase.name}</td>
-                    <td className="p-2 border">{purchase.modelNo}</td>
-                    <td className="p-2 border">₹{purchase.price}</td>
-                    <td className="p-2 border">{purchase.purchase_date}</td>
-                    <td className="p-2 border">{prod.product_name || "-"}</td>
-                    <td className="p-2 border">{prod.warrany_tenure || "-"}</td>
-                    <td className="p-2 border">{prod.man_date || "-"}</td>
-                    <td className="p-2 border text-gray-700 font-medium">
-                      {prod.holderStatus === 4
-                        ? "With Customer"
-                        : "Requested for warranty"}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
 
-          <div className="flex justify-center items-center gap-2 py-2 bg-white">
-            <button
-              onClick={() => setPurchasePage((prev) => Math.max(prev - 1, 0))}
-              disabled={purchasePage === 0}
-              className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
-            >
-              Prev
-            </button>
-            <span className="px-4 py-1.5">{`Page ${purchasePage+1} of ${purchaseTotalPages}`}</span>
-            <button
-              onClick={() =>
-                setPurchasePage((prev) => Math.min(prev + 1, purchaseTotalPages - 1))
-              }
-              disabled={purchasePage >= purchaseTotalPages - 1}
-              className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
+    <div className="sticky bottom-0 bg-white border-t border-gray-200 py-2 px-4">
+      <div className="flex justify-center items-center gap-2">
+        <button
+          onClick={() => setPurchasePage((prev) => Math.max(prev - 1, 0))}
+          disabled={purchasePage === 0}
+          className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+        >
+          Prev
+        </button>
+        <span className="px-4 py-1.5">{`Page ${purchasePage+1} of ${purchaseTotalPages}`}</span>
+        <button
+          onClick={() =>
+            setPurchasePage((prev) => Math.min(prev + 1, purchaseTotalPages - 1))
+          }
+          disabled={purchasePage >= purchaseTotalPages - 1}
+          className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+        >
+          Next
+        </button>
+        <div className="flex items-center gap-2 ml-4">
+          <select
+            className="bg-white border border-gray-300 rounded text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500"
+            onChange={(e) => handlePageSizeChange(e, "purchases")}
+            value={purchaseSize}
+          >
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+          <span className="text-sm">per page</span>
         </div>
-      )}
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };
 
 export default SellerReport;
-

@@ -1,4 +1,3 @@
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -34,7 +33,9 @@ type WarrantyRequest = {
 };
 
 const CompanyReport = () => {
-  const [activeTab, setActiveTab] = useState<"products" | "requests">("products");
+  const [activeTab, setActiveTab] = useState<"products" | "requests">(
+    "products"
+  );
   const [products, setProducts] = useState<Product[]>([]);
   const [requests, setRequests] = useState<WarrantyRequest[]>([]);
   const companyId = Number(localStorage.getItem("company_id"));
@@ -46,11 +47,11 @@ const CompanyReport = () => {
   const [modelNo, setModelNo] = useState("");
 
   const [page, setPage] = useState(0);
-  const size = 5;
+  const [size, setsize] = useState(5);
   const [totalPages, setTotalPages] = useState(1);
 
   const [requestPage, setRequestPage] = useState(0);
-  const requestSize = 5;
+  const [requestSize, setrequestSize] = useState(5);
   const [totalRequestPages, setTotalRequestPages] = useState(1);
 
   const loadProducts = async () => {
@@ -140,6 +141,18 @@ const CompanyReport = () => {
     }
   }, [companyId, requestPage]);
 
+  const PageSizeChange = (e: string) => {
+    setsize(Number(e));
+    setrequestSize(Number(e));
+  };
+
+  useEffect(() => {
+    loadProducts();
+    loadRequests();
+  }, [size]);
+
+  console.log(size, "hahahha");
+
   return (
     <div className="p-6 bg-white h-full text-black space-y-8">
       <div className="flex justify-between items-center">
@@ -156,19 +169,21 @@ const CompanyReport = () => {
         <div className="space-x-4">
           <button
             onClick={() => setActiveTab("products")}
-            className={`px-6 py-2 rounded-lg font-medium ${activeTab === "products"
-              ? "bg-gray-900 text-white"
-              : "bg-white text-gray-700 border border-gray-300"
-              }`}
+            className={`px-6 py-2 rounded-lg font-medium ${
+              activeTab === "products"
+                ? "bg-gray-900 text-white"
+                : "bg-white text-gray-700 border border-gray-300"
+            }`}
           >
             Products
           </button>
           <button
             onClick={() => setActiveTab("requests")}
-            className={`px-6 py-2 rounded-lg font-medium ${activeTab === "requests"
-              ? "bg-gray-900 text-white"
-              : "bg-white text-gray-700 border border-gray-300"
-              }`}
+            className={`px-6 py-2 rounded-lg font-medium ${
+              activeTab === "requests"
+                ? "bg-gray-900 text-white"
+                : "bg-white text-gray-700 border border-gray-300"
+            }`}
           >
             Warranty Requests
           </button>
@@ -180,13 +195,13 @@ const CompanyReport = () => {
               type="text"
               onChange={(e) => setAmodelNo(e.target.value)}
               placeholder="Model No"
-              className="text-gray-900 placeholder-gray-900 border border-gray-700 rounded px-3 py-1.5 w-48 focus:outline-none focus:ring-1 focus:ring-gray-500"
+              className="text-gray-900 placeholder-gray-900 border border-gray-700 rounded px-3 py-1.5 w-48 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
             />
 
             <select
               value={astatus}
               onChange={(e) => setAstatus(e.target.value)}
-              className="text-gray-900 border placeholder-gray-900 border-gray-700 rounded px-3 py-1.5 w-40 focus:outline-none focus:ring-1 focus:ring-gray-500"
+              className="text-gray-900 border placeholder-gray-900 border-gray-700 rounded px-3 py-1.5 w-40 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
             >
               <option value="">All Statuses</option>
               <option value="1">Pending</option>
@@ -212,13 +227,13 @@ const CompanyReport = () => {
               type="text"
               onChange={(e) => setModelNo(e.target.value)}
               placeholder="Model No"
-              className="text-gray-900 placeholder-gray-900 border border-gray-700 rounded px-3 py-1.5 w-48 focus:outline-none focus:ring-1 focus:ring-gray-500"
+              className="text-gray-900 placeholder-gray-900 border border-gray-700 rounded px-3 py-1.5 w-48 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
             />
 
             <select
               value={holderStatus}
               onChange={(e) => setHolderStatus(e.target.value)}
-              className="text-gray-900 border placeholder-gray-900 border-gray-700 rounded px-3 py-1.5 w-40 focus:outline-none focus:ring-1 focus:ring-gray-500"
+              className="text-gray-900 border placeholder-gray-900 border-gray-700 rounded px-3 py-1.5 w-40 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
             >
               <option value="">All Product Status</option>
               <option value="1">In Company Stocks</option>
@@ -231,7 +246,7 @@ const CompanyReport = () => {
             <select
               value={productCategory}
               onChange={(e) => setProductCategory(e.target.value)}
-              className="text-gray-900 border placeholder-gray-900 border-gray-700 rounded px-3 py-1.5 w-40 focus:outline-none focus:ring-1 focus:ring-gray-500"
+              className="text-gray-900 border placeholder-gray-900 border-gray-700 rounded px-3 py-1.5 w-40 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
             >
               <option value="">All Categories</option>
               <option value="1">Electronics</option>
@@ -254,57 +269,69 @@ const CompanyReport = () => {
       </div>
 
       {activeTab === "products" && (
-        <div className="border border-gray-300 shadow-sm flex flex-col justify-between min-h-[300px] overflow-x-auto max-h-[300px]">
-          <table className="min-w-full table-auto text-sm text-left text-gray-800">
-            <thead className="bg-gray-100 sticky top-0 z-10 text-gray-900">
-              <tr>
-                <th className="px-4 py-2 border">Sl No</th>
-                <th className="px-4 py-2 border">Product Name</th>
-                <th className="px-4 py-2 border">Model No</th>
-                <th className="px-4 py-2 border">Price</th>
-                <th className="px-4 py-2 border">Warranty</th>
-                <th className="px-4 py-2 border">Category</th>
-                <th className="px-4 py-2 border">Manufacture Date</th>
-                <th className="px-4 py-2 border">Product Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.length === 0 ? (
+        <div>
+          <div className="border border-gray-300 shadow-sm flex flex-col justify-between h-[300px] overflow-x-auto">
+            <table className="min-w-full table-auto text-sm text-left text-gray-800">
+              <thead className="bg-gray-100 sticky top-0 z-10 text-gray-900">
                 <tr>
-                  <td colSpan={7} className="text-center py-4 text-gray-500">
-                    No products found.
-                  </td>
+                  <th className="px-4 py-2 border">Sl No</th>
+                  <th className="px-4 py-2 border">Product Name</th>
+                  <th className="px-4 py-2 border">Model No</th>
+                  <th className="px-4 py-2 border">Price</th>
+                  <th className="px-4 py-2 border">Warranty</th>
+                  <th className="px-4 py-2 border">Category</th>
+                  <th className="px-4 py-2 border">Manufacture Date</th>
+                  <th className="px-4 py-2 border">Product Status</th>
                 </tr>
-              ) : (
-                products.map((product, index) => (
-                  <tr key={index} className="hover:bg-gray-50 border-t">
-                    <td className="px-4 py-2 border">{page * size + index + 1}</td>
-                    <td className="px-4 py-2 border">{product.product_name}</td>
-                    <td className="px-4 py-2 border">{product.model_no}</td>
-                    <td className="px-4 py-2 border">₹{product.product_price}</td>
-                    <td className="px-4 py-2 border">{product.warrany_tenure} months</td>
-                    <td className="px-4 py-2 border">
-                      {["", "Electronics", "Plastic", "Wood", "Metal"][product.product_category] || "Unknown"}
+              </thead>
+              <tbody>
+                {products.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-4 text-gray-500">
+                      No products found.
                     </td>
-                    <td className="px-4 py-2 border">{product.man_date}</td>
-<td className="p-2 border">
-                      {product.holderStatus === 2
-                        ? "With Retail Seller"
-                        : product.holderStatus === 3
-                        ? "Sold To Customer"
-                        : product.holderStatus === 4
-                        ? "With Customer"
-                        : product.holderStatus === 5
-                        ? "Raised Warranty Request"
-                        : product.holderStatus === 1
-                        ? "In Company Stocks"
-                        : "No Data"}
-                    </td>                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-
+                  </tr>
+                ) : (
+                  products.map((product, index) => (
+                    <tr key={index} className="hover:bg-gray-50 border-t">
+                      <td className="px-4 py-2 border">
+                        {page * size + index + 1}
+                      </td>
+                      <td className="px-4 py-2 border">
+                        {product.product_name}
+                      </td>
+                      <td className="px-4 py-2 border">{product.model_no}</td>
+                      <td className="px-4 py-2 border">
+                        ₹{product.product_price}
+                      </td>
+                      <td className="px-4 py-2 border">
+                        {product.warrany_tenure} months
+                      </td>
+                      <td className="px-4 py-2 border">
+                        {["", "Electronics", "Plastic", "Wood", "Metal"][
+                          product.product_category
+                        ] || "Unknown"}
+                      </td>
+                      <td className="px-4 py-2 border">{product.man_date}</td>
+                      <td className="p-2 border">
+                        {product.holderStatus === 2
+                          ? "With Retail Seller"
+                          : product.holderStatus === 3
+                          ? "Sold To Customer"
+                          : product.holderStatus === 4
+                          ? "With Customer"
+                          : product.holderStatus === 5
+                          ? "Raised Warranty Request"
+                          : product.holderStatus === 1
+                          ? "In Company Stocks"
+                          : "No Data"}
+                      </td>{" "}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
           <div className="flex justify-center items-center gap-2 pb-2 bg-white">
             <button
               onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
@@ -313,20 +340,38 @@ const CompanyReport = () => {
             >
               Prev
             </button>
-            <span className="px-4 py-1.5">{`Page ${page+1} of ${totalPages}`}</span>
+            <span className="px-4 py-1.5">{`Page ${
+              page + 1
+            } of ${totalPages}`}</span>
             <button
-              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages - 1))}
+              onClick={() =>
+                setPage((prev) => Math.min(prev + 1, totalPages - 1))
+              }
               disabled={page >= totalPages - 1}
               className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
             >
               Next
             </button>
+            <div className="flex items-center gap-2">
+              <select
+                className="bg-white border border-gray-300 rounded text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500 "
+                onChange={(e) => PageSizeChange(e.target.value)}
+                value={requestSize.toString()}
+              >
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+              <span className="ml-1">per page</span>
+            </div>
           </div>
         </div>
       )}
 
-     {activeTab === "requests" && (
-  <div className="border border-gray-300 shadow-sm flex flex-col justify-between min-h-[300px] overflow-x-auto max-h-[300px]">
+      {activeTab === "requests" && (
+        <div>
+        <div className="border border-gray-300 shadow-sm flex flex-col justify-between min-h-[300px] overflow-x-auto max-h-[300px]">
           <table className="min-w-full table-auto text-sm text-left text-gray-800 max-h-[300px]">
             <thead className="bg-gray-100 sticky top-0 z-10 text-gray-900">
               <tr>
@@ -348,15 +393,24 @@ const CompanyReport = () => {
                 </tr>
               ) : (
                 requests.map((req, index) => (
-                  <tr key={req.warranty_request_id} className="hover:bg-gray-50 border-t">
-                    <td className="px-4 py-2 border">{requestPage * requestSize + index + 1}</td>
+                  <tr
+                    key={req.warranty_request_id}
+                    className="hover:bg-gray-50 border-t"
+                  >
+                    <td className="px-4 py-2 border">
+                      {requestPage * requestSize + index + 1}
+                    </td>
                     <td className="px-4 py-2 border">{req.customer_name}</td>
                     <td className="px-4 py-2 border">{req.customer_email}</td>
                     <td className="px-4 py-2 border">{req.phone_number}</td>
                     <td className="px-4 py-2 border">{req.model_no}</td>
                     <td className="px-4 py-2 border">{req.request_date}</td>
                     <td className="px-4 py-2 border font-medium text-gray-700">
-                      {["", "Pending", "Approved", "Rejected"][req.warranty_status]}
+                      {
+                        ["", "Pending", "Approved", "Rejected"][
+                          req.warranty_status
+                        ]
+                      }
                     </td>
                   </tr>
                 ))
@@ -364,6 +418,8 @@ const CompanyReport = () => {
             </tbody>
           </table>
 
+          
+        </div>
 <div className="flex justify-center items-center gap-2 pb-2 bg-white">
             <button
               onClick={() => setRequestPage((prev) => Math.max(prev - 1, 0))}
@@ -372,17 +428,34 @@ const CompanyReport = () => {
             >
               Prev
             </button>
-            <span className="px-4 py-1.5">{`Page ${requestPage+1} of ${totalRequestPages}`}</span>
+            <span className="px-4 py-1.5">{`Page ${
+              requestPage + 1
+            } of ${totalRequestPages}`}</span>
             <button
-              onClick={() => setRequestPage((prev) => Math.min(prev + 1, totalRequestPages - 1))}
+              onClick={() =>
+                setRequestPage((prev) =>
+                  Math.min(prev + 1, totalRequestPages - 1)
+                )
+              }
               disabled={requestPage >= totalRequestPages - 1}
               className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
             >
               Next
             </button>
+             <div className="flex items-center gap-2">
+              <select
+                className="bg-white border border-gray-300 rounded text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                onChange={(e) => PageSizeChange(e.target.value)}
+                value={requestSize.toString()}
+              >
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+              <span className="ml-1">per page</span>
+            </div>
           </div>
-
-
         </div>
       )}
     </div>
@@ -390,4 +463,3 @@ const CompanyReport = () => {
 };
 
 export default CompanyReport;
-

@@ -1,7 +1,3 @@
-
-
-
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -190,331 +186,383 @@ const Seller = () => {
     fetchModelDetails(item.model_no, "purchase");
   };
 
-  // ... your JSX return block remains the same ...
-
   return (
-    <div className="p-6 min-w-sc mx-auto space-y-6 bg-white h-fit text-gray-900">
-  <h1 className="text-4xl font-bold text-center text-gray-900">Seller Dashboard</h1>
+    <div className="p-4 md:p-6 mx-auto space-y-6 bg-white min-h-screen text-gray-900 max-w-7xl">
+      <h1 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-6">Seller Dashboard</h1>
 
-  {/* Tabs */}
-  <div className="flex justify-between items-center mb-6">
-    <div className="space-x-4">
-      <button
-        onClick={() => setActiveTab("inventory")}
-        className={`px-5 py-2 rounded-full font-medium transition ${
-          activeTab === "inventory"
-            ? "bg-gray-900 text-white shadow"
-            : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
-        }`}
-      >
-        Inventory
-      </button>
-      <button
-        onClick={() => setActiveTab("purchases")}
-        className={`px-5 py-2 rounded-full font-medium transition ${
-          activeTab === "purchases"
-            ? "bg-gray-900 text-white shadow"
-            : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
-        }`}
-      >
-        Sold Items
-      </button>
-    </div>
+      {/* Tabs */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+        <div className="flex space-x-2">
+          <button
+            onClick={() => setActiveTab("inventory")}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
+              activeTab === "inventory"
+                ? "bg-gray-900 text-white shadow"
+                : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
+            }`}
+          >
+            Inventory
+          </button>
+          <button
+            onClick={() => setActiveTab("purchases")}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
+              activeTab === "purchases"
+                ? "bg-gray-900 text-white shadow"
+                : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
+            }`}
+          >
+            Sold Items
+          </button>
+        </div>
 
-    {/* Filters and Add Buttons */}
-    <div>
-      <span>
-        {activeTab === "inventory" ? (
-          <div className="flex justify-between items-center">
-            <span className="flex flex-wrap items-center gap-2 text-sm">
+        {/* Filters and Add Buttons */}
+        <div className="w-full md:w-auto">
+          {activeTab === "inventory" ? (
+            <div className="flex flex-col md:flex-row md:items-center gap-2 w-full">
+              <div className="flex flex-wrap gap-2">
+                <input
+                  type="text"
+                  placeholder="Model No"
+                  className="p-2 border border-gray-200 rounded-md text-sm w-32 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                  value={modelNoss}
+                  onChange={(e) => setModelNos(e.target.value)}
+                />
+                <input
+                  type="number"
+                  min={0}
+                  placeholder="Warranty"
+                  className="p-2 border border-gray-200 rounded-md text-sm w-28 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                  value={warrantys || ""}
+                  onChange={(e) =>
+                    setWarrantys(
+                      e.target.value === "" ? "" : Number(e.target.value)
+                    )
+                  }
+                />
+                <select
+                  onChange={(e) =>
+                    setCategoryIds(
+                      e.target.value === "" ? "" : Number(e.target.value)
+                    )
+                  }
+                  value={categoryIds || ""}
+                  className="p-2 border border-gray-200 rounded-md text-sm w-36 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                >
+                  <option value="">Select Category</option>
+                  <option value="1">Electronics</option>
+                  <option value="2">Plastic</option>
+                  <option value="3">Wood</option>
+                  <option value="4">Metal</option>
+                </select>
+                <button
+                  onClick={fetchInventory}
+                  className="bg-gray-900 hover:bg-gray-700 text-white px-3 py-2 rounded-md shadow-sm text-sm whitespace-nowrap"
+                >
+                  Search
+                </button>
+              </div>
+
+              <button
+                onClick={() => {
+                  setEditingItem(null);
+                  inventoryForm.reset();
+                  setInventoryModelValid(false);
+                  setShowInventoryForm(true);
+                }}
+                className="bg-gray-900 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow text-sm whitespace-nowrap"
+              >
+                + Add Item
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-2">
               <input
                 type="text"
                 placeholder="Model No"
-                className="p-1.5 border border-gray-300 rounded-md w-36"
-                value={modelNoss}
-                onChange={(e) => setModelNos(e.target.value)}
+                className="p-2 border border-gray-200 rounded-md text-sm w-40 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                value={modelnopurchase}
+                onChange={(e) => setModelNoPurchase(e.target.value)}
               />
-              <input
-                type="number"
-                min={0}
-                placeholder="Warranty"
-                className="p-1.5 border border-gray-300 rounded-md w-28"
-                value={warrantys || ""}
-                onChange={(e) =>
-                  setWarrantys(
-                    e.target.value === "" ? "" : Number(e.target.value)
-                  )
-                }
-              />
-              <select
-                onChange={(e) =>
-                  setCategoryIds(
-                    e.target.value === "" ? "" : Number(e.target.value)
-                  )
-                }
-                value={categoryIds || ""}
-                className="p-1.5 border border-gray-300 rounded-md w-36"
-              >
-                <option value="">Select Category</option>
-                <option value="1">Electronics</option>
-                <option value="2">Plastic</option>
-                <option value="3">Wood</option>
-                <option value="4">Metal</option>
-              </select>
               <button
-                onClick={fetchInventory}
-                className="bg-gray-900 hover:bg-gray-700 text-white px-4 py-1.5 rounded-md shadow-sm text-sm"
+                onClick={fetchPurchases}
+                className="bg-gray-900 hover:bg-gray-700 text-white px-3 py-2 rounded-md shadow-sm text-sm"
               >
                 Search
               </button>
-            </span>
-
-            <button
-              onClick={() => {
-                setEditingItem(null);
-                inventoryForm.reset();
-                setInventoryModelValid(false);
-                setShowInventoryForm(true);
-              }}
-              className="bg-gray-900 hover:bg-gray-700 text-white px-5 py-2 rounded-full shadow ml-2"
-            >
-              + Add Item
-            </button>
-          </div>
-        ) : (
-          <div className="flex justify-between items-center gap-2">
-            <input
-              type="text"
-              placeholder="Model No"
-              className="p-1.5 border border-gray-300 rounded-md w-36"
-              value={modelnopurchase}
-              onChange={(e) => setModelNoPurchase(e.target.value)}
-            />
-            <button
-              onClick={fetchPurchases}
-              className="bg-gray-900 hover:bg-gray-700 text-white px-4 py-1.5 rounded-md shadow-sm text-sm"
-            >
-              Search
-            </button>
-            {/* <button
-              onClick={() => {
-                setEditingPurchase(null);
-                purchaseForm.reset();
-                setPurchaseModelValid(false);
-                setShowPurchaseForm(true);
-              }}
-              className="bg-gray-900 hover:bg-gray-700 text-white px-5 py-2 rounded-full shadow"
-            >
-              + Mark Item Sold
-            </button> */}
-          </div>
-        )}
-      </span>
-    </div>
-  </div>
-
-   {previewImage && (
-      <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
-        <div className="bg-white p-4 rounded-lg shadow-lg relative">
-          <button
-            onClick={() => setPreviewImage(null)}
-            className="absolute top-1 right-2 text-xl text-gray-500 hover:text-gray-700"
-          >
-            ×
-          </button>
-          <div className="max-w-[600px] max-h-[600px]">
-  <img
-    src={previewImage}
-    alt="Product Preview"
-    className="object-contain rounded max-w-full max-h-[80vh]"
-  />
-</div>
-
+            </div>
+          )}
         </div>
       </div>
-    )}
 
-  {/* Inventory List */}
-{activeTab === "inventory" && (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {inventory.length > 0 ? (
-      inventory.map((item) => {
-        const prod = productDetailsMap[item.model_no] || {};
-        return (
-          <div
-            key={item.purchase_id}
-            className="bg-white border border-gray-200 rounded-xl p-5 shadow-md"
-          >
-            <span className="flex justify-between">
-              <p className="font-semibold text-lg mb-1">
-                Model: {item.model_no}
-              </p>
-              <p
-                className="text-gray-700 underline cursor-pointer"
-                onClick={() => showEditOption(item)}
-              >
-                Mark sold!
-              </p>
-            </span>
-            <div className="flex items-center justify-between mb-2">
-            <p>Price: ₹{item.price}</p>
-             <button
-                onClick={() => setPreviewImage(productDetailsMap[item.model_no]?.product_image || null)}
-                className="text-blue-600 underline text-sm hover:text-blue-800 transition"
-              >
-                View Image
-              </button>
-              </div>
-            <p>Warranty: {item.warranty} months</p>
-            <div className="flex justify-between items-center mt-2 text-sm">
-              <p>Date: {item.purchase_date}</p>
-              <p className="text-right font-medium text-gray-700">
-                Item Status:{" "}
-                {prod.holderStatus === 2
-                  ? "Item Available"
-                  : prod.holderStatus === 3
-                  ? "Sold Out"
-                  : prod.holderStatus === 4
-                  ? "Item Purchased"
-                  : prod.holderStatus === 1
-                  ? "Product Shipped"
-                  : prod.holderStatus === 5
-                  ? "Warranty Requested"
-                  : "No Data"}
-              </p>
-            </div>
-            {prod.product_name && (
-              <>
-                <hr className="my-3" />
-                <p>Product Name: {prod.product_name}</p>
-                <p>Warranty Tenure (month): {prod.warrany_tenure}</p>
-                <p>Manufactured: {prod.man_date}</p>
-              </>
-            )}
-            <div className="space-x-4 mt-4 text-sm font-medium">
-              <button
-                onClick={() => {
-                  setEditingItem(item);
-                  inventoryForm.reset(item);
-                  setInventoryModelValid(true);
-                  setShowInventoryForm(true);
-                }}
-                className="text-gray-700 hover:underline"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => deleteInventory(item.purchase_id)}
-                className="text-gray-700 hover:underline"
-              >
-                Delete
-              </button>
+      {previewImage && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white p-4 rounded-lg shadow-lg relative max-w-2xl w-full">
+            <button
+              onClick={() => setPreviewImage(null)}
+              className="absolute top-2 right-2 text-xl text-gray-500 hover:text-gray-700 bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center"
+            >
+              ×
+            </button>
+            <div className="max-h-[80vh] flex justify-center">
+              <img
+                src={previewImage}
+                alt="Product Preview"
+                className="object-contain rounded max-h-full"
+              />
             </div>
           </div>
-        );
-      })
-    ) : (
-      <div className="text-gray-500 col-span-full text-center">
-        No items available
-      </div>
-    )}
-  </div>
-)}
+        </div>
+      )}
 
+      {/* Inventory List */}
+      {activeTab === "inventory" && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {inventory.length > 0 ? (
+            inventory.map((item) => {
+              const prod = productDetailsMap[item.model_no] || {};
+              return (
+                <div
+                  key={item.purchase_id}
+                  className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-semibold text-gray-900">
+                      {prod.product_name || "Unknown Product"}
+                    </h3>
+                    <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                      {prod.model_no}
+                    </span>
+                  </div>
 
-  {/* Purchases List */}
- {activeTab === "purchases" && (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {purchases.length > 0 ? (
-      purchases.map((purchase) => {
-        const prod = productDetailsMap[purchase.modelNo] || {};
-        return (
-          <div
-            key={purchase.sale_id}
-            className="bg-white border border-gray-200 rounded-xl p-5 shadow-md"
-          >
-            <p className="font-semibold text-lg mb-1">
-              Customer: {purchase.name}
-            </p>
-            <p>Model: {purchase.modelNo}</p>
-            <p>Price: ₹{purchase.price}</p>
-            <p>Date: {purchase.purchase_date}</p>
+                  <div className="space-y-2 text-sm text-gray-700">
+                    <div className="flex justify-between">
+                      <span>Price:</span>
+                      <span className="font-medium">₹{item.price}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Warranty:</span>
+                      <span>{item.warranty} months</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Purchase Date:</span>
+                      <span>{item.purchase_date}</span>
+                    </div>
+                  </div>
 
-            {prod.product_name && (
-              <>
-                <hr className="my-3" />
-                <p>Product Name: {prod.product_name}</p>
-                <p>Warranty Years: {prod.warrany_tenure}</p>
-                <p>Manufactured: {prod.man_date}</p>
-                <p>
-                  Item Status:{" "}
-                  <span className="text-gray-700 font-medium">
-                    {prod.holderStatus === 4
-                      ? "Apply for warranty"
-                      : "Requested for warranty"}
-                  </span>
-                </p>
-              </>
-            )}
+                  {prod.product_image && (
+                    <button
+                      onClick={() => setPreviewImage(prod.product_image)}
+                      className="mt-2 text-xs text-blue-600 bg-white"
+                    >
+                      View Product Image
+                    </button>
+                  )}
 
-            <div className="space-x-4 mt-4 text-sm font-medium">
-              <button
-                onClick={() => {
-                  setEditingPurchase(purchase);
-                  purchaseForm.reset(purchase);
-                  setPurchaseModelValid(true);
-                  setShowPurchaseForm(true);
-                }}
-                className="text-gray-700 hover:underline"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => deletePurchase(purchase.sale_id)}
-                className="text-gray-700 hover:underline"
-              >
-                Cancel Request
-              </button>
+                  <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
+                    <span className={`text-xs px-2 py-1 rounded ${
+                      prod.holderStatus === 2
+                        ? "bg-green-100 text-green-800"
+                        : prod.holderStatus === 3
+                        ? "bg-red-100 text-red-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}>
+                      {prod.holderStatus === 2
+                        ? "Available"
+                        : prod.holderStatus === 3
+                        ? "Sold"
+                        : prod.holderStatus === 4
+                        ? "Customer Registered"
+                        : prod.holderStatus === 5
+                        ? "Raised Warranty Request"
+                       
+
+                        : "Unknown Status"}
+                    </span>
+
+                   <div className="flex space-x-2">
+  <button
+    onClick={() => {
+      setEditingItem(item);
+      inventoryForm.reset(item);
+      setInventoryModelValid(true);
+      setShowInventoryForm(true);
+    }}
+    className="text-white hover:text-gray-900 p-1 rounded hover:bg-gray-100"
+    title="Edit"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+    </svg>
+  </button>
+  <button
+    onClick={() => deleteInventory(item.purchase_id)}
+    className="text-white hover:text-red-600 p-1 rounded hover:bg-gray-100"
+    title="Delete"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+    </svg>
+  </button>
+  <button
+    onClick={() => showEditOption(item)}
+    className="text-white hover:text-green-600 p-1 rounded hover:bg-gray-100"
+    title="Mark Sold"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+    </svg>
+  </button>
+</div>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="text-gray-500 col-span-full text-center py-8">
+              No items available in inventory
             </div>
-          </div>
-        );
-      })
-    ) : (
-      <div className="text-gray-500 col-span-full text-center">
-        No purchases found.
-      </div>
-    )}
-  </div>
-)}
+          )}
+        </div>
+      )}
+
+      {/* Purchases List */}
+      {activeTab === "purchases" && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {purchases.length > 0 ? (
+            purchases.map((purchase) => {
+              const prod = productDetailsMap[purchase.modelNo] || {};
+              return (
+                <div
+                  key={purchase.sale_id}
+                  className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div className="mb-3">
+                    <h3 className="font-semibold text-gray-900 mb-1">
+                      {purchase.name}
+                    </h3>
+                    <p className="text-sm text-gray-600">{purchase.email}</p>
+                    <p className="text-sm text-gray-600">{purchase.phono}</p>
+                  </div>
+
+                  <div className="space-y-2 text-sm text-gray-700 border-t border-gray-100 pt-2">
+                    <div className="flex justify-between">
+                      <span>Model:</span>
+                      <span className="font-medium">{purchase.modelNo}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Price:</span>
+                      <span>₹{purchase.price}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Date:</span>
+                      <span>{purchase.purchase_date}</span>
+                    </div>
+                  </div>
+
+                  {prod.product_name && (
+                    <div className="mt-3 pt-3 border-t border-gray-100 text-sm">
+                      <p className="font-medium">{prod.product_name}</p>
+                      <p>Warranty: {prod.warrany_tenure} months</p>
+                      <p>Manufactured: {prod.man_date}</p>
+                    </div>
+                  )}
+
+                  <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
+                    <span className={`text-xs px-2 py-1 rounded ${
+                      prod.holderStatus === 4
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}>
+                     {prod.holderStatus === 2
+                        ? "Available"
+                        : prod.holderStatus === 3
+                        ? "Sold"
+                        : prod.holderStatus === 4
+                        ? "Customer Registered"
+                        : prod.holderStatus === 5
+                        ? "Raised Warranty Request"
+                       
+
+                        : "Unknown Status"}
+                    </span>
 
 
-  {/* Inventory Form */}
-  {showInventoryForm && (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-xl relative">
-        <button
-          onClick={() => setShowInventoryForm(false)}
-          className="absolute top-2 right-3 text-2xl text-gray-400 hover:text-gray-700"
-        >
-          ×
-        </button>
-        <h3 className="text-xl font-semibold mb-4">
-          {editingItem ? "Edit Inventory" : "Add Inventory"}
-        </h3>
-        <form
-          onSubmit={inventoryForm.handleSubmit(handleInventorySubmit)}
-          className="grid grid-cols-2 gap-4"
-        >
-          <div className="col-span-2 flex gap-2">
-            <input
-              {...inventoryForm.register("model_no")}
-              placeholder="Model No"
-              required
-              className="p-2 border rounded w-full"
-            />
+                    
 
-            {
-              !editingItem&&(
+                   <div className="flex space-x-2">
+  <button
+    onClick={() => {
+      setEditingPurchase(purchase);
+      purchaseForm.reset(purchase);
+      setPurchaseModelValid(true);
+      setShowPurchaseForm(true);
+    }}
+    className="text-white bg-black hover:bg-gray-800 p-1.5 rounded flex items-center justify-center"
+    title="Edit"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+    </svg>
+  </button>
+  <button
+    onClick={() => deletePurchase(purchase.sale_id)}
+    className="text-white bg-black hover:bg-gray-800 p-1.5 rounded flex items-center justify-center"
+    title="Cancel"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+
+</div>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="text-gray-500 col-span-full text-center py-8">
+              No purchases found
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Inventory Form Modal */}
+      {showInventoryForm && (
+       <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+  <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md relative">
+    <button
+onClick={() => {
+ setShowInventoryForm(false);
+          setEditingItem(null);
+          inventoryForm.reset();
+          setInventoryModelValid(false);
+}}
+      className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+    <h3 className="text-lg font-semibold mb-4 text-gray-900">
+      {editingItem ? "Edit Inventory" : "Add Inventory"}
+    </h3>
+    <form
+      onSubmit={inventoryForm.handleSubmit(handleInventorySubmit)}
+      className="space-y-4"
+    >
+      <div className="flex gap-2">
+        <div className="flex-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Model No</label>
+          <input
+            {...inventoryForm.register("model_no")}
+            placeholder="Model No"
+            required
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+          />
+        </div>
+        {!editingItem && (
+          <div className="flex items-end">
             <button
               type="button"
               onClick={() =>
@@ -523,178 +571,174 @@ const Seller = () => {
                   "inventory"
                 )
               }
-              className="bg-gray-900 text-white px-4 py-1 rounded"
+              className="bg-gray-900 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm"
             >
               Fetch
             </button>
-              )
-            }
-           
-
-
           </div>
-          <div>
-            <label className="block mb-1">Price</label>
-            <input
-              {...inventoryForm.register("price")}
-              type="number"
-              required
-              className="p-2 border rounded w-full"
-            />
-          </div>
-          <div>
-            <label className="block mb-1">Warranty (Months)</label>
-            <input
-              {...inventoryForm.register("warranty")}
-              type="number"
-              required
-              className="p-2 border rounded w-full"
-            />
-          </div>
-          <div>
-            <label className="block mb-1">Purchase Date</label>
-            <input
-              {...inventoryForm.register("purchase_date")}
-              type="date"
-              required
-              className="p-2 border rounded w-full"
-            />
-          </div>
-          <div className="col-span-2">
-            <button
-              type="submit"
-              disabled={!inventoryModelValid}
-              className={`w-full py-2 rounded transition ${
-                inventoryModelValid
-                  ? "bg-gray-900 hover:bg-gray-700 text-white"
-                  : "bg-gray-400 text-white cursor-not-allowed"
-              }`}
-            >
-              Save
-            </button>
-          </div>
-        </form>
+        )}
       </div>
-    </div>
-  )}
 
-  {/* Purchase Form */}
-  {showPurchaseForm && (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-xl relative">
-        <button
-          onClick={() => setShowPurchaseForm(false)}
-          className="absolute top-2 right-3 text-2xl text-gray-400 hover:text-gray-700"
-        >
-          ×
-        </button>
-        <h3 className="text-xl font-semibold mb-4">
-          {editingPurchase ? "Edit Purchase" : "Mark Item Sold"}
-        </h3>
-        <form
-          onSubmit={purchaseForm.handleSubmit(handlePurchaseSubmit)}
-          className="grid grid-cols-2 gap-4"
-        >
-          <div className="col-span-2 flex gap-2">
-            <input
-              {...purchaseForm.register("modelNo")}
-              placeholder="Model No"
-              required
-              className="p-2 border rounded w-full"
-              disabled
-            />
-            {/* <button
-              type="button"
-              onClick={() =>
-                fetchModelDetails(
-                  purchaseForm.getValues("modelNo"),
-                  "purchase"
-                )
-              }
-              className="bg-gray-900 text-white px-4 py-1 rounded"
-            >
-              Fetch
-            </button> */}
-          </div>
-          
-          <div>
-            <label className="block mb-1">Price</label>
-            <input
-              {...purchaseForm.register("price")}
-              type="number"
-              required
-              className="p-2 border rounded w-full"
-              disabled
-            />
-          </div>
-          <div>
-            <label className="block mb-1">Warranty</label>
-            <input
-              {...purchaseForm.register("warranty")}
-              type="number"
-              required
-              className="p-2 border rounded w-full"
-              disabled
-            />
-          </div>
-          <div>
-            <label className="block mb-1">Selling Date</label>
-            <input
-              {...purchaseForm.register("purchase_date")}
-              type="date"
-              required
-              className="p-2 border rounded w-full"
-            />
-          </div>
-          <div>
-            <label className="block mb-1">Name</label>
-            <input
-              {...purchaseForm.register("name")}
-              placeholder="Customer Name"
-              required
-              className="p-2 border rounded w-full"
-            />
-          </div>
-          <div>
-            <label className="block mb-1">Email</label>
-            <input
-              {...purchaseForm.register("email")}
-              placeholder="Email"
-              required
-              className="p-2 border rounded w-full"
-            />
-          </div>
-          <div>
-            <label className="block mb-1">Phone</label>
-            <input
-              {...purchaseForm.register("phono")}
-              type="number"
-              placeholder="Phone"
-              required
-              className="p-2 border rounded w-full"
-            />
-          </div>
-          <div className="col-span-2">
-            <button
-              type="submit"
-              disabled={!purchaseModelValid}
-              className={`w-full py-2 rounded transition ${
-                purchaseModelValid
-                  ? "bg-gray-900 hover:bg-gray-700 text-white"
-                  : "bg-gray-400 text-white cursor-not-allowed"
-              }`}
-            >
-              Save
-            </button>
-          </div>
-        </form>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
+          <input
+            {...inventoryForm.register("price")}
+            type="number"
+            required
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Warranty (Months)</label>
+          <input
+            {...inventoryForm.register("warranty")}
+            type="number"
+            required
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+          />
+        </div>
       </div>
-    </div>
-  )}
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
+        <input
+          {...inventoryForm.register("purchase_date")}
+          type="date"
+          required
+          className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+        />
+      </div>
+
+      <button
+        type="submit"
+        disabled={!inventoryModelValid}
+        className={`w-full py-2 rounded-md text-white text-sm font-medium transition ${
+          inventoryModelValid
+            ? "bg-gray-900 hover:bg-gray-700"
+            : "bg-gray-400 cursor-not-allowed"
+        }`}
+      >
+        {editingItem ? "Update Item" : "Add to Inventory"}
+      </button>
+    </form>
+  </div>
 </div>
+      )}
 
+      {/* Purchase Form Modal */}
+      {showPurchaseForm && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md relative">
+            <button
+              onClick={() => setShowPurchaseForm(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <h3 className="text-lg font-semibold mb-4">
+              {editingPurchase ? "Edit Sale" : "Mark Item Sold"}
+            </h3>
+            <form
+              onSubmit={purchaseForm.handleSubmit(handlePurchaseSubmit)}
+              className="space-y-4"
+            >
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Model No</label>
+                <input
+                  {...purchaseForm.register("modelNo")}
+                  placeholder="Model No"
+                  required
+                  disabled
+                  className="w-full p-2 border border-gray-300 rounded-md bg-white text-black"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                  <input
+                    {...purchaseForm.register("price")}
+                    type="number"
+                    required
+                    disabled
+                    className="w-full p-2 border border-gray-300 rounded-md bg-gray-100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Warranty</label>
+                  <input
+                    {...purchaseForm.register("warranty")}
+                    type="number"
+                    required
+                    disabled
+                    className="w-full p-2 border border-gray-300 rounded-md bg-white text-black"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Selling Date</label>
+                <input
+                  {...purchaseForm.register("purchase_date")}
+                  type="date"
+                  required
+                  className="w-full p-2 border bg-white text-black border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
+                <input
+                  {...purchaseForm.register("name")}
+                  placeholder="Name"
+                  required
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input
+                    {...purchaseForm.register("email")}
+                    type="email"
+                    placeholder="Email"
+                    required
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <input
+                    {...purchaseForm.register("phono")}
+                    type="tel"
+                    placeholder="Phone"
+                    required
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={!purchaseModelValid}
+                className={`w-full py-2 rounded-md text-white text-sm font-medium transition ${
+                  purchaseModelValid
+                    ? "bg-gray-900 hover:bg-gray-700"
+                    : "bg-gray-400 cursor-not-allowed"
+                }`}
+              >
+                {editingPurchase ? "Update Sale" : "Mark as Sold"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
 export default Seller;
-

@@ -99,7 +99,7 @@ export default function Login({ setToken }: LoginProps) {
               type="text"
               placeholder="Username"
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 text-white"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 text-black bg-white"
             />
           )}
           <input

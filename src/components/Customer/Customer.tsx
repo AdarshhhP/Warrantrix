@@ -40,7 +40,6 @@ const CustomerWarrantyPage = () => {
   const [modelValid, setModelValid] = useState(false);
 
   const customerId = Number(localStorage.getItem("user_id"));
-
   const registerForm = useForm();
   const requestForm = useForm();
 
@@ -169,7 +168,7 @@ const CustomerWarrantyPage = () => {
       const payload = {
         ...data,
         customer_id: customerId,
-        company_id: modelData?.company_id || 0,
+        company_id: modelData || 0,
         request_date: "2025-07-01",
         purchase_date: "2025-07-03",
         reason: data.reason || "No reason provided",
@@ -198,8 +197,9 @@ const CustomerWarrantyPage = () => {
     }
   };
 
-  const handleRaiseRequest = (purchaseId: number, modelNo: string) => {
-    setShowRequestForm(true);
+  const handleRaiseRequest = (purchaseId: number, modelNo: string,company_id:string) => {
+setModelData(company_id);
+setShowRequestForm(true);
     requestForm.setValue("model_no", modelNo);
   };
 
@@ -209,6 +209,7 @@ const CustomerWarrantyPage = () => {
     }
   };
 
+console.log(productDetailsMap,"productDetailsMap")
   return (
     <div className="p-4 max-w-screen bg-white min-h-screen text-gray-800">
       <h1 className="text-2xl font-bold mb-6 text-center text-gray-900">
@@ -372,7 +373,7 @@ const CustomerWarrantyPage = () => {
                     </button>
                     <button
                       onClick={() =>
-                        handleRaiseRequest(item.purchase_Id, item.model_no)
+                        handleRaiseRequest(item.purchase_Id, item.model_no,product.company_id)
                       }
                       className="text-xs bg-gray-800 hover:bg-gray-700 text-white px-2 py-1 rounded"
                     >
@@ -403,14 +404,14 @@ const CustomerWarrantyPage = () => {
                 >
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-sm font-medium">Model: {req.model_no}</p>
-                    {product.product_image && (
-                      <button
-                        onClick={() => setPreviewImage(product.product_image)}
-                        className="text-white text-xs"
-                      >
-                        View Image
-                      </button>
-                    )}
+                    {product.productImages && (
+                    <button
+                      onClick={() => setPreviewImage(product.productImages[0])}
+                      className="mt-2 text-xs text-blue-600 bg-white"
+                    >
+                      View Product Image
+                    </button>
+                  )}
                   </div>
 
                   <p className="text-sm">Name: {req.customer_name}</p>
@@ -436,7 +437,8 @@ const CustomerWarrantyPage = () => {
                   {product.product_name && (
                     <>
                       <div className="border-t border-gray-100 my-2"></div>
-                      <p className="text-sm">Product: {product.product_name}</p>
+                      
+                      <p className="text-sm">Products done: {product.product_name}</p>
                       <p className="text-sm">Price: ₹{product.product_price}</p>
                     </>
                   )}
@@ -568,8 +570,9 @@ const CustomerWarrantyPage = () => {
                 <input
                   {...registerForm.register("purchase_date")}
                   type="date"
+                  max={new Date().toISOString().split("T")[0]}
                   required
-                  className="text-sm p-2 border border-gray-300 rounded w-full bg-white focus:ring-1 focus:ring-gray-500 focus:border-gray-500"
+                  className="text-sm p-2 border border-gray-300 rounded w-full bg-gray-200 focus:ring-1 focus:ring-gray-500 focus:border-gray-500"
                 />
               </div>
               <button

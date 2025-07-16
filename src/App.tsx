@@ -8,6 +8,7 @@ import Customer from "./components/Customer/Customer";
 import Dashboard from "./components/Landingpage/Dashboard";
 import SellerReport from "./components/Seller/SellerReport";
 import Login from "./components/Login/Login";
+import Admin from "./components/Admin/Admin";
 
 const App = () => {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -46,6 +47,7 @@ console.log("Token in App:", token);
           <Route path="/customer" element={<Customer />} />
           <Route path="/reports/companyreport" element={<CompanyReport />} />
           <Route path="/reports/sellerreports" element={<SellerReport />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<Dashboard />} />
         </Routes>
       </main>

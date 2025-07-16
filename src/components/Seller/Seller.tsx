@@ -5,11 +5,25 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import SellerService from "../../services/SellerService";
 
+export interface ProductDetails {
+  company_id: number;
+  holderStatus: number;
+  man_date: string; // or Date if you parse it
+  model_no: string;
+  prod_id: number;
+  productImages: string[]; // base64-encoded image strings
+  product_category: string; // if it's numeric, change to `number`
+  product_name: string;
+  product_price: number;
+  warrany_tenure: number;
+}
+
+
 const Seller = () => {
   const [activeTab, setActiveTab] = useState<"inventory" | "purchases">("inventory");
   const [inventory, setInventory] = useState<any[]>([]);
   const [purchases, setPurchases] = useState<any[]>([]);
-  const [productDetailsMap, setProductDetailsMap] = useState<Record<string, any>>({});
+const [productDetailsMap, setProductDetailsMap] = useState<Record<string, ProductDetails>>({});
   const [showInventoryForm, setShowInventoryForm] = useState(false);
   const [showPurchaseForm, setShowPurchaseForm] = useState(false);
   const [editingItem, setEditingItem] = useState<any | null>(null);
@@ -26,6 +40,9 @@ const Seller = () => {
   const inventoryForm = useForm();
   const purchaseForm = useForm();
 
+
+  console.log(productDetailsMap,"productDetailsMap")
+
   const fetchInventory = async () => {
     const data = await SellerService.fetchInventory(sellerId, categoryIds, modelNoss, warrantys);
     setInventory(data);
@@ -38,10 +55,10 @@ const Seller = () => {
     enrichWithProductDetails(data.map((p: any) => p.modelNo));
   };
 
-  const enrichWithProductDetails = async (modelNos: string[]) => {
-    const map = await SellerService.getProductDetailsByModelNos(modelNos);
-    setProductDetailsMap((prev) => ({ ...prev, ...map }));
-  };
+ const enrichWithProductDetails = async (modelNos: string[]) => {
+  const details = await SellerService.getProductDetailsByModelNos(modelNos);
+  setProductDetailsMap((prev) => ({ ...prev, ...details }));
+};
 
   useEffect(() => {
     if (sellerId) {
@@ -295,21 +312,66 @@ const Seller = () => {
       </div>
 
       {previewImage && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white p-4 rounded-lg shadow-lg relative max-w-2xl w-full">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white p-6 rounded-xl shadow-xl relative max-w-4xl w-full">
             <button
               onClick={() => setPreviewImage(null)}
-              className="absolute top-2 right-2 text-xl text-gray-500 hover:text-gray-700 bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center"
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100"
             >
-              ×
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
             </button>
-            <div className="max-h-[80vh] flex justify-center">
+
+            {/* Main Image */}
+            <div className="max-h-[60vh] overflow-auto mb-4">
               <img
                 src={previewImage}
                 alt="Product Preview"
-                className="object-contain rounded max-h-full"
+                className="object-contain rounded-lg mx-auto max-w-full"
               />
             </div>
+
+            {/* Thumbnail Gallery */}
+            {(() => {
+              const foundProduct = Object.values(productDetailsMap).find((p) => 
+            p.productImages?.includes(previewImage)
+          );
+              return foundProduct &&
+                foundProduct.productImages &&
+                foundProduct.productImages.length > 1 ? (
+                <div className="flex gap-2 overflow-x-auto py-2">
+                  {foundProduct.productImages.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setPreviewImage(img)}
+                      className={`flex-shrink-0 w-16 h-16 rounded border-2 ${
+                        img === previewImage
+                          ? "border-gray-600"
+                          : "border-transparent"
+                      }`}
+                    >
+                      <img
+                        src={img}
+                        alt={`Thumbnail ${idx + 1}`}
+                        className="w-full h-full object-cover rounded"
+                      />
+                    </button>
+                  ))}
+                </div>
+              ) : null;
+            })()}
           </div>
         </div>
       )}
@@ -349,9 +411,9 @@ const Seller = () => {
                     </div>
                   </div>
 
-                  {prod.product_image && (
+                  {prod.productImages && (
                     <button
-                      onClick={() => setPreviewImage(prod.product_image)}
+                      onClick={() => setPreviewImage(prod.productImages[0])}
                       className="mt-2 text-xs text-blue-600 bg-white"
                     >
                       View Product Image
@@ -605,8 +667,9 @@ onClick={() => {
         <input
           {...inventoryForm.register("purchase_date")}
           type="date"
+          max={new Date().toISOString().split("T")[0]} // sets today's date as max
           required
-          className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+          className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-gray-200 text-black"
         />
       </div>
 
@@ -685,7 +748,8 @@ onClick={() => {
                   {...purchaseForm.register("purchase_date")}
                   type="date"
                   required
-                  className="w-full p-2 border bg-white text-black border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  max={new Date().toISOString().split("T")[0]} // sets today's date as max
+                  className="w-full p-2 border bg-gray-200 text-black border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
                 />
               </div>
 

@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import companyService from "../../services/CompanyServices";
+import { toast } from "../../hooks/use-toast";
+import { Toaster } from "../ui/toaster";
 
 const categories = [
   { id: 1, name: "Electronics" },
@@ -41,6 +43,14 @@ type WarrantyRequest = {
   company_id: number;
 };
 
+export interface BulkUploadResponse {
+  message: string;              // e.g. ".xlsx"
+  statusCode: number;           // e.g. 509
+  successRecords: string[];     // list of successful entries (e.g., product names)
+  failedRecords: string[];      // list of failed rows or error messages
+}
+
+
 const Company = () => {
   const [activeTab, setActiveTab] = useState<"products" | "requests">(
     "products"
@@ -58,8 +68,17 @@ const Company = () => {
   const [modelNo, setModelNo] = useState("");
   const [astatus, setAstatus] = useState("");
   const [amodelNo, setAmodelNo] = useState("");
-
+  const [bulkuploadmode, setbulkuploadmode] = useState(true);
   const { register, handleSubmit, reset } = useForm<Product>();
+  const [bulkFile, setBulkFile] = useState<File | null>(null);
+  const [bulkUploadResults, setBulkUploadResults] = useState<{
+  failedRecords: string[];
+  successRecords: string[];
+  message?: string;
+  statusCode?: number;
+} | null>(null);
+const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const companyId = Number(localStorage.getItem("company_id"));
 
   useEffect(() => {
@@ -163,8 +182,61 @@ const Company = () => {
     fetchRequests();
   };
 
+const handleBulkUpload = () => {
+  if (!bulkFile) {
+    toast({
+      title: "Please select a file before uploading.",
+      type: "destructive",
+    });
+    return;
+  }
+
+  companyService
+    .BulkUploadProduct(bulkFile as File)
+    .then((response: { data: BulkUploadResponse }) => {
+      const { statusCode, message } = response.data;
+      setBulkUploadResults(response.data); // Store the results
+
+      if (statusCode === 200) {
+        toast({
+          type: "success",
+          title: message || "Upload successful",
+        });
+        fetchProducts();
+         if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // ✅
+      setBulkFile(null); // Clear the file state
+    }
+      } else if (statusCode === 509) {
+        toast({
+          type: "destructive",
+          title: message || "File format issue",
+        });
+      } else {
+        toast({
+          type: "destructive",
+          title: "Couldn't upload file",
+        });
+      }
+    })
+    .catch((error: unknown) => {
+      console.error("Bulk upload failed:", error);
+      toast({
+        type: "destructive",
+        title: "Failed to upload file",
+        description: "Please check the console for details.",
+      });
+    });
+};
+
+  const handleBulkFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBulkFile(file);
+  };
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 p-6 md:p-8">
+      <Toaster/>
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
@@ -220,27 +292,29 @@ const Company = () => {
 
         {/* Search Filters */}
         {activeTab === "requests" && (
-          <div className="flex justify-end w-full gap-3 p-3 bg-white rounded-lg shadow-xs border border-gray-100">
-            <input
-              type="text"
-              value={amodelNo}
-              onChange={(e) => setAmodelNo(e.target.value)}
-              placeholder="Model No"
-              className="text-gray-900 placeholder-gray-400 border border-gray-200 rounded-lg px-3 py-1.5 w-full md:w-48 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
-            />
-            <select
-              value={astatus}
-              onChange={(e) => setAstatus(e.target.value)}
-              className="text-gray-900 border border-gray-200 rounded-lg px-3 py-1.5 w-full md:w-40 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
-            >
-              <option value="">All Statuses</option>
-              <option value="1">Pending</option>
-              <option value="2">Approved</option>
-              <option value="3">Rejected</option>
-            </select>
+          <div className="flex justify-between w-full gap-3 p-3 bg-white rounded-lg shadow-xs border border-gray-100">
+            <div className="flex flex-row gap-3">
+              <input
+                type="text"
+                value={amodelNo}
+                onChange={(e) => setAmodelNo(e.target.value)}
+                placeholder="Model No"
+                className="text-gray-900 placeholder-gray-400 border border-gray-200 rounded-lg px-3 py-1.5 w-full md:w-48 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+              />
+              <select
+                value={astatus}
+                onChange={(e) => setAstatus(e.target.value)}
+                className="text-gray-900 border border-gray-200 rounded-lg px-3 py-1.5 w-full md:w-40 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+              >
+                <option value="">All Statuses</option>
+                <option value="1">Pending</option>
+                <option value="2">Approved</option>
+                <option value="3">Rejected</option>
+              </select>
+            </div>
             <button
               onClick={fetchRequests}
-              className="bg-gray-600 text-white px-4 py-1.5 rounded-lg hover:bg-gray-700 transition-colors duration-200 w-full flex items-center justify-center gap-2"
+              className="bg-gray-600 text-white px-4 py-1.5 rounded-lg hover:bg-gray-700 transition-colors duration-200 w-[15vw] flex items-center justify-center gap-2"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -262,77 +336,81 @@ const Company = () => {
         )}
 
         {activeTab === "products" && (
-          <div className="flex items-center justify-end gap-3 p-3 bg-white rounded-lg shadow-xs border border-gray-100 w-full">
-            <input
-              type="text"
-              value={modelNo}
-              onChange={(e) => setModelNo(e.target.value)}
-              placeholder="Model No"
-              className="text-gray-900 placeholder-gray-400 border border-gray-200 rounded-lg px-3 py-1.5 w-full md:w-48 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
-            />
-            <select
-              value={holderStatus}
-              onChange={(e) => setHolderStatus(e.target.value)}
-              className="text-gray-900 border border-gray-200 rounded-lg px-3 py-1.5 w-full md:w-40 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
-            >
-              <option value="">All Statuses</option>
-              <option value="1">In Company Stocks</option>
-              <option value="2">With Retail Seller</option>
-              <option value="3">Sold To Customer</option>
-              <option value="4">With Customer</option>
-              <option value="5">Raised Warranty Request</option>
-            </select>
-            <select
-              value={productCategory}
-              onChange={(e) => setProductCategory(e.target.value)}
-              className="text-gray-900 border border-gray-200 rounded-lg px-3 py-1.5 w-full md:w-40 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
-            >
-              <option value="">All Categories</option>
-              <option value="1">Electronics</option>
-              <option value="2">Plastic</option>
-              <option value="3">Wood</option>
-              <option value="4">Metal</option>
-            </select>
-            <button
-              onClick={fetchProducts}
-              className="bg-gray-600 text-white px-8 py-1.5 rounded-lg hover:bg-gray-700 transition-colors duration-200 flex items-center justify-center gap-2"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+          <div className="flex items-center justify-between gap-3 p-3 bg-white rounded-lg shadow-xs border border-gray-100 w-full">
+            <div className="flex gap-3">
+              <input
+                type="text"
+                value={modelNo}
+                onChange={(e) => setModelNo(e.target.value)}
+                placeholder="Model No"
+                className="text-gray-900 placeholder-gray-400 border border-gray-200 rounded-lg px-3 py-1.5 w-full md:w-48 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+              />
+              <select
+                value={holderStatus}
+                onChange={(e) => setHolderStatus(e.target.value)}
+                className="text-gray-900 border border-gray-200 rounded-lg px-3 py-1.5 w-full md:w-40 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-              Search
-            </button>
-            <button
-              onClick={handleReset}
-              className="bg-gray-200 text-gray-700 px-8 py-1.5 rounded-lg hover:bg-gray-300 transition-colors duration-200 flex items-center justify-center gap-2"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+                <option value="">All Status</option>
+                <option value="1">In Company Stocks</option>
+                <option value="2">With Retail Seller</option>
+                <option value="3">Sold To Customer</option>
+                <option value="4">With Customer</option>
+                <option value="5">Raised Warranty Request</option>
+              </select>
+              <select
+                value={productCategory}
+                onChange={(e) => setProductCategory(e.target.value)}
+                className="text-gray-900 border border-gray-200 rounded-lg px-3 py-1.5 w-full md:w-40 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                />
-              </svg>
-              Reset
-            </button>
+                <option value="">All Categories</option>
+                <option value="1">Electronics</option>
+                <option value="2">Plastic</option>
+                <option value="3">Wood</option>
+                <option value="4">Metal</option>
+              </select>
+            </div>
+            <div className="flex flex-row gap-3">
+              <button
+                onClick={fetchProducts}
+                className="bg-gray-600 text-white px-8 py-1.5 rounded-lg hover:bg-gray-700 transition-colors duration-200 flex items-center justify-center gap-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+                Search
+              </button>
+              <button
+                onClick={handleReset}
+                className="bg-gray-200 text-gray-700 px-8 py-1.5 rounded-lg hover:bg-gray-300 transition-colors duration-200 flex items-center justify-center gap-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
+                Reset
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -375,7 +453,7 @@ const Company = () => {
               const foundProduct = products.find((p) =>
                 p.productImages?.includes(previewImage)
               );
-                            console.log(foundProduct,"foundProduct")
+              console.log(foundProduct, "foundProduct");
 
               return foundProduct &&
                 foundProduct.productImages &&
@@ -405,7 +483,7 @@ const Company = () => {
         </div>
       )}
 
-       {previewImageREquest && (
+      {previewImageREquest && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white p-6 rounded-xl shadow-xl relative max-w-4xl w-full">
             <button
@@ -623,8 +701,9 @@ const Company = () => {
                       />
                     </svg>
                     Category:{" "}
-                    {categories.find((c) => c.id === product.product_category)
-                      ?.name || "Unknown"}
+                    {["", "Electronics", "Plastic", "Wood", "Metal"][
+                      product.product_category
+                    ] || "Unknown"}
                   </p>
 
                   <div className="flex items-center gap-2">
@@ -702,8 +781,6 @@ const Company = () => {
           )}
         </div>
       )}
-
-     
 
       {/* Requests Grid */}
       {activeTab === "requests" && (
@@ -929,162 +1006,241 @@ const Company = () => {
 
       {/* Add Product Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 px-4 py-6">
+        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex justify-center items-center z-50 px-4 py-6">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-2xl font-semibold text-gray-900">
+                <h3 className="text-2xl font-semibold text-gray-600">
                   Add New Product
                 </h3>
-                <button
-                  onClick={() => setShowForm(false)}
-                  className="text-gray-400 hover:text-gray-500 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Product Name
-                    </label>
-                    <input
-                      {...register("product_name")}
-                      required
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
-                      placeholder="Product Name"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Product Category
-                    </label>
-                    <select
-                      {...register("product_category")}
-                      required
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
-                    >
-                      <option value="">Select Category</option>
-                      {categories.map((cat) => (
-                        <option key={cat.id} value={cat.id}>
-                          {cat.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block mb-1 text-gray-700">
-                      Upload Image
-                    </label>
-                    <div>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleImageChange}
-                        className="w-full border px-4 py-2 rounded-lg"
-                      />
-                      <span onClick={() => setImages([])}>Clear</span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Model No
-                    </label>
-                    <input
-                      {...register("model_no")}
-                      required
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
-                      placeholder="Model Number"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Price
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-2 text-gray-500">
-                        ₹
-                      </span>
-                      <input
-                        {...register("product_price")}
-                        type="number"
-                        min="0"
-                        required
-                        className="w-full border border-gray-300 rounded-lg pl-8 pr-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
-                        placeholder="0.00"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Warranty Tenure (Months)
-                    </label>
-                    <input
-                      {...register("warrany_tenure")}
-                      type="number"
-                      min="0"
-                      required
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
-                      placeholder="12"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Manufacturing Date
-                    </label>
-                    <input
-                      {...register("man_date")}
-                      type="date"
-                      required
-                      max={new Date().toISOString().split("T")[0]} // sets today's date as max
-                      className="w-full border bg-gray-300 border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition"
-                    />
-                  </div>
-                </div>
-
-                <div className="pt-4">
+                <div className="flex flex-row gap-2">
                   <button
-                    type="submit"
-                    className="bg-gray-600 text-white px-6 py-3 rounded-lg w-full hover:bg-gray-700 transition-colors duration-200 font-medium flex items-center justify-center gap-2"
+                    className="bg-greay-900 text-white"
+                    onClick={() => setbulkuploadmode(!bulkuploadmode)}
+                  >
+                    {bulkuploadmode ? "Bulk Upload" : "Back to Form"}
+                  </button>
+                  <button
+                    onClick={() => setShowForm(false)}
+                    className="text-gray-400 hover:text-gray-500 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
                     >
                       <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
                       />
                     </svg>
-                    Save Product
                   </button>
                 </div>
-              </form>
+              </div>
+              {bulkuploadmode ? (
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Product Name
+                      </label>
+                      <input
+                        {...register("product_name")}
+                        required
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+                        placeholder="Product Name"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Product Category
+                      </label>
+                      <select
+                        {...register("product_category")}
+                        required
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+                      >
+                        <option value="">Select Category</option>
+                        {categories.map((cat) => (
+                          <option key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block mb-1 text-gray-700">
+                        Upload Image
+                      </label>
+                      <div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={handleImageChange}
+                          className="w-full border px-4 py-2 rounded-lg"
+                          
+                        />
+                        <span onClick={() => setImages([])}>Clear</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Model No
+                      </label>
+                      <input
+                        {...register("model_no")}
+                        required
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+                        placeholder="Model Number"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Price
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-2 text-gray-500">
+                          ₹
+                        </span>
+                        <input
+                          {...register("product_price")}
+                          type="number"
+                          min="0"
+                          required
+                          className="w-full border border-gray-300 rounded-lg pl-8 pr-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+                          placeholder="0.00"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Warranty Tenure (Months)
+                      </label>
+                      <input
+                        {...register("warrany_tenure")}
+                        type="number"
+                        min="0"
+                        required
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+                        placeholder="12"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Manufacturing Date
+                      </label>
+                      <input
+                        {...register("man_date")}
+                        type="date"
+                        required
+                        max={new Date().toISOString().split("T")[0]} // sets today's date as max
+                        className="w-full border bg-gray-300 border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-4">
+                    <button
+                      type="submit"
+                      className="bg-gray-600 text-white px-6 py-3 rounded-lg w-full hover:bg-gray-700 transition-colors duration-200 font-medium flex items-center justify-center gap-2"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      Save Product
+                    </button>
+                  </div>
+                </form>
+              ) : (
+
+                
+<div className="flex flex-col gap-3">
+  <div className="flex flex-row gap-3">
+    <input
+      type="file"
+      accept=".csv, .xlsx, .xls"
+      onChange={handleBulkFileChange}
+      className="w-full border px-4 py-2 rounded-lg"
+        ref={fileInputRef} // ✅ attach ref here
+
+    />
+    <button
+      onClick={handleBulkUpload}
+      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap"
+    >
+      Upload
+    </button>
+    <button
+          className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap"
+onClick={() => {
+        setBulkUploadResults(null);
+      setBulkFile(null);
+      if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // ✅ clear file input manually
+    }
+      }}
+    >
+Reset
+    </button>
+  </div>
+
+  {/* Results table - only show if we have results */}
+ <h2>Upload Log</h2> 
+  {bulkUploadResults && (
+    <div className="border rounded-lg overflow-hidden max-h-60 overflow-y-auto">
+      <table className="w-full text-sm">
+        <thead className="bg-gray-50 sticky top-0">
+          <tr>
+            <th className="px-4 py-2 text-left border-b">Status</th>
+            <th className="px-4 py-2 text-left border-b">Record</th>
+          </tr>
+        </thead>
+        <tbody>
+          {/* Successful records */}
+          {bulkUploadResults.successRecords.map((record, index) => (
+            <tr key={`success-${index}`} className="bg-green-50 max-h-20 overflow-y-scroll">
+              <td className="px-4 py-2 border-b text-green-600">Success</td>
+              <td className="px-4 py-2 border-b">{record}</td>
+            </tr>
+          ))}
+          
+          {/* Failed records */}
+          {bulkUploadResults.failedRecords.map((record, index) => (
+            <tr key={`failed-${index}`} className="bg-red-50 max-h-20 overflow-y-scroll">
+              <td className="px-4 py-2 border-b text-red-600">Failed</td>
+              <td className="px-4 py-2 border-b">{record}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</div>
+
+
+
+
+              )}
             </div>
           </div>
         </div>

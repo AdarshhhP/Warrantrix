@@ -26,6 +26,19 @@ class CompanyService {
     return axios.post(`${this.baseProductUrl}/postproduct`, payload);
   }
 
+  async BulkUploadProduct( file: File) {
+  const formData = new FormData();
+  formData.append("file", file); // key must match backend (@RequestParam("file"))
+
+  return axios.post(`${this.baseProductUrl}/bulkupload-products`, formData, {
+   // params: { purchase_Id: purchaseId },
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+}
+
+
   async fetchWarrantyRequests(params: {
     company_id: number;
     status?: string;

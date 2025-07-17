@@ -6,6 +6,9 @@ import { useForm } from "react-hook-form";
 import companyService from "../../services/CompanyServices";
 import { toast } from "../../hooks/use-toast";
 import { Toaster } from "../ui/toaster";
+import TemplateGenerator, {
+  type Columns,
+} from "../BulkUpload/TemplateGenerator";
 
 const categories = [
   { id: 1, name: "Electronics" },
@@ -41,15 +44,15 @@ type WarrantyRequest = {
   warranty_status: number;
   productImages: string[];
   company_id: number;
+  rejection_remark:string;
 };
 
 export interface BulkUploadResponse {
-  message: string;              // e.g. ".xlsx"
-  statusCode: number;           // e.g. 509
-  successRecords: string[];     // list of successful entries (e.g., product names)
-  failedRecords: string[];      // list of failed rows or error messages
+  message: string; // e.g. ".xlsx"
+  statusCode: number; // e.g. 509
+  successRecords: string[]; // list of successful entries (e.g., product names)
+  failedRecords: string[]; // list of failed rows or error messages
 }
-
 
 const Company = () => {
   const [activeTab, setActiveTab] = useState<"products" | "requests">(
@@ -59,6 +62,7 @@ const Company = () => {
   const [requests, setRequests] = useState<WarrantyRequest[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [images, setImages] = useState<File[]>([]);
+  const [remarks, setRemarks] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [previewImageREquest, setpreviewImageREquest] = useState<string | null>(
     null
@@ -69,15 +73,16 @@ const Company = () => {
   const [astatus, setAstatus] = useState("");
   const [amodelNo, setAmodelNo] = useState("");
   const [bulkuploadmode, setbulkuploadmode] = useState(true);
+  const [remarksmode, setremarksmode] = useState(false);
   const { register, handleSubmit, reset } = useForm<Product>();
   const [bulkFile, setBulkFile] = useState<File | null>(null);
   const [bulkUploadResults, setBulkUploadResults] = useState<{
-  failedRecords: string[];
-  successRecords: string[];
-  message?: string;
-  statusCode?: number;
-} | null>(null);
-const fileInputRef = useRef<HTMLInputElement | null>(null);
+    failedRecords: string[];
+    successRecords: string[];
+    message?: string;
+    statusCode?: number;
+  } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const companyId = Number(localStorage.getItem("company_id"));
 
@@ -165,7 +170,18 @@ const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleStatusChange = async (status: any, requestId: number) => {
     try {
-      await companyService.updateWarrantyStatus(requestId, status);
+      await companyService
+        .updateWarrantyStatus(requestId, status, remarks)
+        .then((response) => {
+          if (response.data.statusCode === 200) {
+            toast({
+              type: "success",
+              title: "Status updated successfully",
+            });
+            setRemarks(""); // Clear remarks after successful update
+            setremarksmode(false);
+          }
+        });
       fetchRequests();
     } catch (err: any) {
       alert("Failed to update status: " + err.message);
@@ -182,61 +198,125 @@ const fileInputRef = useRef<HTMLInputElement | null>(null);
     fetchRequests();
   };
 
-const handleBulkUpload = () => {
-  if (!bulkFile) {
-    toast({
-      title: "Please select a file before uploading.",
-      type: "destructive",
-    });
-    return;
-  }
-
-  companyService
-    .BulkUploadProduct(bulkFile as File)
-    .then((response: { data: BulkUploadResponse }) => {
-      const { statusCode, message } = response.data;
-      setBulkUploadResults(response.data); // Store the results
-
-      if (statusCode === 200) {
-        toast({
-          type: "success",
-          title: message || "Upload successful",
-        });
-        fetchProducts();
-         if (fileInputRef.current) {
-      fileInputRef.current.value = ""; // ✅
-      setBulkFile(null); // Clear the file state
-    }
-      } else if (statusCode === 509) {
-        toast({
-          type: "destructive",
-          title: message || "File format issue",
-        });
-      } else {
-        toast({
-          type: "destructive",
-          title: "Couldn't upload file",
-        });
-      }
-    })
-    .catch((error: unknown) => {
-      console.error("Bulk upload failed:", error);
+  const handleBulkUpload = () => {
+    if (!bulkFile) {
       toast({
+        title: "Please select a file before uploading.",
         type: "destructive",
-        title: "Failed to upload file",
-        description: "Please check the console for details.",
       });
-    });
-};
+      return;
+    }
+
+    companyService
+      .BulkUploadProduct(bulkFile as File)
+      .then((response: { data: BulkUploadResponse }) => {
+        const { statusCode, message } = response.data;
+        setBulkUploadResults(response.data); // Store the results
+
+        if (statusCode === 200) {
+          toast({
+            type: "success",
+            title: message || "Upload successful",
+          });
+          fetchProducts();
+          if (fileInputRef.current) {
+            fileInputRef.current.value = ""; // ✅
+            setBulkFile(null); // Clear the file state
+          }
+        } else if (statusCode === 509) {
+          toast({
+            type: "destructive",
+            title: message || "File format issue",
+          });
+        } else {
+          toast({
+            type: "destructive",
+            title: "Couldn't upload file",
+          });
+        }
+      })
+      .catch((error: unknown) => {
+        console.error("Bulk upload failed:", error);
+        toast({
+          type: "destructive",
+          title: "Failed to upload file",
+          description: "Please check the console for details.",
+        });
+      });
+  };
 
   const handleBulkFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setBulkFile(file);
   };
+
+  const baseColumnsConfig: Columns = [
+    {
+      Name: "Model_no",
+      columnWidth: 20,
+      isRequired: true,
+      isList: false,
+      comment: "Enter the product model number",
+    },
+    {
+      Name: "Product_name",
+      columnWidth: 30,
+      isRequired: true,
+      isList: false,
+      comment: "Enter the name of the product",
+    },
+    {
+      Name: "Product_category",
+      columnWidth: 25,
+      isRequired: true,
+      isList: true,
+      comment: "Select a product category",
+      options: ["Metal", "Plastic", "Wood", "Electronics"],
+      showErrorMessage: true,
+      error: "Choose a valid product category",
+      errorTitle: "Invalid Category",
+    },
+    {
+      Name: "Product_price",
+      columnWidth: 15,
+      isRequired: true,
+      isList: false,
+      comment: "Enter the product price",
+    },
+    {
+      Name: "Man_date",
+      columnWidth: 20,
+      isRequired: true,
+      isList: false,
+      comment: "Enter the manufacturing date (YYYY-MM-DD)",
+    },
+    {
+      Name: "Warrany_tenure",
+      columnWidth: 15,
+      isRequired: true,
+      isList: false,
+      comment: "Enter warranty period in months",
+    },
+    {
+      Name: "Company_id",
+      columnWidth: 15,
+      isRequired: true,
+      isList: false,
+      comment: "Enter the associated company ID",
+    },
+    {
+      Name: "Image_1",
+      columnWidth: 40,
+      isRequired: false,
+      isList: false,
+      comment: "Enter base64 string for product image (optional)",
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 p-6 md:p-8">
-      <Toaster/>
+      <Toaster />
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
@@ -934,13 +1014,14 @@ const handleBulkUpload = () => {
                       />
                     </svg>
                     <span
-                      className={`font-medium ${
+                      className={`font-medium cursor-pointer ${
                         req.warranty_status === 1
                           ? "text-amber-500"
                           : req.warranty_status === 2
                           ? "text-green-600"
                           : "text-red-500"
                       }`}
+onClick={()=> setremarksmode(true)}
                     >
                       {req.warranty_status === 1
                         ? "Pending"
@@ -975,29 +1056,102 @@ const handleBulkUpload = () => {
                         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
-                    Reason: {req.reason}
+                    <div className="flex flex-col">
+                   <p>Reason: {req.reason}</p> 
+                    <p>Remarks: {req.rejection_remark}</p>
+                    </div>
                   </p>
                 </div>
 
-                <select
-                  value={req.warranty_status}
-                  onChange={(e) =>
-                    handleStatusChange(e.target.value, req.warranty_request_id)
-                  }
-                  className={`w-full border px-3 py-2 rounded-lg mt-2 font-medium focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition ${
-                    req.warranty_status === 1
-                      ? "border-amber-200 bg-amber-50"
-                      : req.warranty_status === 2
-                      ? "border-green-200 bg-green-50"
-                      : "border-red-200 bg-red-50"
-                  }`}
-                >
-                  <option value="1" disabled>
-                    Pending
-                  </option>
-                  <option value="2">Approved</option>
-                  <option value="3">Rejected</option>
-                </select>
+               {remarksmode && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+    <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+      {/* Close Button */}
+      <button
+        onClick={() => setremarksmode(false)}
+        className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 transition-colors"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-6 w-6 text-gray-500"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+
+      <h3 className="text-xl font-semibold text-gray-800 mb-4">
+        Update Warranty Request
+      </h3>
+
+      <div className="space-y-4">
+        {/* Remarks Input */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Remarks {!remarks.trim() && (
+              <span className="text-red-500">*</span>
+            )}
+          </label>
+          <textarea
+            value={remarks}
+            onChange={(e) => setRemarks(e.target.value)}
+            placeholder="Enter your remarks..."
+            className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 h-24 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+            autoFocus
+          />
+          {!remarks.trim() && (
+            <p className="mt-1 text-sm text-red-500">
+              Remarks are required before changing status
+            </p>
+          )}
+        </div>
+
+        {/* Status Selector */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Status
+          </label>
+          <select
+            value={req.warranty_status}
+            onChange={(e) => {
+              if (remarks.trim() === "") {
+                toast({
+                  variant: "destructive",
+                  title: "Please enter remarks first",
+                });
+                return;
+              }
+              handleStatusChange(Number(e.target.value), req.warranty_request_id);
+              setremarksmode(false);
+            }}
+            className={`w-full border px-3 py-2 rounded-lg font-medium focus:ring-2 focus:ring-blue-500 outline-none transition ${
+              req.warranty_status === 1
+                ? "border-amber-200 bg-amber-50"
+                : req.warranty_status === 2
+                ? "border-green-200 bg-green-50"
+                : "border-red-200 bg-red-50"
+            } ${
+              !remarks.trim() ? "opacity-70 cursor-not-allowed" : "cursor-pointer"
+            }`}
+          >
+            <option value="1" disabled>
+              Pending
+            </option>
+            <option value="2">Approved</option>
+            <option value="3">Rejected</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
               </div>
             ))
           )}
@@ -1006,7 +1160,7 @@ const handleBulkUpload = () => {
 
       {/* Add Product Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex justify-center items-center z-50 px-4 py-6">
+        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex justify-center items-center z-50">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
@@ -1015,10 +1169,10 @@ const handleBulkUpload = () => {
                 </h3>
                 <div className="flex flex-row gap-2">
                   <button
-                    className="bg-greay-900 text-white"
+                    className="bg-greay-900 text-white h-8 flex items-center justify-center"
                     onClick={() => setbulkuploadmode(!bulkuploadmode)}
                   >
-                    {bulkuploadmode ? "Bulk Upload" : "Back to Form"}
+                    {bulkuploadmode ? "Bulk Upload" : "<- Back"}
                   </button>
                   <button
                     onClick={() => setShowForm(false)}
@@ -1085,7 +1239,6 @@ const handleBulkUpload = () => {
                           multiple
                           onChange={handleImageChange}
                           className="w-full border px-4 py-2 rounded-lg"
-                          
                         />
                         <span onClick={() => setImages([])}>Clear</span>
                       </div>
@@ -1172,74 +1325,91 @@ const handleBulkUpload = () => {
                   </div>
                 </form>
               ) : (
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-row gap-3">
+                    <input
+                      type="file"
+                      accept=".csv, .xlsx, .xls"
+                      onChange={handleBulkFileChange}
+                      className="w-full border px-4 py-2 rounded-lg"
+                      ref={fileInputRef} // ✅ attach ref here
+                    />
+                    <button
+                      onClick={handleBulkUpload}
+                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap"
+                    >
+                      Upload
+                    </button>
+                    <button
+                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap"
+                      onClick={() => {
+                        setBulkUploadResults(null);
+                        setBulkFile(null);
+                        if (fileInputRef.current) {
+                          fileInputRef.current.value = ""; // ✅ clear file input manually
+                        }
+                      }}
+                    >
+                      Reset
+                    </button>
+                  </div>
 
-                
-<div className="flex flex-col gap-3">
-  <div className="flex flex-row gap-3">
-    <input
-      type="file"
-      accept=".csv, .xlsx, .xls"
-      onChange={handleBulkFileChange}
-      className="w-full border px-4 py-2 rounded-lg"
-        ref={fileInputRef} // ✅ attach ref here
+                  {/* Results table - only show if we have results */}
+                  <div className="flex justify-between">
+                    <h2>Upload Log</h2>
+                    <TemplateGenerator
+                      columnsConfig={baseColumnsConfig}
+                      TemplateName={"ProductUploadTemplate"}
+                    />
+                  </div>
+                  {bulkUploadResults && (
+                    <div className="border rounded-lg overflow-hidden max-h-60 overflow-y-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-gray-50 sticky top-0">
+                          <tr>
+                            <th className="px-4 py-2 text-left border-b">
+                              Status
+                            </th>
+                            <th className="px-4 py-2 text-left border-b">
+                              Record
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {/* Successful records */}
+                          {bulkUploadResults.successRecords.map(
+                            (record, index) => (
+                              <tr
+                                key={`success-${index}`}
+                                className="bg-green-50 max-h-20 overflow-y-scroll"
+                              >
+                                <td className="px-4 py-2 border-b text-green-600">
+                                  Success
+                                </td>
+                                <td className="px-4 py-2 border-b">{record}</td>
+                              </tr>
+                            )
+                          )}
 
-    />
-    <button
-      onClick={handleBulkUpload}
-      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap"
-    >
-      Upload
-    </button>
-    <button
-          className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap"
-onClick={() => {
-        setBulkUploadResults(null);
-      setBulkFile(null);
-      if (fileInputRef.current) {
-      fileInputRef.current.value = ""; // ✅ clear file input manually
-    }
-      }}
-    >
-Reset
-    </button>
-  </div>
-
-  {/* Results table - only show if we have results */}
- <h2>Upload Log</h2> 
-  {bulkUploadResults && (
-    <div className="border rounded-lg overflow-hidden max-h-60 overflow-y-auto">
-      <table className="w-full text-sm">
-        <thead className="bg-gray-50 sticky top-0">
-          <tr>
-            <th className="px-4 py-2 text-left border-b">Status</th>
-            <th className="px-4 py-2 text-left border-b">Record</th>
-          </tr>
-        </thead>
-        <tbody>
-          {/* Successful records */}
-          {bulkUploadResults.successRecords.map((record, index) => (
-            <tr key={`success-${index}`} className="bg-green-50 max-h-20 overflow-y-scroll">
-              <td className="px-4 py-2 border-b text-green-600">Success</td>
-              <td className="px-4 py-2 border-b">{record}</td>
-            </tr>
-          ))}
-          
-          {/* Failed records */}
-          {bulkUploadResults.failedRecords.map((record, index) => (
-            <tr key={`failed-${index}`} className="bg-red-50 max-h-20 overflow-y-scroll">
-              <td className="px-4 py-2 border-b text-red-600">Failed</td>
-              <td className="px-4 py-2 border-b">{record}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )}
-</div>
-
-
-
-
+                          {/* Failed records */}
+                          {bulkUploadResults.failedRecords.map(
+                            (record, index) => (
+                              <tr
+                                key={`failed-${index}`}
+                                className="bg-red-50 max-h-20 overflow-y-scroll"
+                              >
+                                <td className="px-4 py-2 border-b text-red-600">
+                                  Failed
+                                </td>
+                                <td className="px-4 py-2 border-b">{record}</td>
+                              </tr>
+                            )
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>

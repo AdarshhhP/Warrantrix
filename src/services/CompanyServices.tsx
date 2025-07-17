@@ -52,9 +52,9 @@ class CompanyService {
     return res.data.content || [];
   }
 
-  async updateWarrantyStatus(purchase_id: number, status: string) {
+  async updateWarrantyStatus(purchase_id: number, status: string, rejection_remarks: string) {
     return axios.get(`${this.baseRequestUrl}/warranty-action`, {
-      params: { purchase_id, status },
+      params: { purchase_id, status ,rejection_remarks},
     });
   }
 

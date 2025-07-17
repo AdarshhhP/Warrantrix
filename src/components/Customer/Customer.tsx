@@ -209,7 +209,6 @@ setShowRequestForm(true);
     }
   };
 
-console.log(productDetailsMap,"productDetailsMap")
   return (
     <div className="p-4 max-w-screen bg-white min-h-screen text-gray-800">
       <h1 className="text-2xl font-bold mb-6 text-center text-gray-900">
@@ -433,12 +432,14 @@ console.log(productDetailsMap,"productDetailsMap")
                         : "Rejected"}
                     </span>
                   </p>
-
+                    <span className="text-sm">
+                      Company Remarks : {req.rejection_remark}
+                    </span>
                   {product.product_name && (
                     <>
                       <div className="border-t border-gray-100 my-2"></div>
                       
-                      <p className="text-sm">Products done: {product.product_name}</p>
+                      <p className="text-sm">Products Name: {product.product_name}</p>
                       <p className="text-sm">Price: ₹{product.product_price}</p>
                     </>
                   )}

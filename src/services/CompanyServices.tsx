@@ -26,12 +26,12 @@ class CompanyService {
     return axios.post(`${this.baseProductUrl}/postproduct`, payload);
   }
 
-  async BulkUploadProduct( file: File) {
+  async BulkUploadProduct( file: File,companyId:number) {
   const formData = new FormData();
   formData.append("file", file); // key must match backend (@RequestParam("file"))
 
   return axios.post(`${this.baseProductUrl}/bulkupload-products`, formData, {
-   // params: { purchase_Id: purchaseId },
+    params: { company_id: companyId },
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -52,9 +52,9 @@ class CompanyService {
     return res.data.content || [];
   }
 
-  async updateWarrantyStatus(purchase_id: number, status: string) {
+  async updateWarrantyStatus(purchase_id: number, status: string, rejection_remarks: string) {
     return axios.get(`${this.baseRequestUrl}/warranty-action`, {
-      params: { purchase_id, status },
+      params: { purchase_id, status ,rejection_remarks},
     });
   }
 

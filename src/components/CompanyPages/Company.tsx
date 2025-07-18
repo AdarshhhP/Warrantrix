@@ -64,6 +64,7 @@ const Company = () => {
   const [images, setImages] = useState<File[]>([]);
   const [remarks, setRemarks] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [previewImageModelNo,setpreviewImageModelNo]=useState("");
   const [previewImageREquest, setpreviewImageREquest] = useState<string | null>(
     null
   );
@@ -208,7 +209,7 @@ const Company = () => {
     }
 
     companyService
-      .BulkUploadProduct(bulkFile as File)
+      .BulkUploadProduct(bulkFile as File,companyId)
       .then((response: { data: BulkUploadResponse }) => {
         const { statusCode, message } = response.data;
         setBulkUploadResults(response.data); // Store the results
@@ -231,7 +232,7 @@ const Company = () => {
         } else {
           toast({
             type: "destructive",
-            title: "Couldn't upload file",
+            title: message || "Couldn't upload file",
           });
         }
       })
@@ -299,21 +300,14 @@ const Company = () => {
       comment: "Enter warranty period in months",
     },
     {
-      Name: "Company_id",
-      columnWidth: 15,
-      isRequired: true,
-      isList: false,
-      comment: "Enter the associated company ID",
-    },
-    {
-      Name: "Image_1",
+      Name: "Image_URL",
       columnWidth: 40,
       isRequired: false,
       isList: false,
       comment: "Enter base64 string for product image (optional)",
     },
   ];
-
+console.log(products,"products")
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 p-6 md:p-8">
       <Toaster />
@@ -531,7 +525,7 @@ const Company = () => {
             {/* Thumbnail Gallery */}
             {(() => {
               const foundProduct = products.find((p) =>
-                p.productImages?.includes(previewImage)
+                p.model_no?.includes(previewImageModelNo)
               );
               console.log(foundProduct, "foundProduct");
 
@@ -849,8 +843,10 @@ const Company = () => {
                   </p>
                   {product.productImages && (
                     <button
-                      onClick={() => setPreviewImage(product.productImages[0])}
-                      className="text-white text-xs"
+onClick={() => {
+  setPreviewImage(product.productImages[0]);
+  setpreviewImageModelNo(product.model_no);
+}}                      className="text-white text-xs"
                     >
                       View Image
                     </button>
@@ -1172,23 +1168,23 @@ onClick={()=> setremarksmode(true)}
                     className="bg-greay-900 text-white h-8 flex items-center justify-center"
                     onClick={() => setbulkuploadmode(!bulkuploadmode)}
                   >
-                    {bulkuploadmode ? "Bulk Upload" : "<- Back"}
+                    {bulkuploadmode ? "Bulk Upload" : "<-"}
                   </button>
                   <button
                     onClick={() => setShowForm(false)}
-                    className="text-gray-400 hover:text-gray-500 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100"
+                    className="bg-white text-gray-400 hover:text-gray-500 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-6 w-6"
-                      fill="none"
+                      fill="black"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
                     >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        strokeWidth={2}
+                        strokeWidth={1}
                         d="M6 18L18 6M6 6l12 12"
                       />
                     </svg>
@@ -1327,32 +1323,62 @@ onClick={()=> setremarksmode(true)}
               ) : (
                 <div className="flex flex-col gap-3">
                   <div className="flex flex-row gap-3">
-                    <input
-                      type="file"
-                      accept=".csv, .xlsx, .xls"
-                      onChange={handleBulkFileChange}
-                      className="w-full border px-4 py-2 rounded-lg"
-                      ref={fileInputRef} // ✅ attach ref here
-                    />
-                    <button
-                      onClick={handleBulkUpload}
-                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap"
-                    >
-                      Upload
-                    </button>
-                    <button
-                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap"
-                      onClick={() => {
-                        setBulkUploadResults(null);
-                        setBulkFile(null);
-                        if (fileInputRef.current) {
-                          fileInputRef.current.value = ""; // ✅ clear file input manually
-                        }
-                      }}
-                    >
-                      Reset
-                    </button>
-                  </div>
+  <input
+    type="file"
+    accept=".csv, .xlsx, .xls"
+    onChange={handleBulkFileChange}
+    className="w-full border px-4 py-2 rounded-lg"
+    ref={fileInputRef}
+  />
+  <button
+    onClick={handleBulkUpload}
+    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+    title="Upload"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-5 h-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"
+      />
+    </svg>
+  </button>
+
+  <button
+    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+    onClick={() => {
+      setBulkUploadResults(null);
+      setBulkFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }}
+    title="Reset"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-5 h-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M4 4v5h.582M20 20v-5h-.581M3.977 9A9.003 9.003 0 0112 3a9 9 0 018 4.472M20.023 15A9.003 9.003 0 0112 21a9 9 0 01-8-4.472"
+      />
+    </svg>
+  </button>
+</div>
+
 
                   {/* Results table - only show if we have results */}
                   <div className="flex justify-between">

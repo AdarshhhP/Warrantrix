@@ -26,12 +26,12 @@ class CompanyService {
     return axios.post(`${this.baseProductUrl}/postproduct`, payload);
   }
 
-  async BulkUploadProduct( file: File) {
+  async BulkUploadProduct( file: File,companyId:number) {
   const formData = new FormData();
   formData.append("file", file); // key must match backend (@RequestParam("file"))
 
   return axios.post(`${this.baseProductUrl}/bulkupload-products`, formData, {
-   // params: { purchase_Id: purchaseId },
+    params: { company_id: companyId },
     headers: {
       "Content-Type": "multipart/form-data",
     },

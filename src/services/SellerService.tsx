@@ -9,7 +9,7 @@ const PURCHASE_API = "http://localhost:3089/GetPurchases";
 const PRODUCT_DETAILS_API = "http://localhost:1089/products/by-models";
 
 class SellerService {
- async getInventory(params: {
+  async getInventory(params: {
     Seller_Id: number;
     categoryId: number | "";
     modelNo: string;
@@ -42,7 +42,12 @@ class SellerService {
     return map;
   }
 
-  async fetchInventory(sellerId: number, categoryId: number | "", modelNo: string, warranty: number | "") {
+  async fetchInventory(
+    sellerId: number,
+    categoryId: number | "",
+    modelNo: string,
+    warranty: number | ""
+  ) {
     const res = await axios.get(`${BASE_URL}/allinventory`, {
       params: {
         Seller_Id: sellerId,
@@ -142,12 +147,21 @@ class SellerService {
       params: { sale_id: saleId },
     });
   }
+
+  async BulkUploadPurchase(file: File, sellerId: number) {
+    const formData = new FormData();
+    formData.append("file", file); // key must match backend (@RequestParam("file"))
+
+    return axios.post(
+      `${BASE_URL}/bulkupload-purchase?seller_id=${sellerId}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+  }
 }
 
 export default new SellerService();
-
-
-
-
-
-

@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect,useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import SellerService from "../../services/SellerService";
+import TemplateGenerator, {
+  type Columns,
+} from "../BulkUpload/TemplateGenerator";
 import { toast } from "../../hooks/use-toast";
 import { Toaster } from "../ui/toaster";
 
@@ -48,19 +51,28 @@ const Seller = () => {
   const [warrantys, setWarrantys] = useState<number | "">("");
   const [modelnopurchase, setModelNoPurchase] = useState<string>("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-const [bulkuploadb,setbulkUploadb]=useState(false);
+  const [bulkuploadb, setbulkUploadb] = useState(false);
+  const [bulkFileb, setBulkFileb] = useState<File | null>(null);
+  const [bulkUploadResultsb, setBulkUploadResultsb] = useState<{
+    failedRecords: string[];
+    successRecords: string[];
+    message?: string;
+    statusCode?: number;
+  } | null>(null);
+  const fileInputRefb = useRef<HTMLInputElement | null>(null);
+  const [bulkuploadmode, setBulkUpload] = useState(false);
+  const [bulkFile, setBulkFile] = useState<File | null>(null);
+  const [bulkUploadResults, setBulkUploadResults] = useState<{
+    failedRecords: string[];
+    successRecords: string[];
+    message?: string;
+    statusCode?: number;
+  } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const inventoryForm = useForm();
   const purchaseForm = useForm();
 
-  const [bulkFileb, setBulkFileb] = useState<File | null>(null);
-    const [bulkUploadResultsb, setBulkUploadResultsb] = useState<{
-      failedRecords: string[];
-      successRecords: string[];
-      message?: string;
-      statusCode?: number;
-    } | null>(null);
-
-  const fileInputRefb = useRef<HTMLInputElement | null>(null);
   console.log(productDetailsMap, "productDetailsMap");
 
   const fetchInventory = async () => {
@@ -100,7 +112,6 @@ const [bulkuploadb,setbulkUploadb]=useState(false);
       const prod = await SellerService.getProductByModelNo(modelNo);
       if (!prod || !prod.model_no) {
         alert("Invalid model number");
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         formType === "inventory"
           ? setInventoryModelValid(false)
           : setPurchaseModelValid(false);
@@ -127,7 +138,6 @@ const [bulkuploadb,setbulkUploadb]=useState(false);
     } catch (err) {
       console.error(err);
       alert("Error fetching model details");
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       formType === "inventory"
         ? setInventoryModelValid(false)
         : setPurchaseModelValid(false);
@@ -234,7 +244,7 @@ const [bulkuploadb,setbulkUploadb]=useState(false);
     purchaseForm.setValue("modelNo", item.model_no);
     fetchModelDetails(item.model_no, "purchase");
   };
-  
+
   const handleBulkUploadb = () => {
     if (!bulkFileb) {
       toast({
@@ -243,11 +253,10 @@ const [bulkuploadb,setbulkUploadb]=useState(false);
       });
       return;
     }
-     SellerService
-      .BulkUploadProduct(bulkFileb as File, sellerId)
+    SellerService.BulkUploadProduct(bulkFileb as File, sellerId)
       .then((response: { data: BulkUploadResponse }) => {
         const { statusCode, message } = response.data;
-        setBulkUploadResultsb(response.data); // Store the results
+        setBulkUploadResultsb(response.data);
 
         if (statusCode === 200) {
           toast({
@@ -256,8 +265,8 @@ const [bulkuploadb,setbulkUploadb]=useState(false);
           });
           fetchInventory();
           if (fileInputRefb.current) {
-            fileInputRefb.current.value = ""; // ✅
-            setBulkFileb(null); // Clear the file state
+            fileInputRefb.current.value = "";
+            setBulkFileb(null);
           }
         } else if (statusCode === 509) {
           toast({
@@ -279,12 +288,120 @@ const [bulkuploadb,setbulkUploadb]=useState(false);
           description: "Please check the console for details.",
         });
       });
-    } 
+  };
+
   const handleBulkFileChangeb = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      setBulkFileb(file);
-    };
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBulkFileb(file);
+  };
+
+  const baseColumnsConfig: Columns = [
+    {
+      Name: "Model_no",
+      columnWidth: 20,
+      isRequired: true,
+      isList: false,
+      comment: "Enter the model number (must exist in inventory)",
+    },
+    {
+      Name: "Price",
+      columnWidth: 15,
+      isRequired: true,
+      isList: false,
+      comment: "Enter the product price (numeric)",
+    },
+    {
+      Name: "Purchase_date",
+      columnWidth: 20,
+      isRequired: true,
+      isList: false,
+      comment: "Enter the purchase date (YYYY-MM-DD)",
+    },
+    {
+      Name: "Warranty",
+      columnWidth: 15,
+      isRequired: true,
+      isList: false,
+      comment: "Enter warranty period in months",
+    },
+    {
+      Name: "Name",
+      columnWidth: 25,
+      isRequired: false,
+      isList: false,
+      comment: "Enter the customer's name (optional)",
+    },
+    {
+      Name: "Email",
+      columnWidth: 30,
+      isRequired: true,
+      isList: false,
+      comment: "Enter a valid email address",
+      showErrorMessage: true,
+      error: "Invalid email format",
+      errorTitle: "Email Error",
+    },
+    {
+      Name: "Phono",
+      columnWidth: 20,
+      isRequired: false,
+      isList: false,
+      comment: "Enter the phone number (optional)",
+    },
+  ];
+
+  const handleBulkFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBulkFile(file);
+  };
+
+  const handleBulkUpload = () => {
+    if (!bulkFile) {
+      toast({
+        title: "Please select a file before uploading.",
+        type: "destructive",
+      });
+      return;
+    }
+
+    SellerService.BulkUploadPurchase(bulkFile as File, sellerId)
+      .then((response: { data: BulkUploadResponse }) => {
+        const { statusCode, message } = response.data;
+        setBulkUploadResults(response.data);
+
+        if (statusCode === 200) {
+          toast({
+            type: "success",
+            title: message || "Upload successful",
+          });
+          fetchPurchases();
+          if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+            setBulkFile(null);
+          }
+        } else if (statusCode === 509) {
+          toast({
+            type: "destructive",
+            title: message || "File format issue",
+          });
+        } else {
+          toast({
+            type: "destructive",
+            title: message || "Couldn't upload file",
+          });
+        }
+      })
+      .catch((error: unknown) => {
+        console.error("Bulk upload failed:", error);
+        toast({
+          type: "destructive",
+          title: "Failed to upload file",
+          description: "Please check the console for details.",
+        });
+      });
+  };
 
   return (
     <div className="p-4 md:p-6 mx-auto space-y-6 bg-white min-h-screen text-gray-900 max-w-7xl">
@@ -318,11 +435,146 @@ const [bulkuploadb,setbulkUploadb]=useState(false);
           </button>
         </div>
 
+        {bulkuploadmode && (
+          <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex justify-center items-center z-50">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+              <p
+                onClick={() => {
+                  setBulkUpload(false);
+                }}
+                className="flex justify-end relative right-0 top-0 bg-white text-black cursor-pointer "
+              >
+                X
+              </p>
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-row gap-3">
+                  <input
+                    type="file"
+                    accept=".csv, .xlsx, .xls"
+                    onChange={handleBulkFileChange}
+                    className="w-full border px-4 py-2 rounded-lg"
+                    ref={fileInputRef}
+                  />
+                  <button
+                    onClick={handleBulkUpload}
+                    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+                    title="Upload"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"
+                      />
+                    </svg>
+                  </button>
+
+                  <button
+                    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+                    onClick={() => {
+                      setBulkUploadResults(null);
+                      setBulkFile(null);
+                      if (fileInputRef.current) {
+                        fileInputRef.current.value = "";
+                      }
+                    }}
+                    title="Reset"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M4 4v5h.582M20 20v-5h-.581M3.977 9A9.003 9.003 0 0112 3a9 9 0 018 4.472M20.023 15A9.003 9.003 0 0112 21a9 9 0 01-8-4.472"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Results table - only show if we have results */}
+                <div className="flex justify-between">
+                  <h2>Upload Log</h2>
+                  <TemplateGenerator
+                    columnsConfig={baseColumnsConfig}
+                    TemplateName={"ProductUploadTemplate"}
+                  />
+                </div>
+                {bulkUploadResults && (
+                  <div className="border rounded-lg overflow-hidden max-h-60 overflow-y-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-50 sticky top-0">
+                        <tr>
+                          <th className="px-4 py-2 text-left border-b">
+                            Status
+                          </th>
+                          <th className="px-4 py-2 text-left border-b">
+                            Record
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {/* Successful records */}
+                        {bulkUploadResults.successRecords.map(
+                          (record, index) => (
+                            <tr
+                              key={`success-${index}`}
+                              className="bg-green-50 max-h-20 overflow-y-scroll"
+                            >
+                              <td className="px-4 py-2 border-b text-green-600">
+                                Success
+                              </td>
+                              <td className="px-4 py-2 border-b">{record}</td>
+                            </tr>
+                          )
+                        )}
+
+                        {/* Failed records */}
+                        {bulkUploadResults.failedRecords.map(
+                          (record, index) => (
+                            <tr
+                              key={`failed-${index}`}
+                              className="bg-red-50 max-h-20 overflow-y-scroll"
+                            >
+                              <td className="px-4 py-2 border-b text-red-600">
+                                Failed
+                              </td>
+                              <td className="px-4 py-2 border-b">{record}</td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Filters and Add Buttons */}
         <div className="w-full md:w-auto">
           {activeTab === "inventory" ? (
             <div className="flex flex-col md:flex-row md:items-center gap-2 w-full">
               <div className="flex flex-wrap gap-2">
+                <button
+                  className="h-10 text-white flex text-center items-center"
+                  onClick={() => setBulkUpload(true)}
+                >
+                  Sell in Bulk
+                </button>
                 <input
                   type="text"
                   placeholder="Model No"
@@ -434,6 +686,7 @@ const [bulkuploadb,setbulkUploadb]=useState(false);
               const foundProduct = Object.values(productDetailsMap).find((p) =>
                 p.productImages?.includes(previewImage)
               );
+             
               return foundProduct &&
                 foundProduct.productImages &&
                 foundProduct.productImages.length > 1 ? (
@@ -755,213 +1008,210 @@ const [bulkuploadb,setbulkUploadb]=useState(false);
               </svg>
             </button>
             <div className="flex flex-row gap-3">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900">
-              {editingItem ? "Edit Inventory" : "Add Inventory"}
-            </h3>
-<button className="bg-gray-900 text-white" onClick={()=>setbulkUploadb(!bulkuploadb)}>
-  Bulk Upload
-</button>
-</div>
-{
-  bulkuploadb?(
-    <div>
-<div className="flex flex-row gap-3 top-3">
-                    <input
-                      type="file"
-                      accept=".csv, .xlsx, .xls"
-                      onChange={handleBulkFileChangeb}
-                      className="w-full border px-4 py-2 rounded-lg"
-                      ref={fileInputRefb}
-                    />
-                    <button
-                      onClick={handleBulkUploadb}
-                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
-                      title="Upload"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-5 h-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"
-                        />
-                      </svg>
-                    </button>
-
-                    <button
-                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
-                      onClick={() => {
-                        setBulkUploadResultsb(null);
-                        setBulkFileb(null);
-                        if (fileInputRefb.current) {
-                          fileInputRefb.current.value = "";
-                        }
-                      }}
-                      title="Reset"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-5 h-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M4 4v5h.582M20 20v-5h-.581M3.977 9A9.003 9.003 0 0112 3a9 9 0 018 4.472M20.023 15A9.003 9.003 0 0112 21a9 9 0 01-8-4.472"
-                        />
-                      </svg>
-                    </button>
-                  </div>
- {bulkUploadResultsb && (
-                    <div className="border rounded-lg overflow-hidden max-h-60 overflow-y-auto">
-                      <table className="w-full text-sm">
-                        <thead className="bg-gray-50 sticky top-0">
-                          <tr>
-                            <th className="px-4 py-2 text-left border-b">
-                              Status
-                            </th>
-                            <th className="px-4 py-2 text-left border-b">
-                              Record
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {/* Successful records */}
-                          {bulkUploadResultsb.successRecords.map(
-                            (record, index) => (
-                              <tr
-                                key={`success-${index}`}
-                                className="bg-green-50 max-h-20 overflow-y-scroll"
-                              >
-                                <td className="px-4 py-2 border-b text-green-600">
-                                  Success
-                                </td>
-                                <td className="px-4 py-2 border-b">{record}</td>
-                              </tr>
-                            )
-                          )}
-
-                          {/* Failed records */}
-                          {bulkUploadResultsb.failedRecords.map(
-                            (record, index) => (
-                              <tr
-                                key={`failed-${index}`}
-                                className="bg-red-50 max-h-20 overflow-y-scroll"
-                              >
-                                <td className="px-4 py-2 border-b text-red-600">
-                                  Failed
-                                </td>
-                                <td className="px-4 py-2 border-b">{record}</td>
-                              </tr>
-                            )
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                  </div>
-  ):(
-<form
-              onSubmit={inventoryForm.handleSubmit(handleInventorySubmit)}
-              className="space-y-4"
-            >
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Model No
-                  </label>
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">
+                {editingItem ? "Edit Inventory" : "Add Inventory"}
+              </h3>
+              <button 
+                className="bg-gray-900 text-white" 
+                onClick={() => setbulkUploadb(!bulkuploadb)}
+              >
+                Bulk Upload
+              </button>
+            </div>
+            
+            {bulkuploadb ? (
+              <div>
+                <div className="flex flex-row gap-3 top-3">
                   <input
-                    {...inventoryForm.register("model_no")}
-                    placeholder="Model No"
-                    required
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                    type="file"
+                    accept=".csv, .xlsx, .xls"
+                    onChange={handleBulkFileChangeb}
+                    className="w-full border px-4 py-2 rounded-lg"
+                    ref={fileInputRefb}
                   />
-                </div>
-                {!editingItem && (
-                  <div className="flex items-end">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        fetchModelDetails(
-                          inventoryForm.getValues("model_no"),
-                          "inventory"
-                        )
-                      }
-                      className="bg-gray-900 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm"
+                  <button
+                    onClick={handleBulkUploadb}
+                    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+                    title="Upload"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
                     >
-                      Fetch
-                    </button>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"
+                      />
+                    </svg>
+                  </button>
+
+                  <button
+                    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+                    onClick={() => {
+                      setBulkUploadResultsb(null);
+                      setBulkFileb(null);
+                      if (fileInputRefb.current) {
+                        fileInputRefb.current.value = "";
+                      }
+                    }}
+                    title="Reset"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M4 4v5h.582M20 20v-5h-.581M3.977 9A9.003 9.003 0 0112 3a9 9 0 018 4.472M20.023 15A9.003 9.003 0 0112 21a9 9 0 01-8-4.472"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                {bulkUploadResultsb && (
+                  <div className="border rounded-lg overflow-hidden max-h-60 overflow-y-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-50 sticky top-0">
+                        <tr>
+                          <th className="px-4 py-2 text-left border-b">
+                            Status
+                          </th>
+                          <th className="px-4 py-2 text-left border-b">
+                            Record
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {/* Successful records */}
+                        {bulkUploadResultsb.successRecords.map(
+                          (record, index) => (
+                            <tr
+                              key={`success-${index}`}
+                              className="bg-green-50 max-h-20 overflow-y-scroll"
+                            >
+                              <td className="px-4 py-2 border-b text-green-600">
+                                Success
+                              </td>
+                              <td className="px-4 py-2 border-b">{record}</td>
+                            </tr>
+                          )
+                        )}
+
+                        {/* Failed records */}
+                        {bulkUploadResultsb.failedRecords.map(
+                          (record, index) => (
+                            <tr
+                              key={`failed-${index}`}
+                              className="bg-red-50 max-h-20 overflow-y-scroll"
+                            >
+                              <td className="px-4 py-2 border-b text-red-600">
+                                Failed
+                              </td>
+                              <td className="px-4 py-2 border-b">{record}</td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Price
-                  </label>
-                  <input
-                    {...inventoryForm.register("price")}
-                    type="number"
-                    required
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Warranty (Months)
-                  </label>
-                  <input
-                    {...inventoryForm.register("warranty")}
-                    type="number"
-                    required
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Purchase Date
-                </label>
-                <input
-                  {...inventoryForm.register("purchase_date")}
-                  type="date"
-                  max={new Date().toISOString().split("T")[0]} // sets today's date as max
-                  required
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-gray-200 text-black"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={!inventoryModelValid}
-                className={`w-full py-2 rounded-md text-white text-sm font-medium transition ${
-                  inventoryModelValid
-                    ? "bg-gray-900 hover:bg-gray-700"
-                    : "bg-gray-400 cursor-not-allowed"
-                }`}
+            ) : (
+              <form
+                onSubmit={inventoryForm.handleSubmit(handleInventorySubmit)}
+                className="space-y-4"
               >
-                {editingItem ? "Update Item" : "Add to Inventory"}
-              </button>
-            </form>
-  )
-}
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Model No
+                    </label>
+                    <input
+                      {...inventoryForm.register("model_no")}
+                      placeholder="Model No"
+                      required
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                    />
+                  </div>
+                  {!editingItem && (
+                    <div className="flex items-end">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          fetchModelDetails(
+                            inventoryForm.getValues("model_no"),
+                            "inventory"
+                          )
+                        }
+                        className="bg-gray-900 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm"
+                      >
+                        Fetch
+                      </button>
+                    </div>
+                  )}
+                </div>
 
-             
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Price
+                    </label>
+                    <input
+                      {...inventoryForm.register("price")}
+                      type="number"
+                      required
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Warranty (Months)
+                    </label>
+                    <input
+                      {...inventoryForm.register("warranty")}
+                      type="number"
+                      required
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                    />
+                  </div>
+                </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Purchase Date
+                  </label>
+                  <input
+                    {...inventoryForm.register("purchase_date")}
+                    type="date"
+                    max={new Date().toISOString().split("T")[0]}
+                    required
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-gray-200 text-black"
+                  />
+                </div>
 
-
-            
+                <button
+                  type="submit"
+                  disabled={!inventoryModelValid}
+                  className={`w-full py-2 rounded-md text-white text-sm font-medium transition ${
+                    inventoryModelValid
+                      ? "bg-gray-900 hover:bg-gray-700"
+                      : "bg-gray-400 cursor-not-allowed"
+                  }`}
+                >
+                  {editingItem ? "Update Item" : "Add to Inventory"}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       )}
@@ -1044,7 +1294,7 @@ const [bulkuploadb,setbulkUploadb]=useState(false);
                   {...purchaseForm.register("purchase_date")}
                   type="date"
                   required
-                  max={new Date().toISOString().split("T")[0]} // sets today's date as max
+                  max={new Date().toISOString().split("T")[0]}
                   className="w-full p-2 border bg-gray-200 text-black border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
                 />
               </div>

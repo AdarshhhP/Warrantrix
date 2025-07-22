@@ -67,8 +67,6 @@ const Seller = () => {
     enrichWithProductDetails(data.map((i: any) => i.model_no));
   };
 
-  
-
   const fetchPurchases = async () => {
     const data = await SellerService.fetchPurchases(sellerId, modelnopurchase);
     setPurchases(data);
@@ -299,7 +297,7 @@ const Seller = () => {
       });
       return;
     }
-console.log(sellerId,"sellerId")
+    console.log(sellerId, "sellerId");
     SellerService.BulkUploadPurchase(bulkFile as File, sellerId)
       .then((response: { data: BulkUploadResponse }) => {
         const { statusCode, message } = response.data;

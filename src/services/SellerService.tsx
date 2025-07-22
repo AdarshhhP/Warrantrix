@@ -61,6 +61,18 @@ class SellerService {
     return res.data.content || [];
   }
 
+    async BulkUploadProduct( file: File,sellerId:number) {
+  const formData = new FormData();
+  formData.append("file", file); // key must match backend (@RequestParam("file"))
+
+  return axios.post(`${BASE_URL}/bulk-upload-inventory`, formData, {
+    params: { seller_id: sellerId },
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+}
+
   async fetchPurchases(sellerId: number, modelNo: string) {
     const res = await axios.get(`${BASE_URL}/GetPurchases`, {
       params: {

@@ -44,7 +44,7 @@ type WarrantyRequest = {
   warranty_status: number;
   productImages: string[];
   company_id: number;
-  rejection_remark: string;
+  rejection_remark:string;
 };
 
 export interface BulkUploadResponse {
@@ -64,7 +64,7 @@ const Company = () => {
   const [images, setImages] = useState<File[]>([]);
   const [remarks, setRemarks] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [previewImageModelNo, setpreviewImageModelNo] = useState("");
+  const [previewImageModelNo,setpreviewImageModelNo]=useState("");
   const [previewImageREquest, setpreviewImageREquest] = useState<string | null>(
     null
   );
@@ -209,7 +209,7 @@ const Company = () => {
     }
 
     companyService
-      .BulkUploadProduct(bulkFile as File, companyId)
+      .BulkUploadProduct(bulkFile as File,companyId)
       .then((response: { data: BulkUploadResponse }) => {
         const { statusCode, message } = response.data;
         setBulkUploadResults(response.data); // Store the results
@@ -307,7 +307,7 @@ const Company = () => {
       comment: "Enter base64 string for product image (optional)",
     },
   ];
-  console.log(products, "products");
+console.log(products,"products")
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 p-6 md:p-8">
       <Toaster />
@@ -843,11 +843,10 @@ const Company = () => {
                   </p>
                   {product.productImages && (
                     <button
-                      onClick={() => {
-                        setPreviewImage(product.productImages[0]);
-                        setpreviewImageModelNo(product.model_no);
-                      }}
-                      className="text-white text-xs"
+onClick={() => {
+  setPreviewImage(product.productImages[0]);
+  setpreviewImageModelNo(product.model_no);
+}}                      className="text-white text-xs"
                     >
                       View Image
                     </button>
@@ -1018,7 +1017,7 @@ const Company = () => {
                           ? "text-green-600"
                           : "text-red-500"
                       }`}
-                      onClick={() => setremarksmode(true)}
+onClick={()=> setremarksmode(true)}
                     >
                       {req.warranty_status === 1
                         ? "Pending"
@@ -1054,107 +1053,101 @@ const Company = () => {
                       />
                     </svg>
                     <div className="flex flex-col">
-                      <p>Reason: {req.reason}</p>
-                      <p>Remarks: {req.rejection_remark}</p>
+                   <p>Reason: {req.reason}</p> 
+                    <p>Remarks: {req.rejection_remark}</p>
                     </div>
                   </p>
                 </div>
 
-                {remarksmode && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
-                    <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
-                      {/* Close Button */}
-                      <button
-                        onClick={() => setremarksmode(false)}
-                        className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 transition-colors"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-6 w-6 text-gray-500"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
-                      </button>
+               {remarksmode && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+    <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+      {/* Close Button */}
+      <button
+        onClick={() => setremarksmode(false)}
+        className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 transition-colors"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-6 w-6 text-gray-500"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
 
-                      <h3 className="text-xl font-semibold text-gray-800 mb-4">
-                        Update Warranty Request
-                      </h3>
+      <h3 className="text-xl font-semibold text-gray-800 mb-4">
+        Update Warranty Request
+      </h3>
 
-                      <div className="space-y-4">
-                        {/* Remarks Input */}
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Remarks{" "}
-                            {!remarks.trim() && (
-                              <span className="text-red-500">*</span>
-                            )}
-                          </label>
-                          <textarea
-                            value={remarks}
-                            onChange={(e) => setRemarks(e.target.value)}
-                            placeholder="Enter your remarks..."
-                            className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 h-24 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                            autoFocus
-                          />
-                          {!remarks.trim() && (
-                            <p className="mt-1 text-sm text-red-500">
-                              Remarks are required before changing status
-                            </p>
-                          )}
-                        </div>
+      <div className="space-y-4">
+        {/* Remarks Input */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Remarks {!remarks.trim() && (
+              <span className="text-red-500">*</span>
+            )}
+          </label>
+          <textarea
+            value={remarks}
+            onChange={(e) => setRemarks(e.target.value)}
+            placeholder="Enter your remarks..."
+            className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 h-24 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+            autoFocus
+          />
+          {!remarks.trim() && (
+            <p className="mt-1 text-sm text-red-500">
+              Remarks are required before changing status
+            </p>
+          )}
+        </div>
 
-                        {/* Status Selector */}
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Status
-                          </label>
-                          <select
-                            value={req.warranty_status}
-                            onChange={(e) => {
-                              if (remarks.trim() === "") {
-                                toast({
-                                  variant: "destructive",
-                                  title: "Please enter remarks first",
-                                });
-                                return;
-                              }
-                              handleStatusChange(
-                                Number(e.target.value),
-                                req.warranty_request_id
-                              );
-                              setremarksmode(false);
-                            }}
-                            className={`w-full border px-3 py-2 rounded-lg font-medium focus:ring-2 focus:ring-blue-500 outline-none transition ${
-                              req.warranty_status === 1
-                                ? "border-amber-200 bg-amber-50"
-                                : req.warranty_status === 2
-                                ? "border-green-200 bg-green-50"
-                                : "border-red-200 bg-red-50"
-                            } ${
-                              !remarks.trim()
-                                ? "opacity-70 cursor-not-allowed"
-                                : "cursor-pointer"
-                            }`}
-                          >
-                            <option value="1" disabled>
-                              Pending
-                            </option>
-                            <option value="2">Approved</option>
-                            <option value="3">Rejected</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
+        {/* Status Selector */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Status
+          </label>
+          <select
+            value={req.warranty_status}
+            onChange={(e) => {
+              if (remarks.trim() === "") {
+                toast({
+                  variant: "destructive",
+                  title: "Please enter remarks first",
+                });
+                return;
+              }
+              handleStatusChange(Number(e.target.value), req.warranty_request_id);
+              setremarksmode(false);
+            }}
+            className={`w-full border px-3 py-2 rounded-lg font-medium focus:ring-2 focus:ring-blue-500 outline-none transition ${
+              req.warranty_status === 1
+                ? "border-amber-200 bg-amber-50"
+                : req.warranty_status === 2
+                ? "border-green-200 bg-green-50"
+                : "border-red-200 bg-red-50"
+            } ${
+              !remarks.trim() ? "opacity-70 cursor-not-allowed" : "cursor-pointer"
+            }`}
+          >
+            <option value="1" disabled>
+              Pending
+            </option>
+            <option value="2">Approved</option>
+            <option value="3">Rejected</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
               </div>
             ))
           )}
@@ -1330,61 +1323,62 @@ const Company = () => {
               ) : (
                 <div className="flex flex-col gap-3">
                   <div className="flex flex-row gap-3">
-                    <input
-                      type="file"
-                      accept=".csv, .xlsx, .xls"
-                      onChange={handleBulkFileChange}
-                      className="w-full border px-4 py-2 rounded-lg"
-                      ref={fileInputRef}
-                    />
-                    <button
-                      onClick={handleBulkUpload}
-                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
-                      title="Upload"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-5 h-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"
-                        />
-                      </svg>
-                    </button>
+  <input
+    type="file"
+    accept=".csv, .xlsx, .xls"
+    onChange={handleBulkFileChange}
+    className="w-full border px-4 py-2 rounded-lg"
+    ref={fileInputRef}
+  />
+  <button
+    onClick={handleBulkUpload}
+    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+    title="Upload"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-5 h-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"
+      />
+    </svg>
+  </button>
 
-                    <button
-                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
-                      onClick={() => {
-                        setBulkUploadResults(null);
-                        setBulkFile(null);
-                        if (fileInputRef.current) {
-                          fileInputRef.current.value = "";
-                        }
-                      }}
-                      title="Reset"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-5 h-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M4 4v5h.582M20 20v-5h-.581M3.977 9A9.003 9.003 0 0112 3a9 9 0 018 4.472M20.023 15A9.003 9.003 0 0112 21a9 9 0 01-8-4.472"
-                        />
-                      </svg>
-                    </button>
-                  </div>
+  <button
+    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+    onClick={() => {
+      setBulkUploadResults(null);
+      setBulkFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }}
+    title="Reset"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-5 h-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M4 4v5h.582M20 20v-5h-.581M3.977 9A9.003 9.003 0 0112 3a9 9 0 018 4.472M20.023 15A9.003 9.003 0 0112 21a9 9 0 01-8-4.472"
+      />
+    </svg>
+  </button>
+</div>
+
 
                   {/* Results table - only show if we have results */}
                   <div className="flex justify-between">

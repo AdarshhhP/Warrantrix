@@ -21,11 +21,11 @@ const Sidebar: React.FC = () => {
 
   const isActive = (tab: string) =>
     activeTab === tab
-      ? "w-full text-left px-4 py-2 bg-gray-300 text-black rounded"
-      : "w-full text-left px-4 py-2 hover:bg-gray-700 rounded";
+      ? "w-full text-left px-4 py-2 bg-blue-200 text-black rounded"
+      : "w-full text-left px-4 py-2 hover:bg-blue-300 rounded bg-white text-black";
 
   return (
-<div className="h-screen w-64 bg-gray-900 text-white p-4 flex flex-col z-50">
+<div className="h-screen w-64 bg-stone-600 text-white p-4 flex flex-col z-50">
       <div className="space-y-4">
         <h2 className="text-xl font-bold mb-6">Dashboard</h2>
 
@@ -79,7 +79,7 @@ const Sidebar: React.FC = () => {
 
       <div className="mt-auto pt-4">
         <button
-          className="w-full bg-red-600 px-4 py-2 rounded hover:bg-red-700 transition"
+          className="w-full bg-blue-200 px-4 py-2 rounded hover:bg-blue-500 text-black transition"
           onClick={() => {
             localStorage.clear();
             navigate("/");

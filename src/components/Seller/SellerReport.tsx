@@ -3,7 +3,6 @@
 
 import React, { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
-import DownloadIcon from "../Icons/DownloadIcon";
 import SellerService from "../../services/SellerService";
 
 const SellerReport = () => {
@@ -144,16 +143,17 @@ const SellerReport = () => {
 
   return (
     <div className="p-6 min-w-sc mx-auto space-y-6 bg-white h-full text-gray-900">
-      <div className="w-full flex justify-center">
+      <div className="w-full flex justify-between">
         <h1 className="text-4xl font-bold text-center text-gray-900 flex flex-row">
           Reports
-          <p
-            className="flex items-center justify-center"
-            onClick={handleDownload}
-          >
-            <DownloadIcon />
-          </p>
+          
         </h1>
+         <button
+          onClick={handleDownload}
+          className="flex items-center bg-blue-600 text-white text-sm px-4 py-2 rounded-md hover:bg-blue-800 transition"
+        >
+          Download
+        </button>
       </div>
 
       <div className="flex justify-between items-center mb-6">
@@ -162,8 +162,8 @@ const SellerReport = () => {
             onClick={() => setActiveTab("inventory")}
             className={`px-5 py-2 rounded-full font-medium transition ${
               activeTab === "inventory"
-                ? "bg-gray-900 text-white shadow"
-                : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
+                ? "bg-blue-600 text-white shadow"
+                : "bg-white border border-gray-300 text-gray-700 hover:bg-blue-100"
             }`}
           >
             Inventory
@@ -172,8 +172,8 @@ const SellerReport = () => {
             onClick={() => setActiveTab("purchases")}
             className={`px-5 py-2 rounded-full font-medium transition ${
               activeTab === "purchases"
-                ? "bg-gray-900 text-white shadow"
-                : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
+                ? "bg-blue-600 text-white shadow"
+                : "bg-white border border-gray-300 text-gray-700 hover:bg-blue-100"
             }`}
           >
             Sold Items
@@ -214,8 +214,8 @@ const SellerReport = () => {
                 <option value="4">Metal</option>
               </select>
               <button
-                onClick={() => setInventoryPage(0)}
-                className="bg-gray-900 hover:bg-gray-700 text-white px-4 py-1.5 rounded-md shadow-sm text-sm"
+                onClick={() => {setInventoryPage(0);fetchInventory();fetchPurchases()}}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-md shadow-sm text-sm"
               >
                 Search
               </button>
@@ -231,7 +231,7 @@ const SellerReport = () => {
               />
               <button
                 onClick={() => setPurchasePage(0)}
-                className="bg-gray-900 hover:bg-gray-700 text-white px-4 py-1.5 rounded-md shadow-sm text-sm"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-md shadow-sm text-sm"
               >
                 Search
               </button>
@@ -244,7 +244,7 @@ const SellerReport = () => {
   <div className="border border-gray-300 shadow-sm flex flex-col justify-between" style={{ height: '400px' }}>
     <div className="overflow-auto flex-1">
       <table className="min-w-full table-auto text-sm text-left text-gray-800">
-        <thead className="bg-gray-100 text-gray-900 sticky top-0">
+        <thead className="bg-blue-100 text-gray-900 sticky top-0">
           <tr>
             <th className="p-2 border">Sl No</th>
             <th className="p-2 border">Model No</th>
@@ -261,7 +261,7 @@ const SellerReport = () => {
           {inventory.map((item, index) => {
             const prod = productDetailsMap[item.model_no] || {};
             return (
-              <tr key={index + 1} className="text-center hover:bg-gray-50">
+              <tr key={index + 1} className="text-center hover:bg-blue-50">
                 <td className="p-2 border">{inventoryPage * inventorySize + index + 1}</td>
                 <td className="p-2 border">{item.model_no}</td>
                 <td className="p-2 border">₹{item.price}</td>
@@ -295,7 +295,7 @@ const SellerReport = () => {
         <button
           onClick={() => setInventoryPage((prev) => Math.max(prev - 1, 0))}
           disabled={inventoryPage === 0}
-          className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+          className="px-4 py-1.5 rounded bg-blue-200 text-gray-700 hover:bg-blue-300 disabled:opacity-50"
         >
           Prev
         </button>
@@ -305,7 +305,7 @@ const SellerReport = () => {
             setInventoryPage((prev) => Math.min(prev + 1, inventoryTotalPages - 1))
           }
           disabled={inventoryPage >= inventoryTotalPages - 1}
-          className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+          className="px-4 py-1.5 rounded bg-blue-200 text-gray-700 hover:bg-blue-300 disabled:opacity-50"
         >
           Next
         </button>
@@ -331,11 +331,11 @@ const SellerReport = () => {
   <div className="border border-gray-300 shadow-sm flex flex-col justify-between" style={{ height: '400px' }}>
     <div className="overflow-auto flex-1">
       <table className="min-w-full table-auto text-sm text-left text-gray-800">
-        <thead className="bg-gray-100 text-gray-900 sticky top-0">
+        <thead className="bg-blue-100 text-gray-900 sticky top-0">
           <tr>
             <th className="p-2 border">Sl.No</th>
-            <th className="p-2 border">Customer Name</th>
             <th className="p-2 border">Model No</th>
+            <th className="p-2 border">Customer Name</th>
             <th className="p-2 border">Price</th>
             <th className="p-2 border">Purchase Date</th>
             <th className="p-2 border">Product Name</th>
@@ -348,10 +348,10 @@ const SellerReport = () => {
           {purchases.map((purchase, index) => {
             const prod = productDetailsMap[purchase.modelNo] || {};
             return (
-              <tr key={purchase.sale_id} className="text-center hover:bg-gray-50">
+              <tr key={purchase.sale_id} className="text-center hover:bg-blue-50">
                 <td className="p-2 border">{purchasePage * purchaseSize + index + 1}</td>
-                <td className="p-2 border">{purchase.name}</td>
                 <td className="p-2 border">{purchase.modelNo}</td>
+                <td className="p-2 border">{purchase.name}</td>
                 <td className="p-2 border">₹{purchase.price}</td>
                 <td className="p-2 border">{purchase.purchase_date}</td>
                 <td className="p-2 border">{prod.product_name || "-"}</td>
@@ -374,7 +374,7 @@ const SellerReport = () => {
         <button
           onClick={() => setPurchasePage((prev) => Math.max(prev - 1, 0))}
           disabled={purchasePage === 0}
-          className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+          className="px-4 py-1.5 rounded bg-blue-200 text-gray-700 hover:bg-blue-300 disabled:opacity-50"
         >
           Prev
         </button>
@@ -384,7 +384,7 @@ const SellerReport = () => {
             setPurchasePage((prev) => Math.min(prev + 1, purchaseTotalPages - 1))
           }
           disabled={purchasePage >= purchaseTotalPages - 1}
-          className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+          className="px-4 py-1.5 rounded bg-blue-200 text-gray-700 hover:bg-blue-300 disabled:opacity-50"
         >
           Next
         </button>

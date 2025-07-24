@@ -159,19 +159,19 @@ const CompanyReport = () => {
         <h1 className="text-4xl font-bold text-gray-900">Reports</h1>
         <button
           onClick={handleDownload}
-          className="flex items-center bg-gray-900 text-white text-sm px-4 py-2 rounded-md hover:bg-gray-800 transition"
+          className="flex items-center bg-blue-600 h-8 text-white text-sm px-4 py-2 rounded-md hover:bg-gray-800 transition"
         >
           Download Excel
         </button>
       </div>
 
-      <div className="flex justify-between">
-        <div className="space-x-4">
+      <div className="flex flex-row justify-between">
+        <div className="space-x-2 flex flex-row">
           <button
             onClick={() => setActiveTab("products")}
-            className={`px-6 py-2 rounded-lg font-medium ${
+            className={`px-6 h-8 flex items-center justify-center rounded-lg font-medium ${
               activeTab === "products"
-                ? "bg-gray-900 text-white"
+                ? "bg-blue-600 text-white"
                 : "bg-white text-gray-700 border border-gray-300"
             }`}
           >
@@ -179,9 +179,9 @@ const CompanyReport = () => {
           </button>
           <button
             onClick={() => setActiveTab("requests")}
-            className={`px-6 py-2 rounded-lg font-medium ${
+            className={`px-6 h-8 flex items-center justify-center rounded-lg font-medium ${
               activeTab === "requests"
-                ? "bg-gray-900 text-white"
+                ? "bg-blue-600 text-white"
                 : "bg-white text-gray-700 border border-gray-300"
             }`}
           >
@@ -190,20 +190,20 @@ const CompanyReport = () => {
         </div>
 
         {activeTab === "requests" && (
-          <div className="flex flex-wrap items-center gap-3 p-3 rounded-md shadow-sm text-sm">
+          <div className="flex flex-wrap items-center gap-1 p-1 rounded-md shadow-sm text-sm">
             <input
               type="text"
               onChange={(e) => setAmodelNo(e.target.value)}
               placeholder="Model No"
-              className="text-gray-900 placeholder-gray-900 border border-gray-700 rounded px-3 py-1.5 w-48 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
+              className="text-gray-900 placeholder-gray-900 border border-gray-700 rounded px-3 py-1 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
             />
 
             <select
               value={astatus}
               onChange={(e) => setAstatus(e.target.value)}
-              className="text-gray-900 border placeholder-gray-900 border-gray-700 rounded px-3 py-1.5 w-40 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
+              className="text-gray-900 border placeholder-gray-900 border-gray-700 rounded px-3 py-1 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
             >
-              <option value="">All Statuses</option>
+              <option value="">All Status</option>
               <option value="1">Pending</option>
               <option value="2">Approved</option>
               <option value="3">Rejected</option>
@@ -214,26 +214,40 @@ const CompanyReport = () => {
                 setRequestPage(0);
                 loadRequests();
               }}
-              className="bg-gray-900 text-gray-100 px-4 py-1.5 rounded hover:bg-gray-800 transition"
+              className="bg-blue-600 text-gray-100 px-4 py-1.5 rounded hover:bg-gray-800 transition"
             >
-              Search
+              {/* Search */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
             </button>
           </div>
         )}
 
         {activeTab === "products" && (
-          <div className="flex flex-wrap items-center gap-3 p-3 rounded-md shadow-sm text-sm">
+          <div className="flex flex-wrap items-center gap-1 p-1 rounded-md shadow-sm text-sm">
             <input
               type="text"
               onChange={(e) => setModelNo(e.target.value)}
               placeholder="Model No"
-              className="text-gray-900 placeholder-gray-900 border border-gray-700 rounded px-3 py-1.5 w-48 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
+              className="text-gray-900 placeholder-gray-900 border border-gray-700 rounded px-3 py-1 w-48 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
             />
 
             <select
               value={holderStatus}
               onChange={(e) => setHolderStatus(e.target.value)}
-              className="text-gray-900 border placeholder-gray-900 border-gray-700 rounded px-3 py-1.5 w-40 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
+              className="text-gray-900 border placeholder-gray-900 border-gray-700 rounded px-3 py-1 w-40 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
             >
               <option value="">All Product Status</option>
               <option value="1">In Company Stocks</option>
@@ -246,7 +260,7 @@ const CompanyReport = () => {
             <select
               value={productCategory}
               onChange={(e) => setProductCategory(e.target.value)}
-              className="text-gray-900 border placeholder-gray-900 border-gray-700 rounded px-3 py-1.5 w-40 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
+              className="text-gray-900 border placeholder-gray-900 border-gray-700 rounded px-3 py-1 w-40 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
             >
               <option value="">All Categories</option>
               <option value="1">Electronics</option>
@@ -260,28 +274,42 @@ const CompanyReport = () => {
                 setPage(0);
                 loadProducts();
               }}
-              className="bg-gray-900 text-gray-100 px-4 py-1.5 rounded hover:bg-gray-800 transition"
+              className="bg-blue-600 text-gray-100 px-4 py-1.5 rounded hover:bg-gray-800 transition"
             >
-              Search
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+              {/* Search */}
             </button>
           </div>
         )}
       </div>
 
       {activeTab === "products" && (
-        <div>
-          <div className="border border-gray-300 shadow-sm flex flex-col justify-between h-[300px] overflow-x-auto">
+        <div className="">
+          <div className="border border-gray-300 shadow-sm flex flex-col justify-between h-[215px] overflow-x-auto">
             <table className="min-w-full table-auto text-sm text-left text-gray-800">
               <thead className="bg-gray-100 sticky top-0 z-10 text-gray-900">
                 <tr>
-                  <th className="px-4 py-2 border">Sl No</th>
-                  <th className="px-4 py-2 border">Product Name</th>
-                  <th className="px-4 py-2 border">Model No</th>
-                  <th className="px-4 py-2 border">Price</th>
-                  <th className="px-4 py-2 border">Warranty</th>
-                  <th className="px-4 py-2 border">Category</th>
-                  <th className="px-4 py-2 border">Manufacture Date</th>
-                  <th className="px-4 py-2 border">Product Status</th>
+                  <th className="px-4 py-1 border">Sl No</th>
+                  <th className="px-4 py-1 border">Model No</th>
+                  <th className="px-4 py-1 border">Product Name</th>
+                  <th className="px-4 py-1 border">Price</th>
+                  <th className="px-4 py-1 border">Warranty</th>
+                  <th className="px-4 py-1 border">Category</th>
+                  <th className="px-4 py-1 border">Manufacture Date</th>
+                  <th className="px-4 py-1 border">Product Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -297,10 +325,10 @@ const CompanyReport = () => {
                       <td className="px-4 py-2 border">
                         {page * size + index + 1}
                       </td>
+                      <td className="px-4 py-2 border">{product.model_no}</td>
                       <td className="px-4 py-2 border">
                         {product.product_name}
                       </td>
-                      <td className="px-4 py-2 border">{product.model_no}</td>
                       <td className="px-4 py-2 border">
                         ₹{product.product_price}
                       </td>
@@ -332,7 +360,7 @@ const CompanyReport = () => {
               </tbody>
             </table>
           </div>
-          <div className="flex justify-center items-center gap-2 pb-2 bg-white">
+          <div className="flex justify-center items-center gap-2 pb-2 pt-2 bg-white">
             <button
               onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
               disabled={page === 0}
@@ -371,17 +399,17 @@ const CompanyReport = () => {
 
       {activeTab === "requests" && (
         <div>
-        <div className="border border-gray-300 shadow-sm flex flex-col justify-between min-h-[300px] overflow-x-auto max-h-[300px]">
-          <table className="min-w-full table-auto text-sm text-left text-gray-800 max-h-[300px]">
+        <div className="border border-gray-300 shadow-sm flex flex-col justify-between min-h-[215px] overflow-x-auto max-h-[300px]">
+          <table className="min-w-full table-auto text-sm text-left text-gray-800 max-h-[215px]">
             <thead className="bg-gray-100 sticky top-0 z-10 text-gray-900">
               <tr>
-                <th className="px-4 py-2 border">Sl.No</th>
-                <th className="px-4 py-2 border">Customer Name</th>
-                <th className="px-4 py-2 border">Email</th>
-                <th className="px-4 py-2 border">Phone</th>
-                <th className="px-4 py-2 border">Model No</th>
-                <th className="px-4 py-2 border">Request Date</th>
-                <th className="px-4 py-2 border">Status</th>
+                <th className="px-4 py-1 border">Sl.No</th>
+                <th className="px-4 py-1 border">Model No</th>
+                <th className="px-4 py-1 border">Customer Name</th>
+                <th className="px-4 py-1 border">Email</th>
+                <th className="px-4 py-1 border">Phone</th>
+                <th className="px-4 py-1 border">Request Date</th>
+                <th className="px-4 py-1 border">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -400,10 +428,10 @@ const CompanyReport = () => {
                     <td className="px-4 py-2 border">
                       {requestPage * requestSize + index + 1}
                     </td>
+                    <td className="px-4 py-2 border">{req.model_no}</td>
                     <td className="px-4 py-2 border">{req.customer_name}</td>
                     <td className="px-4 py-2 border">{req.customer_email}</td>
                     <td className="px-4 py-2 border">{req.phone_number}</td>
-                    <td className="px-4 py-2 border">{req.model_no}</td>
                     <td className="px-4 py-2 border">{req.request_date}</td>
                     <td className="px-4 py-2 border font-medium text-gray-700">
                       {
@@ -420,7 +448,7 @@ const CompanyReport = () => {
 
           
         </div>
-<div className="flex justify-center items-center gap-2 pb-2 bg-white">
+         <div className="flex justify-center items-center gap-2 pb-2 bg-white pt-2">
             <button
               onClick={() => setRequestPage((prev) => Math.max(prev - 1, 0))}
               disabled={requestPage === 0}

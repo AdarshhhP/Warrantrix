@@ -108,7 +108,7 @@ function TemplateGenerator({ columnsConfig,TemplateName }: TemplateGeneratorProp
 
   return (
     <div className="flex justify-center">
-      <Button className="flex items-center gap-2 bg-gray-900 text-white" onClick={handleDownload} id="downloadtemp">
+      <Button className="flex items-center gap-2 bg-blue-500 text-white hover:bg-gray-600" onClick={handleDownload} id="downloadtemp">
         Download Template
       </Button>
     </div>

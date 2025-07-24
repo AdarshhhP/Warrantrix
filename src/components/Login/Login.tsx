@@ -59,7 +59,7 @@ export default function Login({ setToken }: LoginProps) {
   };
 
   return (
-    <div className="w-screen h-screen bg-gray-900 flex items-center justify-center p-4 sm:p-8">
+    <div className="w-screen h-screen bg-blue-200 flex items-center justify-center p-4 sm:p-8">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 space-y-6 border border-gray-300">
         {/* Tabs */}
         <div className="flex justify-center gap-4 mb-6">
@@ -70,7 +70,7 @@ export default function Login({ setToken }: LoginProps) {
             }}
             className={`px-5 py-2 rounded-full font-medium transition ${
               isLogin
-                ? "bg-gray-800 text-white shadow"
+                ? "bg-blue-600 text-white shadow"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
           >
@@ -83,7 +83,7 @@ export default function Login({ setToken }: LoginProps) {
             }}
             className={`px-5 py-2 rounded-full font-medium transition ${
               !isLogin
-                ? "bg-gray-800 text-white shadow"
+                ? "bg-blue-600 text-white shadow"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
           >
@@ -118,7 +118,7 @@ export default function Login({ setToken }: LoginProps) {
           />
           <button
             type="submit"
-            className="w-full bg-gray-800 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition"
+            className="w-full bg-blue-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition"
           >
             {isLogin ? "Login" : "Sign Up"}
           </button>

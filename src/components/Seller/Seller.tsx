@@ -112,6 +112,7 @@ const Seller = () => {
       const prod = await SellerService.getProductByModelNo(modelNo);
       if (!prod || !prod.model_no) {
         alert("Invalid model number");
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         formType === "inventory"
           ? setInventoryModelValid(false)
           : setPurchaseModelValid(false);
@@ -138,6 +139,7 @@ const Seller = () => {
     } catch (err) {
       console.error(err);
       alert("Error fetching model details");
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       formType === "inventory"
         ? setInventoryModelValid(false)
         : setPurchaseModelValid(false);
@@ -351,6 +353,37 @@ const Seller = () => {
     },
   ];
 
+  const baseColumnsConfigs: Columns = [
+    {
+      Name: "Model_no",
+      columnWidth: 20,
+      isRequired: true,
+      isList: false,
+      comment: "Enter the model number (must exist in inventory)",
+    },
+    {
+      Name: "Warranty",
+      columnWidth: 15,
+      isRequired: true,
+      isList: false,
+      comment: "Enter warranty period in months",
+    },
+    {
+      Name: "Purchase_date",
+      columnWidth: 20,
+      isRequired: true,
+      isList: false,
+      comment: "Enter the purchase date in format YYYY-MM-DD",
+    },
+    {
+      Name: "Price",
+      columnWidth: 15,
+      isRequired: true,
+      isList: false,
+      comment: "Enter the product price (numeric)",
+    },
+  ];
+
   const handleBulkFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -417,8 +450,8 @@ const Seller = () => {
             onClick={() => setActiveTab("inventory")}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
               activeTab === "inventory"
-                ? "bg-gray-900 text-white shadow"
-                : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
+                ? "bg-blue-600 text-white shadow"
+                : "bg-white border border-gray-200 text-gray-700 hover:bg-blue-50"
             }`}
           >
             Inventory
@@ -427,8 +460,8 @@ const Seller = () => {
             onClick={() => setActiveTab("purchases")}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
               activeTab === "purchases"
-                ? "bg-gray-900 text-white shadow"
-                : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
+                ? "bg-blue-600 text-white shadow"
+                : "bg-white border border-gray-200 text-gray-700 hover:bg-blue-50"
             }`}
           >
             Sold Items
@@ -447,6 +480,15 @@ const Seller = () => {
                 X
               </p>
               <div className="flex flex-col gap-3">
+                <div className="flex flex-row justify-between">
+                  <h2 className="text-gray-900 font-semibold">Bulk Upload</h2>
+                  {!bulkUploadResults && (
+                    <TemplateGenerator
+                      columnsConfig={baseColumnsConfig}
+                      TemplateName={"SellingTemplate"}
+                    />
+                  )}
+                </div>
                 <div className="flex flex-row gap-3">
                   <input
                     type="file"
@@ -457,7 +499,7 @@ const Seller = () => {
                   />
                   <button
                     onClick={handleBulkUpload}
-                    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
                     title="Upload"
                   >
                     <svg
@@ -477,7 +519,7 @@ const Seller = () => {
                   </button>
 
                   <button
-                    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
                     onClick={() => {
                       setBulkUploadResults(null);
                       setBulkFile(null);
@@ -505,58 +547,56 @@ const Seller = () => {
                 </div>
 
                 {/* Results table - only show if we have results */}
-                <div className="flex justify-between">
-                  <h2>Upload Log</h2>
-                  <TemplateGenerator
-                    columnsConfig={baseColumnsConfig}
-                    TemplateName={"ProductUploadTemplate"}
-                  />
-                </div>
+                <div className="flex justify-between"></div>
                 {bulkUploadResults && (
-                  <div className="border rounded-lg overflow-hidden max-h-60 overflow-y-auto">
-                    <table className="w-full text-sm">
-                      <thead className="bg-gray-50 sticky top-0">
-                        <tr>
-                          <th className="px-4 py-2 text-left border-b">
-                            Status
-                          </th>
-                          <th className="px-4 py-2 text-left border-b">
-                            Record
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {/* Successful records */}
-                        {bulkUploadResults.successRecords.map(
-                          (record, index) => (
-                            <tr
-                              key={`success-${index}`}
-                              className="bg-green-50 max-h-20 overflow-y-scroll"
-                            >
-                              <td className="px-4 py-2 border-b text-green-600">
-                                Success
-                              </td>
-                              <td className="px-4 py-2 border-b">{record}</td>
-                            </tr>
-                          )
-                        )}
+                  <div>
+                    <h2>Upload Log</h2>
 
-                        {/* Failed records */}
-                        {bulkUploadResults.failedRecords.map(
-                          (record, index) => (
-                            <tr
-                              key={`failed-${index}`}
-                              className="bg-red-50 max-h-20 overflow-y-scroll"
-                            >
-                              <td className="px-4 py-2 border-b text-red-600">
-                                Failed
-                              </td>
-                              <td className="px-4 py-2 border-b">{record}</td>
-                            </tr>
-                          )
-                        )}
-                      </tbody>
-                    </table>
+                    <div className="border rounded-lg overflow-hidden max-h-60 overflow-y-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-blue-50 sticky top-0">
+                          <tr>
+                            <th className="px-4 py-2 text-left border-b">
+                              Status
+                            </th>
+                            <th className="px-4 py-2 text-left border-b">
+                              Record
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {/* Successful records */}
+                          {bulkUploadResults.successRecords.map(
+                            (record, index) => (
+                              <tr
+                                key={`success-${index}`}
+                                className="bg-green-50 max-h-20 overflow-y-scroll"
+                              >
+                                <td className="px-4 py-2 border-b text-green-600">
+                                  Success
+                                </td>
+                                <td className="px-4 py-2 border-b">{record}</td>
+                              </tr>
+                            )
+                          )}
+
+                          {/* Failed records */}
+                          {bulkUploadResults.failedRecords.map(
+                            (record, index) => (
+                              <tr
+                                key={`failed-${index}`}
+                                className="bg-red-50 max-h-20 overflow-y-scroll"
+                              >
+                                <td className="px-4 py-2 border-b text-red-600">
+                                  Failed
+                                </td>
+                                <td className="px-4 py-2 border-b">{record}</td>
+                              </tr>
+                            )
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 )}
               </div>
@@ -570,7 +610,7 @@ const Seller = () => {
             <div className="flex flex-col md:flex-row md:items-center gap-2 w-full">
               <div className="flex flex-wrap gap-2">
                 <button
-                  className="h-10 text-white flex text-center items-center"
+                  className="h-10 text-white flex text-center items-center bg-blue-600 h-8"
                   onClick={() => setBulkUpload(true)}
                 >
                   Sell in Bulk
@@ -578,7 +618,7 @@ const Seller = () => {
                 <input
                   type="text"
                   placeholder="Model No"
-                  className="p-2 border border-gray-200 rounded-md text-sm w-32 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                  className="p-2 border border-gray-200 h-8 rounded-md text-sm w-32 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
                   value={modelNoss}
                   onChange={(e) => setModelNos(e.target.value)}
                 />
@@ -586,7 +626,7 @@ const Seller = () => {
                   type="number"
                   min={0}
                   placeholder="Warranty"
-                  className="p-2 border border-gray-200 rounded-md text-sm w-28 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                  className="p-2 border border-gray-200 h-8 rounded-md text-sm w-28 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
                   value={warrantys || ""}
                   onChange={(e) =>
                     setWarrantys(
@@ -601,7 +641,7 @@ const Seller = () => {
                     )
                   }
                   value={categoryIds || ""}
-                  className="p-2 border border-gray-200 rounded-md text-sm w-36 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                  className="px-2 border border-gray-200 rounded-md h-8 text-sm w-36 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
                 >
                   <option value="">Select Category</option>
                   <option value="1">Electronics</option>
@@ -611,7 +651,7 @@ const Seller = () => {
                 </select>
                 <button
                   onClick={fetchInventory}
-                  className="bg-gray-900 hover:bg-gray-700 text-white px-3 py-2 rounded-md shadow-sm text-sm whitespace-nowrap"
+                  className="bg-blue-600 hover:bg-blue-700 h-8 flex items-center justify-center text-white px-3 py-2 rounded-md shadow-sm text-sm whitespace-nowrap"
                 >
                   Search
                 </button>
@@ -624,7 +664,7 @@ const Seller = () => {
                   setInventoryModelValid(false);
                   setShowInventoryForm(true);
                 }}
-                className="bg-gray-900 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow text-sm whitespace-nowrap"
+                className="bg-blue-600 hover:bg-blue-700 h-8 flex items-center justify-center text-white px-4 py-2 rounded-md shadow text-sm whitespace-nowrap"
               >
                 + Add Item
               </button>
@@ -640,7 +680,7 @@ const Seller = () => {
               />
               <button
                 onClick={fetchPurchases}
-                className="bg-gray-900 hover:bg-gray-700 text-white px-3 py-2 rounded-md shadow-sm text-sm"
+                className="bg-blue-900 hover:bg-blue-700 text-white px-3 py-2 rounded-md shadow-sm text-sm"
               >
                 Search
               </button>
@@ -654,7 +694,7 @@ const Seller = () => {
           <div className="bg-white p-6 rounded-xl shadow-xl relative max-w-4xl w-full">
             <button
               onClick={() => setPreviewImage(null)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100"
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200 p-1 rounded-full hover:bg-blue-100"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -686,7 +726,7 @@ const Seller = () => {
               const foundProduct = Object.values(productDetailsMap).find((p) =>
                 p.productImages?.includes(previewImage)
               );
-             
+
               return foundProduct &&
                 foundProduct.productImages &&
                 foundProduct.productImages.length > 1 ? (
@@ -717,20 +757,20 @@ const Seller = () => {
 
       {/* Inventory List */}
       {activeTab === "inventory" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-4 gap-2">
           {inventory.length > 0 ? (
             inventory.map((item) => {
               const prod = productDetailsMap[item.model_no] || {};
               return (
                 <div
                   key={item.purchase_id}
-                  className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+                  className="bg-white border border-gray-200 rounded-lg p-2 shadow-sm hover:shadow-md transition-shadow"
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-gray-900">
-                      {prod.product_name || "Unknown Product"}
+                    <h3 className="font-semibold text-gray-900 flex flex-row ">
+                     <p className="flex text-sm text-gray-600 items-center justify-center">Product : </p> {" "}{ prod.product_name || "Unknown Product"}
                     </h3>
-                    <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                    <span className="text-xs bg-blue-100 text-gray-700 px-2 py-1 rounded">
                       {prod.model_no}
                     </span>
                   </div>
@@ -766,7 +806,7 @@ const Seller = () => {
                           ? "bg-green-100 text-green-800"
                           : prod.holderStatus === 3
                           ? "bg-red-100 text-red-800"
-                          : "bg-gray-100 text-gray-800"
+                          : "bg-blue-100 text-gray-800"
                       }`}
                     >
                       {prod.holderStatus === 2
@@ -788,7 +828,7 @@ const Seller = () => {
                           setInventoryModelValid(true);
                           setShowInventoryForm(true);
                         }}
-                        className="text-white hover:text-gray-900 p-1 rounded hover:bg-gray-100"
+                        className="text-white hover:text-gray-900 p-1 rounded hover:bg-blue-100"
                         title="Edit"
                       >
                         <svg
@@ -808,7 +848,7 @@ const Seller = () => {
                       </button>
                       <button
                         onClick={() => deleteInventory(item.purchase_id)}
-                        className="text-white hover:text-red-600 p-1 rounded hover:bg-gray-100"
+                        className="text-white hover:text-red-600 p-1 rounded hover:bg-blue-100"
                         title="Delete"
                       >
                         <svg
@@ -828,7 +868,7 @@ const Seller = () => {
                       </button>
                       <button
                         onClick={() => showEditOption(item)}
-                        className="text-white hover:text-green-600 p-1 rounded hover:bg-gray-100"
+                        className="text-white hover:text-green-600 p-1 rounded hover:bg-blue-100"
                         title="Mark Sold"
                       >
                         <svg
@@ -861,7 +901,7 @@ const Seller = () => {
 
       {/* Purchases List */}
       {activeTab === "purchases" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-4 gap-2">
           {purchases.length > 0 ? (
             purchases.map((purchase) => {
               const prod = productDetailsMap[purchase.modelNo] || {};
@@ -928,7 +968,7 @@ const Seller = () => {
                           setPurchaseModelValid(true);
                           setShowPurchaseForm(true);
                         }}
-                        className="text-white bg-black hover:bg-gray-800 p-1.5 rounded flex items-center justify-center"
+                        className="text-white bg-black hover:bg-blue-800 p-1.5 rounded flex items-center justify-center"
                         title="Edit"
                       >
                         <svg
@@ -948,7 +988,7 @@ const Seller = () => {
                       </button>
                       <button
                         onClick={() => deletePurchase(purchase.sale_id)}
-                        className="text-white bg-black hover:bg-gray-800 p-1.5 rounded flex items-center justify-center"
+                        className="text-white bg-black hover:bg-blue-800 p-1.5 rounded flex items-center justify-center"
                         title="Cancel"
                       >
                         <svg
@@ -982,7 +1022,7 @@ const Seller = () => {
       {/* Inventory Form Modal */}
       {showInventoryForm && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md relative">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-xl relative">
             <button
               onClick={() => {
                 setShowInventoryForm(false);
@@ -990,37 +1030,34 @@ const Seller = () => {
                 inventoryForm.reset();
                 setInventoryModelValid(false);
               }}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 bg-white rounded-full p-1 text-sm shadow-sm"
+              title="Close"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              &times;
             </button>
-            <div className="flex flex-row gap-3">
+            <div className="flex flex-row gap-3 justify-between">
               <h3 className="text-lg font-semibold mb-4 text-gray-900">
                 {editingItem ? "Edit Inventory" : "Add Inventory"}
               </h3>
-              <button 
-                className="bg-gray-900 text-white" 
-                onClick={() => setbulkUploadb(!bulkuploadb)}
-              >
-                Bulk Upload
-              </button>
+              <div className="flex flex-row gap-2">
+                <button
+                  className="bg-blue-900 text-white h-9 flex items-center justify-center"
+                  onClick={() => setbulkUploadb(!bulkuploadb)}
+                >
+                  {bulkuploadb?"<-":"Bulk Upload"}
+                </button>
+                {bulkuploadb && (
+                  <TemplateGenerator
+                    columnsConfig={baseColumnsConfigs}
+                    TemplateName={"Add Inventory"}
+                  />
+                )}
+              </div>
             </div>
-            
+
             {bulkuploadb ? (
               <div>
+                <div className="flex flex-row justify-end pt-4 pb-4"></div>
                 <div className="flex flex-row gap-3 top-3">
                   <input
                     type="file"
@@ -1031,7 +1068,7 @@ const Seller = () => {
                   />
                   <button
                     onClick={handleBulkUploadb}
-                    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
                     title="Upload"
                   >
                     <svg
@@ -1051,7 +1088,7 @@ const Seller = () => {
                   </button>
 
                   <button
-                    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
                     onClick={() => {
                       setBulkUploadResultsb(null);
                       setBulkFileb(null);
@@ -1079,50 +1116,54 @@ const Seller = () => {
                 </div>
 
                 {bulkUploadResultsb && (
-                  <div className="border rounded-lg overflow-hidden max-h-60 overflow-y-auto">
-                    <table className="w-full text-sm">
-                      <thead className="bg-gray-50 sticky top-0">
-                        <tr>
-                          <th className="px-4 py-2 text-left border-b">
-                            Status
-                          </th>
-                          <th className="px-4 py-2 text-left border-b">
-                            Record
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {/* Successful records */}
-                        {bulkUploadResultsb.successRecords.map(
-                          (record, index) => (
-                            <tr
-                              key={`success-${index}`}
-                              className="bg-green-50 max-h-20 overflow-y-scroll"
-                            >
-                              <td className="px-4 py-2 border-b text-green-600">
-                                Success
-                              </td>
-                              <td className="px-4 py-2 border-b">{record}</td>
-                            </tr>
-                          )
-                        )}
+                  <div>
+                    <h2 className="flex mx-2 my-2">Upload Log</h2>
 
-                        {/* Failed records */}
-                        {bulkUploadResultsb.failedRecords.map(
-                          (record, index) => (
-                            <tr
-                              key={`failed-${index}`}
-                              className="bg-red-50 max-h-20 overflow-y-scroll"
-                            >
-                              <td className="px-4 py-2 border-b text-red-600">
-                                Failed
-                              </td>
-                              <td className="px-4 py-2 border-b">{record}</td>
-                            </tr>
-                          )
-                        )}
-                      </tbody>
-                    </table>
+                    <div className="border rounded-lg overflow-hidden max-h-60 overflow-y-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-blue-50 sticky top-0">
+                          <tr>
+                            <th className="px-4 py-2 text-left border-b">
+                              Status
+                            </th>
+                            <th className="px-4 py-2 text-left border-b">
+                              Record
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {/* Successful records */}
+                          {bulkUploadResultsb.successRecords.map(
+                            (record, index) => (
+                              <tr
+                                key={`success-${index}`}
+                                className="bg-green-50 max-h-20 overflow-y-scroll"
+                              >
+                                <td className="px-4 py-2 border-b text-green-600">
+                                  Success
+                                </td>
+                                <td className="px-4 py-2 border-b">{record}</td>
+                              </tr>
+                            )
+                          )}
+
+                          {/* Failed records */}
+                          {bulkUploadResultsb.failedRecords.map(
+                            (record, index) => (
+                              <tr
+                                key={`failed-${index}`}
+                                className="bg-red-50 max-h-20 overflow-y-scroll"
+                              >
+                                <td className="px-4 py-2 border-b text-red-600">
+                                  Failed
+                                </td>
+                                <td className="px-4 py-2 border-b">{record}</td>
+                              </tr>
+                            )
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 )}
               </div>
@@ -1153,7 +1194,7 @@ const Seller = () => {
                             "inventory"
                           )
                         }
-                        className="bg-gray-900 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm"
+                        className="bg-blue-900 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm"
                       >
                         Fetch
                       </button>
@@ -1195,7 +1236,7 @@ const Seller = () => {
                     type="date"
                     max={new Date().toISOString().split("T")[0]}
                     required
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-gray-200 text-black"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-blue-200 text-black"
                   />
                 </div>
 
@@ -1204,8 +1245,8 @@ const Seller = () => {
                   disabled={!inventoryModelValid}
                   className={`w-full py-2 rounded-md text-white text-sm font-medium transition ${
                     inventoryModelValid
-                      ? "bg-gray-900 hover:bg-gray-700"
-                      : "bg-gray-400 cursor-not-allowed"
+                      ? "bg-blue-900 hover:bg-blue-700"
+                      : "bg-blue-400 cursor-not-allowed"
                   }`}
                 >
                   {editingItem ? "Update Item" : "Add to Inventory"}
@@ -1269,7 +1310,7 @@ const Seller = () => {
                     type="number"
                     required
                     disabled
-                    className="w-full p-2 border border-gray-300 rounded-md bg-gray-100"
+                    className="w-full p-2 border border-gray-300 rounded-md bg-blue-100"
                   />
                 </div>
                 <div>
@@ -1295,7 +1336,7 @@ const Seller = () => {
                   type="date"
                   required
                   max={new Date().toISOString().split("T")[0]}
-                  className="w-full p-2 border bg-gray-200 text-black border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  className="w-full p-2 border bg-blue-200 text-black border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
                 />
               </div>
 
@@ -1343,8 +1384,8 @@ const Seller = () => {
                 disabled={!purchaseModelValid}
                 className={`w-full py-2 rounded-md text-white text-sm font-medium transition ${
                   purchaseModelValid
-                    ? "bg-gray-900 hover:bg-gray-700"
-                    : "bg-gray-400 cursor-not-allowed"
+                    ? "bg-blue-900 hover:bg-blue-700"
+                    : "bg-blue-400 cursor-not-allowed"
                 }`}
               >
                 {editingPurchase ? "Update Sale" : "Mark as Sold"}

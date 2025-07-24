@@ -32,6 +32,9 @@ const CustomerWarrantyPage = () => {
   const [editItem, setEditItem] = useState<any | null>(null);
   const [searchModelNo, setSearchModelNo] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [previewImages, setPreviewImages] = useState<string | null>(null);
+  const [modelNoo,setmodelNoo]=useState<string>("");
+
   const [modelData, setModelData] = useState<any>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [images, setImages] = useState<File[]>([]);
@@ -197,9 +200,13 @@ const CustomerWarrantyPage = () => {
     }
   };
 
-  const handleRaiseRequest = (purchaseId: number, modelNo: string,company_id:string) => {
-setModelData(company_id);
-setShowRequestForm(true);
+  const handleRaiseRequest = (
+    purchaseId: number,
+    modelNo: string,
+    company_id: string
+  ) => {
+    setModelData(company_id);
+    setShowRequestForm(true);
     requestForm.setValue("model_no", modelNo);
   };
 
@@ -208,7 +215,7 @@ setShowRequestForm(true);
       setImages(Array.from(e.target.files));
     }
   };
-
+  console.log(modelNoo, "modelNoo");
   return (
     <div className="p-4 max-w-screen bg-white min-h-screen text-gray-800">
       <h1 className="text-2xl font-bold mb-6 text-center text-gray-900">
@@ -372,7 +379,11 @@ setShowRequestForm(true);
                     </button>
                     <button
                       onClick={() =>
-                        handleRaiseRequest(item.purchase_Id, item.model_no,product.company_id)
+                        handleRaiseRequest(
+                          item.purchase_Id,
+                          item.model_no,
+                          product.company_id
+                        )
                       }
                       className="text-xs bg-gray-800 hover:bg-gray-700 text-white px-2 py-1 rounded"
                     >
@@ -397,53 +408,88 @@ setShowRequestForm(true);
             requests.map((req) => {
               const product = productDetailsMap[req.model_no] || {};
               return (
-                <div
-                  key={req.warranty_request_id}
-                  className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-medium">Model: {req.model_no}</p>
-                    {product.productImages && (
-                    <button
-                      onClick={() => setPreviewImage(product.productImages[0])}
-                      className="mt-2 text-xs text-blue-600 bg-white"
-                    >
-                      View Product Image
-                    </button>
-                  )}
-                  </div>
+               <div
+  key={req.warranty_request_id}
+  className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300"
+>
+  {/* Header */}
+  <div className="flex items-center justify-between mb-3">
+    <p className="text-sm font-semibold text-gray-800">Model: {req.model_no}</p>
 
-                  <p className="text-sm">Name: {req.customer_name}</p>
-                  <p className="text-xs text-gray-600 mb-2">
-                    Status:
-                    <span
-                      className={`ml-1 ${
-                        req.warranty_status === 1
-                          ? "text-yellow-600"
-                          : req.warranty_status === 2
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {req.warranty_status === 1
-                        ? "Pending"
-                        : req.warranty_status === 2
-                        ? "Approved"
-                        : "Rejected"}
-                    </span>
-                  </p>
-                    <span className="text-sm">
-                      Company Remarks : {req.rejection_remark}
-                    </span>
-                  {product.product_name && (
-                    <>
-                      <div className="border-t border-gray-100 my-2"></div>
-                      
-                      <p className="text-sm">Products Name: {product.product_name}</p>
-                      <p className="text-sm">Price: ₹{product.product_price}</p>
-                    </>
-                  )}
-                </div>
+    {product.productImages && (
+      <button
+        onClick={() => {
+          setPreviewImage(product.productImages[0]);
+          setmodelNoo(product.model_no);
+        }}
+        className="text-xs text-blue-600 hover:underline bg-white"
+      >
+        View Product Image
+      </button>
+    )}
+  </div>
+
+  {/* Customer Info */}
+  <p className="text-sm text-gray-700 mb-1">
+    <span className="font-medium">Customer:</span> {req.customer_name}
+  </p>
+
+  {/* Warranty Status */}
+  <p className="text-sm text-gray-600 mb-1">
+    <span className="font-medium">Status:</span>
+    <span
+      className={`ml-1 font-semibold ${
+        req.warranty_status === 1
+          ? "text-yellow-600"
+          : req.warranty_status === 2
+          ? "text-green-600"
+          : "text-red-600"
+      }`}
+    >
+      {req.warranty_status === 1
+        ? "Pending"
+        : req.warranty_status === 2
+        ? "Approved"
+        : "Rejected"}
+    </span>
+  </p>
+
+  {/* Company Remarks */}
+  {req.rejection_remark && (
+    <p className="text-sm text-gray-500 mb-3">
+      <span className="font-medium">Remarks:</span> {req.rejection_remark}
+    </p>
+  )}
+
+  {/* Uploaded Image Button */}
+  <button
+    onClick={() => {
+      setPreviewImages(req.productImages[0]);
+      setmodelNoo(req.model_no);
+    }}
+    className="text-xs text-blue-600 hover:underline mb-3 bg-white"
+  >
+    View Uploaded Image
+  </button>
+
+  {/* Product Info */}
+  {product.product_name && (
+    <>
+      <hr className="my-3 border-gray-200" />
+
+      <div className="space-y-1 text-sm text-gray-700">
+        <p>
+          <span className="font-medium">Product Name:</span>{" "}
+          {product.product_name}
+        </p>
+        <p>
+          <span className="font-medium">Price:</span> ₹{product.product_price}
+        </p>
+      </div>
+    </>
+  )}
+</div>
+
               );
             })
           ) : (
@@ -455,11 +501,14 @@ setShowRequestForm(true);
       )}
 
       {/* Image Preview Modal */}
-      {previewImage && (
+      {(previewImage || previewImages) && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white p-6 rounded-xl shadow-xl relative max-w-4xl w-full">
             <button
-              onClick={() => setPreviewImage(null)}
+              onClick={() => {
+                setPreviewImage(null);
+                setPreviewImages(null);
+              }}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100"
             >
               <svg
@@ -480,39 +529,61 @@ setShowRequestForm(true);
 
             {/* Main Image */}
             <div className="max-h-[60vh] overflow-auto mb-4">
-              <img
-                src={previewImage}
-                alt="Product Preview"
-                className="object-contain rounded-lg mx-auto max-w-full"
-              />
+              {previewImage && (
+                <img
+                  src={previewImage}
+                  alt="Product Preview"
+                  className="object-contain rounded-lg mx-auto max-w-full"
+                />
+              )}
+              {previewImages && (
+                <img
+                  src={previewImages}
+                  alt="Product Preview"
+                  className="object-contain rounded-lg mx-auto max-w-full"
+                />
+              )}
             </div>
 
             {/* Thumbnail Gallery */}
             {(() => {
-              const foundProduct = products.find((p) =>
-                p.productImages?.includes(previewImage)
-              );
+              const foundProduct = previewImage
+                ? products.find((p) => p.model_no?.includes(modelNoo))
+                : previewImages
+                ? requests.find((p) => p.model_no?.includes(modelNoo))
+                : null;
+
               return foundProduct &&
                 foundProduct.productImages &&
                 foundProduct.productImages.length > 1 ? (
                 <div className="flex gap-2 overflow-x-auto py-2">
-                  {foundProduct.productImages.map((img, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setPreviewImage(img)}
-                      className={`flex-shrink-0 w-16 h-16 rounded border-2 ${
-                        img === previewImage
-                          ? "border-gray-600"
-                          : "border-transparent"
-                      }`}
-                    >
-                      <img
-                        src={img}
-                        alt={`Thumbnail ${idx + 1}`}
-                        className="w-full h-full object-cover rounded"
-                      />
-                    </button>
-                  ))}
+                  {foundProduct.productImages.map(
+                    (img: string, idx: number) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          if (previewImage) {
+                            setPreviewImage(img);
+                            setPreviewImages(null); // optional: reset the other state
+                          } else {
+                            setPreviewImages(img);
+                            setPreviewImage(null); // optional: reset the other state
+                          }
+                        }}
+                        className={`flex-shrink-0 w-16 h-16 rounded border-2 ${
+                          img === previewImage
+                            ? "border-gray-600"
+                            : "border-transparent"
+                        }`}
+                      >
+                        <img
+                          src={img}
+                          alt={`Thumbnail ${idx + 1}`}
+                          className="w-full h-full object-cover rounded"
+                        />
+                      </button>
+                    )
+                  )}
                 </div>
               ) : null;
             })()}

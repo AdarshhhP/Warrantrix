@@ -44,7 +44,7 @@ type WarrantyRequest = {
   warranty_status: number;
   productImages: string[];
   company_id: number;
-  rejection_remark:string;
+  rejection_remark: string;
 };
 
 export interface BulkUploadResponse {
@@ -64,7 +64,7 @@ const Company = () => {
   const [images, setImages] = useState<File[]>([]);
   const [remarks, setRemarks] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [previewImageModelNo,setpreviewImageModelNo]=useState("");
+  const [previewImageModelNo, setpreviewImageModelNo] = useState("");
   const [previewImageREquest, setpreviewImageREquest] = useState<string | null>(
     null
   );
@@ -209,7 +209,7 @@ const Company = () => {
     }
 
     companyService
-      .BulkUploadProduct(bulkFile as File,companyId)
+      .BulkUploadProduct(bulkFile as File, companyId)
       .then((response: { data: BulkUploadResponse }) => {
         const { statusCode, message } = response.data;
         setBulkUploadResults(response.data); // Store the results
@@ -307,20 +307,20 @@ const Company = () => {
       comment: "Enter base64 string for product image (optional)",
     },
   ];
-console.log(products,"products")
+  console.log(products, "products");
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 p-6 md:p-8">
       <Toaster />
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
+        <p className="text-sm md:text-xl font-bold text-gray-800">
           Company Dashboard
-        </h1>
+        </p>
 
         {activeTab === "products" && (
           <button
             onClick={() => setShowForm(true)}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2"
+            className="bg-blue-600 h-8 justify-center hover:bg-gray-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -344,9 +344,9 @@ console.log(products,"products")
         <div className="flex space-x-2 justify-start w-full">
           <button
             onClick={() => setActiveTab("products")}
-            className={`px-6 py-2 rounded-lg font-medium transition-colors duration-200 ${
+            className={`h-8 items-center justify-center flex rounded-lg font-medium transition-colors duration-200 ${
               activeTab === "products"
-                ? "bg-gray-600 text-white shadow-sm"
+                ? "bg-blue-600 text-white shadow-sm"
                 : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
             }`}
           >
@@ -354,14 +354,92 @@ console.log(products,"products")
           </button>
           <button
             onClick={() => setActiveTab("requests")}
-            className={`px-6 py-2 rounded-lg font-medium transition-colors duration-200 ${
+            className={`h-8 items-center justify-center flex rounded-lg font-medium transition-colors duration-200 ${
               activeTab === "requests"
-                ? "bg-gray-600 text-white shadow-sm"
+                ? "bg-blue-600 text-white shadow-sm"
                 : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
             }`}
           >
-            Warranty Requests
+            Requests
           </button>
+          {activeTab === "products" && (
+            <div className="flex items-center justify-end gap-3 p-1 rounded-lg shadow-xs border border-none w-full">
+              <div className="flex gap-1">
+                <input
+                  type="text"
+                  value={modelNo}
+                  onChange={(e) => setModelNo(e.target.value)}
+                  placeholder="Model No"
+                  className="text-gray-900 px-2 placeholder-gray-400 border border-gray-200 rounded-lg h-8 items-center justify-center w-full md:w-48 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+                />
+                <select
+                  value={holderStatus}
+                  onChange={(e) => setHolderStatus(e.target.value)}
+                  className="text-gray-600 border px-2 border-gray-200 rounded-lg h-8 items-center justify-center w-full md:w-40 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+                >
+                  <option value="">All Status</option>
+                  <option value="1">In Company Stocks</option>
+                  <option value="2">With Retail Seller</option>
+                  <option value="3">Sold To Customer</option>
+                  <option value="4">With Customer</option>
+                  <option value="5">Raised Warranty Request</option>
+                </select>
+                <select
+                  value={productCategory}
+                  onChange={(e) => setProductCategory(e.target.value)}
+                  className="text-gray-600 border px-2 border-gray-200 rounded-lg h-8 items-center justify-center w-full md:w-40 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+                >
+                  <option value="">All Categories</option>
+                  <option value="1">Electronics</option>
+                  <option value="2">Plastic</option>
+                  <option value="3">Wood</option>
+                  <option value="4">Metal</option>
+                </select>
+              </div>
+              <div className="flex flex-row gap-1">
+                <button
+                  onClick={fetchProducts}
+                  className="bg-blue-600 text-white h-8 items-center justify-center rounded-lg hover:bg-gray-700 transition-colors duration-200 flex items-center justify-center gap-2"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                  {/* Search */}
+                </button>
+                <button
+                  onClick={handleReset}
+                  className="bg-gray-200 text-gray-700 h-8 items-center justify-centerrounded-lg hover:bg-gray-300 transition-colors duration-200 flex items-center justify-center gap-2"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                  {/* Reset */}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Search Filters */}
@@ -373,14 +451,14 @@ console.log(products,"products")
                 value={amodelNo}
                 onChange={(e) => setAmodelNo(e.target.value)}
                 placeholder="Model No"
-                className="text-gray-900 placeholder-gray-400 border border-gray-200 rounded-lg px-3 py-1.5 w-full md:w-48 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+                className="text-gray-900 px-2 placeholder-gray-400 border border-gray-200 rounded-lg h-8 items-center justify-center focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
               />
               <select
                 value={astatus}
                 onChange={(e) => setAstatus(e.target.value)}
-                className="text-gray-900 border border-gray-200 rounded-lg px-3 py-1.5 w-full md:w-40 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+                className="text-gray-900 px-2 border border-gray-200 rounded-lg h-8 items-center justify-center focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
               >
-                <option value="">All Statuses</option>
+                <option value="">All Status</option>
                 <option value="1">Pending</option>
                 <option value="2">Approved</option>
                 <option value="3">Rejected</option>
@@ -388,7 +466,7 @@ console.log(products,"products")
             </div>
             <button
               onClick={fetchRequests}
-              className="bg-gray-600 text-white px-4 py-1.5 rounded-lg hover:bg-gray-700 transition-colors duration-200 w-[15vw] flex items-center justify-center gap-2"
+              className="bg-blue-600 text-white py-1.5 rounded-lg hover:bg-gray-700 transition-colors duration-200 w-fit flex items-center justify-center gap-2"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -404,87 +482,8 @@ console.log(products,"products")
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                 />
               </svg>
-              Search
+              {/* Search */}
             </button>
-          </div>
-        )}
-
-        {activeTab === "products" && (
-          <div className="flex items-center justify-between gap-3 p-3 bg-white rounded-lg shadow-xs border border-gray-100 w-full">
-            <div className="flex gap-3">
-              <input
-                type="text"
-                value={modelNo}
-                onChange={(e) => setModelNo(e.target.value)}
-                placeholder="Model No"
-                className="text-gray-900 placeholder-gray-400 border border-gray-200 rounded-lg px-3 py-1.5 w-full md:w-48 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
-              />
-              <select
-                value={holderStatus}
-                onChange={(e) => setHolderStatus(e.target.value)}
-                className="text-gray-900 border border-gray-200 rounded-lg px-3 py-1.5 w-full md:w-40 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
-              >
-                <option value="">All Status</option>
-                <option value="1">In Company Stocks</option>
-                <option value="2">With Retail Seller</option>
-                <option value="3">Sold To Customer</option>
-                <option value="4">With Customer</option>
-                <option value="5">Raised Warranty Request</option>
-              </select>
-              <select
-                value={productCategory}
-                onChange={(e) => setProductCategory(e.target.value)}
-                className="text-gray-900 border border-gray-200 rounded-lg px-3 py-1.5 w-full md:w-40 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
-              >
-                <option value="">All Categories</option>
-                <option value="1">Electronics</option>
-                <option value="2">Plastic</option>
-                <option value="3">Wood</option>
-                <option value="4">Metal</option>
-              </select>
-            </div>
-            <div className="flex flex-row gap-3">
-              <button
-                onClick={fetchProducts}
-                className="bg-gray-600 text-white px-8 py-1.5 rounded-lg hover:bg-gray-700 transition-colors duration-200 flex items-center justify-center gap-2"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-                Search
-              </button>
-              <button
-                onClick={handleReset}
-                className="bg-gray-200 text-gray-700 px-8 py-1.5 rounded-lg hover:bg-gray-300 transition-colors duration-200 flex items-center justify-center gap-2"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                  />
-                </svg>
-                Reset
-              </button>
-            </div>
           </div>
         )}
       </div>
@@ -624,7 +623,7 @@ console.log(products,"products")
 
       {/* Products Grid */}
       {activeTab === "products" && (
-        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-6 grid-cols-4">
           {products.length === 0 ? (
             <div className="col-span-full flex flex-col items-center justify-center py-12">
               <svg
@@ -665,138 +664,48 @@ console.log(products,"products")
             products.map((product, index) => (
               <div
                 key={index}
-                className="bg-white shadow-sm rounded-xl p-5 space-y-3 border border-gray-100 hover:shadow-md transition-shadow duration-200"
+                className="bg-white shadow-sm rounded-xl p-3 space-y-2 border border-gray-100 hover:shadow-md transition-shadow duration-200"
               >
+                {/* Header */}
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-gray-800 truncate">
-                    {product.product_name}
-                  </h2>
-                  {/* {product.productImages && product.productImages.length > 0 ? (
-                    <button
-                      onClick={() => setPreviewImage(product.productImages[0])}
-                      className="text-gray-600 hover:text-gray-800 text-sm rounded-full bg-white flex items-center justify-center"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-3 w-3"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                        />
-                      </svg>
-                    </button>
-                  ) : (
-                    <span className="text-xs text-gray-400 italic">
-                      No images
+                  <p className="text-xs font-semibold text-gray-700 truncate">
+                    Product:{" "}
+                    <span className="font-normal text-gray-600">
+                      {product.product_name}
                     </span>
-                  )} */}
+                  </p>
                 </div>
 
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600 flex items-center gap-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 text-gray-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"
-                      />
-                    </svg>
-                    Model: {product.model_no}
+                {/* Info Section */}
+                <div className="space-y-1">
+                  {/* Model */}
+                  <p className="text-xs text-gray-600 flex items-center gap-1">
+                    📦 Model: {product.model_no}
                   </p>
 
-                  <p className="text-sm text-gray-800 font-medium flex items-center gap-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 text-gray-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    ₹{product.product_price}
+                  {/* Price */}
+                  <p className="text-xs text-gray-700 font-medium flex items-center gap-1">
+                    💰 ₹{product.product_price}
                   </p>
 
-                  <p className="text-sm flex items-center gap-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 text-gray-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                      />
-                    </svg>
-                    Warranty: {product.warrany_tenure} months
+                  {/* Warranty */}
+                  <p className="text-xs flex items-center gap-1 text-gray-600">
+                    🛡 Warranty: {product.warrany_tenure} months
                   </p>
 
-                  <p className="text-sm flex items-center gap-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 text-gray-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                      />
-                    </svg>
-                    Category:{" "}
+                  {/* Category */}
+                  <p className="text-xs flex items-center gap-1 text-gray-600">
+                    🏷 Category:{" "}
                     {["", "Electronics", "Plastic", "Wood", "Metal"][
                       product.product_category
                     ] || "Unknown"}
                   </p>
 
-                  <div className="flex items-center gap-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 text-gray-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                      />
-                    </svg>
+                  {/* Holder Status */}
+                  <p className="text-xs flex items-center gap-1 whitespace-nowrap">
+                    📘 <span className="text-gray-600">Status:</span>{" "}
                     <span
-                      className={`text-sm font-medium ${
+                      className={`font-medium whitespace-nowrap ${
                         product.holderStatus === 1
                           ? "text-blue-600"
                           : product.holderStatus === 2
@@ -807,7 +716,7 @@ console.log(products,"products")
                           ? "text-cyan-600"
                           : product.holderStatus === 5
                           ? "text-amber-600"
-                          : "text-gray-600"
+                          : "text-gray-500"
                       }`}
                     >
                       {product.holderStatus === 1
@@ -822,33 +731,23 @@ console.log(products,"products")
                         ? "Warranty Requested"
                         : "No Data"}
                     </span>
-                  </div>
-
-                  <p className="text-xs text-gray-500 flex items-center gap-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-3 w-3 text-gray-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                    Mfg Date: {product.man_date}
                   </p>
+
+                  {/* Manufacture Date */}
+                  <p className="text-[11px] text-gray-500 flex items-center gap-1">
+                    🗓 Mfg Date: {product.man_date}
+                  </p>
+
+                  {/* View Image Button */}
                   {product.productImages && (
                     <button
-onClick={() => {
-  setPreviewImage(product.productImages[0]);
-  setpreviewImageModelNo(product.model_no);
-}}                      className="text-white text-xs"
+                      onClick={() => {
+                        setPreviewImage(product.productImages[0]);
+                        setpreviewImageModelNo(product.model_no);
+                      }}
+                      className="text-xs text-gray-600 hover:underline mt-1 bg-white"
                     >
-                      View Image
+                      🔍 View Image
                     </button>
                   )}
                 </div>
@@ -860,7 +759,7 @@ onClick={() => {
 
       {/* Requests Grid */}
       {activeTab === "requests" && (
-        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 grid-cols-4">
           {requests.length === 0 ? (
             <div className="col-span-full flex flex-col items-center justify-center py-12">
               <svg
@@ -885,14 +784,14 @@ onClick={() => {
             requests.map((req) => (
               <div
                 key={req.warranty_request_id}
-                className="bg-white shadow-sm rounded-xl p-5 space-y-3 border border-gray-100 hover:shadow-md transition-shadow duration-200"
+                className="bg-white shadow-sm rounded-lg p-3 space-y-2 border border-gray-100 hover:shadow-md transition-shadow duration-200"
               >
-                <h2 className="text-lg font-semibold text-gray-800">
+                <h2 className="text-base font-medium text-gray-800">
                   {req.customer_name}
                 </h2>
 
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-600 flex items-center gap-2">
+                  <p className="text-sm text-gray-600 flex items-center gap-1.5">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-4 w-4 text-gray-400"
@@ -909,38 +808,10 @@ onClick={() => {
                     </svg>
                     Model: {req.model_no}
                   </p>
-                  {/* {req.productImages && (
-                    <button
-                      onClick={() => setPreviewImage(req.productImages[0])}
-                      className="text-gray-600 hover:text-gray-800 text-sm font-medium flex items-center gap-1 bg-white"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                        />
-                      </svg>
-                      View
-                    </button>
-                  )} */}
                 </div>
 
-                <div className="space-y-2">
-                  <p className="text-sm flex items-center gap-2">
+                <div className="space-y-1.5">
+                  <p className="text-sm text-gray-600 flex items-center gap-1.5">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-4 w-4 text-gray-400"
@@ -958,7 +829,7 @@ onClick={() => {
                     {req.customer_email}
                   </p>
 
-                  <p className="text-sm flex items-center gap-2">
+                  <p className="text-sm text-gray-600 flex items-center gap-1.5">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-4 w-4 text-gray-400"
@@ -976,7 +847,7 @@ onClick={() => {
                     {req.phone_number}
                   </p>
 
-                  <p className="text-sm flex items-center gap-2">
+                  <p className="text-sm text-gray-600 flex items-center gap-1.5">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-4 w-4 text-gray-400"
@@ -994,7 +865,7 @@ onClick={() => {
                     Request Date: {req.request_date}
                   </p>
 
-                  <p className="text-sm flex items-center gap-2">
+                  <p className="text-sm flex items-center gap-1.5">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-4 w-4 text-gray-400"
@@ -1010,14 +881,14 @@ onClick={() => {
                       />
                     </svg>
                     <span
-                      className={`font-medium cursor-pointer ${
+                      className={`text-xs font-medium cursor-pointer ${
                         req.warranty_status === 1
                           ? "text-amber-500"
                           : req.warranty_status === 2
                           ? "text-green-600"
                           : "text-red-500"
                       }`}
-onClick={()=> setremarksmode(true)}
+                      onClick={() => setremarksmode(true)}
                     >
                       {req.warranty_status === 1
                         ? "Pending"
@@ -1026,18 +897,19 @@ onClick={()=> setremarksmode(true)}
                         : "Rejected"}
                     </span>
                   </p>
+
                   {req.productImages && (
                     <button
                       onClick={() =>
                         setpreviewImageREquest(req.productImages[0])
                       }
-                      className="text-white text-xs"
+                      className="text-blue-600 text-xs font-medium hover:underline bg-white"
                     >
                       View Image
                     </button>
                   )}
 
-                  <p className="text-xs text-gray-500 flex items-start gap-2">
+                  <p className="text-xs text-gray-500 flex items-start gap-1.5">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-3 w-3 text-gray-400 mt-0.5"
@@ -1053,101 +925,104 @@ onClick={()=> setremarksmode(true)}
                       />
                     </svg>
                     <div className="flex flex-col">
-                   <p>Reason: {req.reason}</p> 
-                    <p>Remarks: {req.rejection_remark}</p>
+                      <p>Reason: {req.reason}</p>
+                      <p>Remarks: {req.rejection_remark}</p>
                     </div>
                   </p>
                 </div>
 
-               {remarksmode && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
-    <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
-      {/* Close Button */}
-      <button
-        onClick={() => setremarksmode(false)}
-        className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 transition-colors"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6 text-gray-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
-      </button>
+                {remarksmode && (
+                  <div className="fixed inset-0 bg-black/10 flex justify-center items-center z-50">
+                    <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+                      <button
+                        onClick={() => setremarksmode(false)}
+                        className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 transition-colors bg-white"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-6 w-6 text-gray-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
 
-      <h3 className="text-xl font-semibold text-gray-800 mb-4">
-        Update Warranty Request
-      </h3>
+                      <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                        Warranty Request Action
+                      </h3>
 
-      <div className="space-y-4">
-        {/* Remarks Input */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Remarks {!remarks.trim() && (
-              <span className="text-red-500">*</span>
-            )}
-          </label>
-          <textarea
-            value={remarks}
-            onChange={(e) => setRemarks(e.target.value)}
-            placeholder="Enter your remarks..."
-            className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 h-24 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-            autoFocus
-          />
-          {!remarks.trim() && (
-            <p className="mt-1 text-sm text-red-500">
-              Remarks are required before changing status
-            </p>
-          )}
-        </div>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Remarks{" "}
+                            {!remarks.trim() && (
+                              <span className="text-red-500">*</span>
+                            )}
+                          </label>
+                          <textarea
+                            value={remarks}
+                            onChange={(e) => setRemarks(e.target.value)}
+                            placeholder="Enter your remarks..."
+                            className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 h-24 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                            autoFocus
+                          />
+                          {!remarks.trim() && (
+                            <p className="mt-1 text-sm text-red-500">
+                              Remarks are required before changing status
+                            </p>
+                          )}
+                        </div>
 
-        {/* Status Selector */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Status
-          </label>
-          <select
-            value={req.warranty_status}
-            onChange={(e) => {
-              if (remarks.trim() === "") {
-                toast({
-                  variant: "destructive",
-                  title: "Please enter remarks first",
-                });
-                return;
-              }
-              handleStatusChange(Number(e.target.value), req.warranty_request_id);
-              setremarksmode(false);
-            }}
-            className={`w-full border px-3 py-2 rounded-lg font-medium focus:ring-2 focus:ring-blue-500 outline-none transition ${
-              req.warranty_status === 1
-                ? "border-amber-200 bg-amber-50"
-                : req.warranty_status === 2
-                ? "border-green-200 bg-green-50"
-                : "border-red-200 bg-red-50"
-            } ${
-              !remarks.trim() ? "opacity-70 cursor-not-allowed" : "cursor-pointer"
-            }`}
-          >
-            <option value="1" disabled>
-              Pending
-            </option>
-            <option value="2">Approved</option>
-            <option value="3">Rejected</option>
-          </select>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Status
+                          </label>
+                          <select
+                            value={req.warranty_status}
+                            onChange={(e) => {
+                              if (remarks.trim() === "") {
+                                toast({
+                                  variant: "destructive",
+                                  title: "Please enter remarks first",
+                                });
+                                return;
+                              }
+                              handleStatusChange(
+                                Number(e.target.value),
+                                req.warranty_request_id
+                              );
+                              setremarksmode(false);
+                            }}
+                            className={`w-full border px-3 py-2 rounded-lg font-medium focus:ring-2 focus:ring-blue-500 outline-none transition ${
+                              req.warranty_status === 1
+                                ? "border-amber-200 bg-amber-50"
+                                : req.warranty_status === 2
+                                ? "border-green-200 bg-green-50"
+                                : "border-red-200 bg-red-50"
+                            } ${
+                              !remarks.trim()
+                                ? "opacity-70 cursor-not-allowed"
+                                : "cursor-pointer"
+                            }`}
+                          >
+                            <option value="1" disabled>
+                              Pending
+                            </option>
+                            <option value="2">Approved</option>
+                            <option value="3">Rejected</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ))
           )}
@@ -1164,15 +1039,23 @@ onClick={()=> setremarksmode(true)}
                   Add New Product
                 </h3>
                 <div className="flex flex-row gap-2">
+                  {!bulkuploadmode && (
+                    <TemplateGenerator
+                      columnsConfig={baseColumnsConfig}
+                      TemplateName={"ProductUploadTemplate"}
+                    />
+                  )}
                   <button
-                    className="bg-greay-900 text-white h-8 flex items-center justify-center"
+                    className="bg-blue-500 text-white h-9 flex items-center justify-center"
                     onClick={() => setbulkuploadmode(!bulkuploadmode)}
+                    title="Back"
                   >
                     {bulkuploadmode ? "Bulk Upload" : "<-"}
                   </button>
                   <button
                     onClick={() => setShowForm(false)}
                     className="bg-white text-gray-400 hover:text-gray-500 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100"
+                    title="Close Form"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -1201,27 +1084,21 @@ onClick={()=> setremarksmode(true)}
                       <input
                         {...register("product_name")}
                         required
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+                        className="w-full border h-8 border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
                         placeholder="Product Name"
                       />
                     </div>
 
-                    <div>
+                   <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Product Category
+                        Model No
                       </label>
-                      <select
-                        {...register("product_category")}
+                      <input
+                        {...register("model_no")}
                         required
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
-                      >
-                        <option value="">Select Category</option>
-                        {categories.map((cat) => (
-                          <option key={cat.id} value={cat.id}>
-                            {cat.name}
-                          </option>
-                        ))}
-                      </select>
+                        className="w-full border border-gray-300 h-8 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+                        placeholder="Model Number"
+                      />
                     </div>
 
                     <div>
@@ -1234,23 +1111,30 @@ onClick={()=> setremarksmode(true)}
                           accept="image/*"
                           multiple
                           onChange={handleImageChange}
-                          className="w-full border px-4 py-2 rounded-lg"
+                          className="w-full border px-4 h-8 py-1 rounded-lg"
                         />
-                        <span onClick={() => setImages([])}>Clear</span>
+                        {/* <span onClick={() => setImages([])}>Clear</span> */}
                       </div>
                     </div>
-
-                    <div>
+                      <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Model No
+                        Product Category
                       </label>
-                      <input
-                        {...register("model_no")}
+                      <select
+                        {...register("product_category")}
                         required
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
-                        placeholder="Model Number"
-                      />
+                        className="w-full border border-gray-300 py-1 rounded-lg px-4 h-8 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+                      >
+                        <option value="">Select Category</option>
+                        {categories.map((cat) => (
+                          <option key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
+
+                   
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1265,7 +1149,7 @@ onClick={()=> setremarksmode(true)}
                           type="number"
                           min="0"
                           required
-                          className="w-full border border-gray-300 rounded-lg pl-8 pr-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+                          className="w-full border h-8 border-gray-300 rounded-lg pl-8 pr-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
                           placeholder="0.00"
                         />
                       </div>
@@ -1280,7 +1164,7 @@ onClick={()=> setremarksmode(true)}
                         type="number"
                         min="0"
                         required
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+                        className="w-full border h-8 border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
                         placeholder="12"
                       />
                     </div>
@@ -1294,7 +1178,7 @@ onClick={()=> setremarksmode(true)}
                         type="date"
                         required
                         max={new Date().toISOString().split("T")[0]} // sets today's date as max
-                        className="w-full border bg-gray-300 border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition"
+                        className="w-full border h-8 bg-gray-300 border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition"
                       />
                     </div>
                   </div>
@@ -1302,7 +1186,7 @@ onClick={()=> setremarksmode(true)}
                   <div className="pt-4">
                     <button
                       type="submit"
-                      className="bg-gray-600 text-white px-6 py-3 rounded-lg w-full hover:bg-gray-700 transition-colors duration-200 font-medium flex items-center justify-center gap-2"
+                      className="bg-gray-600 h-8 text-white px-6 py-3 rounded-lg w-full hover:bg-gray-700 transition-colors duration-200 font-medium flex items-center justify-center gap-2"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -1323,116 +1207,118 @@ onClick={()=> setremarksmode(true)}
               ) : (
                 <div className="flex flex-col gap-3">
                   <div className="flex flex-row gap-3">
-  <input
-    type="file"
-    accept=".csv, .xlsx, .xls"
-    onChange={handleBulkFileChange}
-    className="w-full border px-4 py-2 rounded-lg"
-    ref={fileInputRef}
-  />
-  <button
-    onClick={handleBulkUpload}
-    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
-    title="Upload"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="w-5 h-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"
-      />
-    </svg>
-  </button>
+                    <input
+                      type="file"
+                      accept=".csv, .xlsx, .xls"
+                      onChange={handleBulkFileChange}
+                      className="w-full border px-4 py-2 rounded-lg"
+                      ref={fileInputRef}
+                    />
+                    <button
+                      onClick={handleBulkUpload}
+                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+                      title="Upload"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-5 h-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"
+                        />
+                      </svg>
+                    </button>
 
-  <button
-    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
-    onClick={() => {
-      setBulkUploadResults(null);
-      setBulkFile(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    }}
-    title="Reset"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="w-5 h-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        d="M4 4v5h.582M20 20v-5h-.581M3.977 9A9.003 9.003 0 0112 3a9 9 0 018 4.472M20.023 15A9.003 9.003 0 0112 21a9 9 0 01-8-4.472"
-      />
-    </svg>
-  </button>
-</div>
-
+                    <button
+                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+                      onClick={() => {
+                        setBulkUploadResults(null);
+                        setBulkFile(null);
+                        if (fileInputRef.current) {
+                          fileInputRef.current.value = "";
+                        }
+                      }}
+                      title="Reset"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-5 h-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M4 4v5h.582M20 20v-5h-.581M3.977 9A9.003 9.003 0 0112 3a9 9 0 018 4.472M20.023 15A9.003 9.003 0 0112 21a9 9 0 01-8-4.472"
+                        />
+                      </svg>
+                    </button>
+                  </div>
 
                   {/* Results table - only show if we have results */}
-                  <div className="flex justify-between">
-                    <h2>Upload Log</h2>
-                    <TemplateGenerator
-                      columnsConfig={baseColumnsConfig}
-                      TemplateName={"ProductUploadTemplate"}
-                    />
-                  </div>
-                  {bulkUploadResults && (
-                    <div className="border rounded-lg overflow-hidden max-h-60 overflow-y-auto">
-                      <table className="w-full text-sm">
-                        <thead className="bg-gray-50 sticky top-0">
-                          <tr>
-                            <th className="px-4 py-2 text-left border-b">
-                              Status
-                            </th>
-                            <th className="px-4 py-2 text-left border-b">
-                              Record
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {/* Successful records */}
-                          {bulkUploadResults.successRecords.map(
-                            (record, index) => (
-                              <tr
-                                key={`success-${index}`}
-                                className="bg-green-50 max-h-20 overflow-y-scroll"
-                              >
-                                <td className="px-4 py-2 border-b text-green-600">
-                                  Success
-                                </td>
-                                <td className="px-4 py-2 border-b">{record}</td>
-                              </tr>
-                            )
-                          )}
 
-                          {/* Failed records */}
-                          {bulkUploadResults.failedRecords.map(
-                            (record, index) => (
-                              <tr
-                                key={`failed-${index}`}
-                                className="bg-red-50 max-h-20 overflow-y-scroll"
-                              >
-                                <td className="px-4 py-2 border-b text-red-600">
-                                  Failed
-                                </td>
-                                <td className="px-4 py-2 border-b">{record}</td>
-                              </tr>
-                            )
-                          )}
-                        </tbody>
-                      </table>
+                  {bulkUploadResults && (
+                    <div>
+                      <div className="flex justify-between pb-2">
+                        <h2>Upload Log</h2>
+                      </div>
+                      <div className="border rounded-lg overflow-hidden max-h-60 overflow-y-auto">
+                        <table className="w-full text-sm">
+                          <thead className="bg-gray-50 sticky top-0">
+                            <tr>
+                              <th className="px-4 py-2 text-left border-b">
+                                Status
+                              </th>
+                              <th className="px-4 py-2 text-left border-b">
+                                Record
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {/* Successful records */}
+                            {bulkUploadResults.successRecords.map(
+                              (record, index) => (
+                                <tr
+                                  key={`success-${index}`}
+                                  className="bg-green-50 max-h-20 overflow-y-scroll"
+                                >
+                                  <td className="px-4 py-2 border-b text-green-600">
+                                    Success
+                                  </td>
+                                  <td className="px-4 py-2 border-b">
+                                    {record}
+                                  </td>
+                                </tr>
+                              )
+                            )}
+
+                            {/* Failed records */}
+                            {bulkUploadResults.failedRecords.map(
+                              (record, index) => (
+                                <tr
+                                  key={`failed-${index}`}
+                                  className="bg-red-50 max-h-20 overflow-y-scroll"
+                                >
+                                  <td className="px-4 py-2 border-b text-red-600">
+                                    Failed
+                                  </td>
+                                  <td className="px-4 py-2 border-b">
+                                    {record}
+                                  </td>
+                                </tr>
+                              )
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   )}
                 </div>

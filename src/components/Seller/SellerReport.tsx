@@ -150,17 +150,17 @@ const SellerReport = () => {
         </h1>
          <button
           onClick={handleDownload}
-          className="flex items-center bg-blue-600 text-white text-sm px-4 py-2 rounded-md hover:bg-blue-800 transition"
+          className="flex h-8 items-center bg-blue-600 text-white text-sm px-4 py-2 rounded-md hover:bg-blue-800 transition"
         >
           Download
         </button>
       </div>
 
       <div className="flex justify-between items-center mb-6">
-        <div className="space-x-4">
+        <div className="space-x-4 flex flex-row">
           <button
             onClick={() => setActiveTab("inventory")}
-            className={`px-5 py-2 rounded-full font-medium transition ${
+            className={`px-5 py-2 h-8 flex items-center justify-center rounded-full font-medium transition ${
               activeTab === "inventory"
                 ? "bg-blue-600 text-white shadow"
                 : "bg-white border border-gray-300 text-gray-700 hover:bg-blue-100"
@@ -170,7 +170,7 @@ const SellerReport = () => {
           </button>
           <button
             onClick={() => setActiveTab("purchases")}
-            className={`px-5 py-2 rounded-full font-medium transition ${
+            className={`px-5 h-8 py-2 flex items-center justify-center rounded-full font-medium transition ${
               activeTab === "purchases"
                 ? "bg-blue-600 text-white shadow"
                 : "bg-white border border-gray-300 text-gray-700 hover:bg-blue-100"
@@ -225,7 +225,7 @@ const SellerReport = () => {
               <input
                 type="text"
                 placeholder="Model No"
-                className="p-1.5 border border-gray-300 rounded-md w-36 bg-white text-black"
+                className="p-1.5 border border-gray-300 rounded-md w-36 h-8 bg-white text-black"
                 value={modelnopurchase}
                 onChange={(e) => setModelNoPurchase(e.target.value)}
               />
@@ -241,7 +241,7 @@ const SellerReport = () => {
       </div>
 
      {activeTab === "inventory" && (
-  <div className="border border-gray-300 shadow-sm flex flex-col justify-between" style={{ height: '400px' }}>
+  <div className="border border-gray-300 shadow-sm flex flex-col justify-between" style={{ height: '280px' }}>
     <div className="overflow-auto flex-1">
       <table className="min-w-full table-auto text-sm text-left text-gray-800">
         <thead className="bg-blue-100 text-gray-900 sticky top-0">
@@ -328,7 +328,7 @@ const SellerReport = () => {
 )}
 
 {activeTab === "purchases" && (
-  <div className="border border-gray-300 shadow-sm flex flex-col justify-between" style={{ height: '400px' }}>
+  <div className="border border-gray-300 shadow-sm flex flex-col justify-between" style={{ height: '280px' }}>
     <div className="overflow-auto flex-1">
       <table className="min-w-full table-auto text-sm text-left text-gray-800">
         <thead className="bg-blue-100 text-gray-900 sticky top-0">

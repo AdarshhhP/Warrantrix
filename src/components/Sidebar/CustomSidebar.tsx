@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+// import Navbar from "../Navbar/Navbar";
 
 const Sidebar: React.FC = () => {
   const navigate = useNavigate();
@@ -25,7 +26,9 @@ const Sidebar: React.FC = () => {
       : "w-full text-left px-4 py-2 hover:bg-blue-300 rounded bg-white text-black";
 
   return (
-<div className="h-screen w-64 bg-stone-600 text-white p-4 flex flex-col z-50">
+    <div>
+    {/* <Navbar/> */}
+    <div className="h-screen w-64 bg-stone-400 text-white p-4 flex flex-col z-50">
       <div className="space-y-4">
         <h2 className="text-xl font-bold mb-6">Dashboard</h2>
 
@@ -89,7 +92,13 @@ const Sidebar: React.FC = () => {
         </button>
       </div>
     </div>
+    </div>
   );
 };
 
 export default Sidebar;
+
+
+// 1 7 11 12
+//94,87,92,93,92,86
+//101,91,91,95,96,90

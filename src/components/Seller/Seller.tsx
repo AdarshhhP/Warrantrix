@@ -450,7 +450,7 @@ const Seller = () => {
             onClick={() => setActiveTab("inventory")}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
               activeTab === "inventory"
-                ? "bg-blue-600 text-white shadow"
+                ? "bg-stone-500 text-white shadow"
                 : "bg-white border border-gray-200 text-gray-700 hover:bg-blue-50"
             }`}
           >
@@ -460,7 +460,7 @@ const Seller = () => {
             onClick={() => setActiveTab("purchases")}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
               activeTab === "purchases"
-                ? "bg-blue-600 text-white shadow"
+                ? "bg-stone-500 text-white shadow"
                 : "bg-white border border-gray-200 text-gray-700 hover:bg-blue-50"
             }`}
           >
@@ -499,7 +499,7 @@ const Seller = () => {
                   />
                   <button
                     onClick={handleBulkUpload}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+                    className="bg-stone-700 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
                     title="Upload"
                   >
                     <svg
@@ -519,7 +519,7 @@ const Seller = () => {
                   </button>
 
                   <button
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+                    className="bg-stone-700 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
                     onClick={() => {
                       setBulkUploadResults(null);
                       setBulkFile(null);
@@ -610,7 +610,7 @@ const Seller = () => {
             <div className="flex flex-col md:flex-row md:items-center gap-2 w-full">
               <div className="flex flex-wrap gap-2">
                 <button
-                  className="h-10 text-white flex text-center items-center bg-blue-600 h-8"
+                  className=" text-white flex text-center items-center bg-stone-500 h-8"
                   onClick={() => setBulkUpload(true)}
                 >
                   Sell in Bulk
@@ -651,7 +651,7 @@ const Seller = () => {
                 </select>
                 <button
                   onClick={fetchInventory}
-                  className="bg-blue-600 hover:bg-blue-700 h-8 flex items-center justify-center text-white px-3 py-2 rounded-md shadow-sm text-sm whitespace-nowrap"
+                  className="bg-stone-500 hover:bg-stone-700 h-8 flex items-center justify-center text-white px-3 py-2 rounded-md shadow-sm text-sm whitespace-nowrap"
                 >
                   Search
                 </button>
@@ -664,7 +664,7 @@ const Seller = () => {
                   setInventoryModelValid(false);
                   setShowInventoryForm(true);
                 }}
-                className="bg-blue-600 hover:bg-blue-700 h-8 flex items-center justify-center text-white px-4 py-2 rounded-md shadow text-sm whitespace-nowrap"
+                className="bg-stone-500 hover:bg-stone-700 h-8 flex items-center justify-center text-white px-4 py-2 rounded-md shadow text-sm whitespace-nowrap"
               >
                 + Add Item
               </button>
@@ -680,7 +680,7 @@ const Seller = () => {
               />
               <button
                 onClick={fetchPurchases}
-                className="bg-blue-900 hover:bg-blue-700 text-white px-3 py-2 rounded-md shadow-sm text-sm"
+                className="bg-stone-500 hover:bg-stone-700 text-white px-3 py-2 rounded-md shadow-sm text-sm"
               >
                 Search
               </button>
@@ -828,7 +828,7 @@ const Seller = () => {
                           setInventoryModelValid(true);
                           setShowInventoryForm(true);
                         }}
-                        className="text-white hover:text-gray-900 p-1 rounded hover:bg-blue-100"
+                        className="text-white hover:text-gray-900 p-1 rounded bg-stone-700"
                         title="Edit"
                       >
                         <svg
@@ -848,7 +848,7 @@ const Seller = () => {
                       </button>
                       <button
                         onClick={() => deleteInventory(item.purchase_id)}
-                        className="text-white hover:text-red-600 p-1 rounded hover:bg-blue-100"
+                        className="text-white hover:text-red-600 p-1 rounded bg-stone-700"
                         title="Delete"
                       >
                         <svg
@@ -868,7 +868,7 @@ const Seller = () => {
                       </button>
                       <button
                         onClick={() => showEditOption(item)}
-                        className="text-white hover:text-green-600 p-1 rounded hover:bg-blue-100"
+                        className="text-white hover:text-green-600 p-1 rounded bg-stone-700"
                         title="Mark Sold"
                       >
                         <svg
@@ -968,7 +968,7 @@ const Seller = () => {
                           setPurchaseModelValid(true);
                           setShowPurchaseForm(true);
                         }}
-                        className="text-white bg-black hover:bg-blue-800 p-1.5 rounded flex items-center justify-center"
+                        className="text-white  bg-stone-700 p-1.5 rounded flex items-center justify-center"
                         title="Edit"
                       >
                         <svg
@@ -988,7 +988,7 @@ const Seller = () => {
                       </button>
                       <button
                         onClick={() => deletePurchase(purchase.sale_id)}
-                        className="text-white bg-black hover:bg-blue-800 p-1.5 rounded flex items-center justify-center"
+                        className="text-white bg-stone-700 p-1.5 rounded flex items-center justify-center"
                         title="Cancel"
                       >
                         <svg
@@ -1068,7 +1068,7 @@ const Seller = () => {
                   />
                   <button
                     onClick={handleBulkUploadb}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+                    className="bg-stone-700 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
                     title="Upload"
                   >
                     <svg
@@ -1088,7 +1088,7 @@ const Seller = () => {
                   </button>
 
                   <button
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+                    className="bg-stone-700 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
                     onClick={() => {
                       setBulkUploadResultsb(null);
                       setBulkFileb(null);

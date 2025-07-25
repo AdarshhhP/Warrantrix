@@ -60,7 +60,22 @@ export default function Login({ setToken }: LoginProps) {
   };
 
   return (
-    <div className="w-screen h-screen bg-blue-200 flex items-center justify-center p-4 sm:p-8">
+    <div className="w-screen h-screen bg-stone-200 flex items-center justify-center p-4 sm:p-8 flex-col">
+
+  <div className="justify-start flex pb-2">
+ <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-8 w-8 text-stone-700"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+  >
+    <path d="M4 4h16v2H4zm0 4h16v2H4zm2 4h12v10H6z" />
+  </svg>
+  <span className="text-xl font-bold tracking-wide text-stone-700">Warrantix</span>
+            </div>
+
+
+
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 space-y-6 border border-gray-300">
         {/* Tabs */}
         <div className="flex justify-center gap-4 mb-6">
@@ -71,7 +86,7 @@ export default function Login({ setToken }: LoginProps) {
             }}
             className={`px-5 py-2 rounded-full font-medium transition ${
               isLogin
-                ? "bg-blue-600 text-white shadow"
+                ? "bg-stone-600 text-white shadow"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
           >
@@ -84,7 +99,7 @@ export default function Login({ setToken }: LoginProps) {
             }}
             className={`px-5 py-2 rounded-full font-medium transition ${
               !isLogin
-                ? "bg-blue-600 text-white shadow"
+                ? "bg-stone-600 text-white shadow"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
           >
@@ -119,7 +134,7 @@ export default function Login({ setToken }: LoginProps) {
           />
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition"
+            className="w-full bg-stone-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition"
           >
             {isLogin ? "Login" : "Sign Up"}
           </button>

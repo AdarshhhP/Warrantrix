@@ -16,6 +16,18 @@ const Navbar = () => {
     <>
       {/* Navbar */}
       <div className="bg-gradient-to-r from-stone-700  to-stone-600 w-full h-16 flex items-center px-6 text-white shadow z-40 relative">
+        <div className="justify-start flex">
+ <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-8 w-8 text-white"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+  >
+    <path d="M4 4h16v2H4zm0 4h16v2H4zm2 4h12v10H6z" />
+  </svg>
+  <span className="text-xl font-bold text-white tracking-wide">Warrantix</span>
+            </div>
+
         <div className="flex w-full justify-end items-center gap-4">
           {/* Username Display */}
           <div className="flex items-center gap-2 pr-2">

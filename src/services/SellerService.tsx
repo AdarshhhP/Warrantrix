@@ -122,9 +122,10 @@ class SellerService {
   return response.data;
 }
 
-  async saveInventory(payload: any) {
-    await axios.post(`${BASE_URL}/inventory`, payload);
-  }
+async saveInventory(payload: any): Promise<PostResponse> {
+  const response = await axios.post<PostResponse>(`${BASE_URL}/inventory`, payload);
+  return response.data;
+}
 
   async editInventory(purchaseId: number, payload: any) {
     await axios.post(`${BASE_URL}/editinventory`, payload, {
@@ -138,9 +139,10 @@ class SellerService {
     });
   }
 
-  async savePurchase(payload: any) {
-    await axios.post(`${BASE_URL}/purchase`, payload);
-  }
+  async savePurchase(payload: any): Promise<PostResponse> {
+  const response = await axios.post<PostResponse>(`${BASE_URL}/purchase`, payload);
+  return response.data;
+}
 
   async editPurchase(saleId: number, payload: any) {
     await axios.post(`${BASE_URL}/editpurchase`, payload, {

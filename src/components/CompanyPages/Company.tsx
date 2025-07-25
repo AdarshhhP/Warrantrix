@@ -332,7 +332,7 @@ useEffect(() => {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <p className="text-sm md:text-xl font-bold text-gray-800">
-          Company Dashboard
+          Products
         </p>
 
         {activeTab === "products" && (
@@ -437,7 +437,7 @@ useEffect(() => {
                 </button>
                 <button
                   onClick={handleReset}
-                  className="bg-gray-200 text-gray-700 h-8 items-center justify-centerrounded-lg hover:bg-gray-300 transition-colors duration-200 flex items-center justify-center gap-2"
+                  className="bg-gray-200 text-gray-700 h-8 justify-centerrounded-lg hover:bg-gray-300 transition-colors duration-200 flex items-center justify-center gap-2"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -692,6 +692,10 @@ useEffect(() => {
                       {product.product_name}
                     </span>
                   </p>
+                  {product.productImages&&(
+                  <img
+                  src={product.productImages[0]}
+                  />)}
                 </div>
 
                 {/* Info Section */}
@@ -765,7 +769,7 @@ useEffect(() => {
                       }}
                       className="text-xs text-gray-600 hover:underline mt-1 bg-white"
                     >
-                      🔍 View Image
+                      🔍 View Images
                     </button>
                   )}
                 </div>

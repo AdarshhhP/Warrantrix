@@ -7,8 +7,8 @@ import SellerService from "../../services/SellerService";
 import TemplateGenerator, {
   type Columns,
 } from "../BulkUpload/TemplateGenerator";
-import { toast } from "sonner"
-import { Toaster } from "../../components/ui/sonner"
+import { toast } from "sonner";
+import { Toaster } from "../../components/ui/sonner";
 
 export interface ProductDetails {
   company_id: number;
@@ -35,7 +35,6 @@ export interface PostResponse {
   message: string;
   errors?: { [key: string]: string }; // optional map of field errors
 }
-
 
 const Seller = () => {
   const [activeTab, setActiveTab] = useState<"inventory" | "purchases">(
@@ -118,8 +117,8 @@ const Seller = () => {
     try {
       const prod = await SellerService.getProductByModelNo(modelNo);
       if (!prod || !prod.model_no) {
-       // toast("Invalid model number");
-        toast("Invalid model number")
+        // toast("Invalid model number");
+        toast("Invalid model number");
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         formType === "inventory"
           ? setInventoryModelValid(false)
@@ -183,13 +182,20 @@ const Seller = () => {
           return;
         }
 
-        await SellerService.saveInventory(payload);
-        await SellerService.changeHolderStatus(data.model_no, 2).then((response:PostResponse)=>{
-          if(response.statusCode==200){
-            toast("Item Added to Inventory");
+        await SellerService.changeHolderStatus(data.model_no, 2).then(
+          (response: PostResponse) => {
+            if (response.statusCode == 200) {
+              SellerService.saveInventory(payload).then(
+                (response: PostResponse) => {
+                  if (response.statusCode == 200) {
+                    toast("Item Added to Inventory");
+                    fetchInventory();
+                  }
+                }
+              );
+            }
           }
-        })
-        
+        );
       }
 
       inventoryForm.reset();
@@ -204,7 +210,7 @@ const Seller = () => {
   const handlePurchaseSubmit = async (data: any) => {
     if (!purchaseModelValid) {
       // toast("Please fetch & validate model number first.");
-      toast("Please fetch & validate model number first.")
+      toast("Please fetch & validate model number first.");
       return;
     }
 
@@ -232,8 +238,22 @@ const Seller = () => {
           return;
         }
 
-        await SellerService.savePurchase(payload);
-        await SellerService.changeHolderStatus(data.modelNo, 3);
+        // await SellerService.changeHolderStatus(data.modelNo, 3);
+
+        await SellerService.changeHolderStatus(data.modelNo, 3).then(
+          (response: PostResponse) => {
+            if (response.statusCode == 200) {
+              SellerService.savePurchase(payload).then(
+                (response: PostResponse) => {
+                  if (response.statusCode == 200) {
+                    toast("Item Marked as sold");
+                    fetchPurchases();
+                  }
+                }
+              );
+            }
+          }
+        );
       }
 
       purchaseForm.reset();
@@ -263,7 +283,7 @@ const Seller = () => {
 
   const handleBulkUploadb = () => {
     if (!bulkFileb) {
-      toast( "Please select a file before uploading.");
+      toast("Please select a file before uploading.");
       return;
     }
     SellerService.BulkUploadProduct(bulkFileb as File, sellerId)
@@ -272,25 +292,21 @@ const Seller = () => {
         setBulkUploadResultsb(response.data);
 
         if (statusCode === 200) {
-          toast( message || "Upload successful");
+          toast(message || "Upload successful");
           fetchInventory();
           if (fileInputRefb.current) {
             fileInputRefb.current.value = "";
             setBulkFileb(null);
           }
         } else if (statusCode === 509) {
-          toast( message || "File format issue"
-          );
+          toast(message || "File format issue");
         } else {
-          toast(
-          message || "Couldn't upload file",
-          );
+          toast(message || "Couldn't upload file");
         }
       })
       .catch((error: unknown) => {
         console.error("Bulk upload failed:", error);
-        toast( "Please check the console for details.",
-        );
+        toast("Please check the console for details.");
       });
   };
 
@@ -394,8 +410,7 @@ const Seller = () => {
 
   const handleBulkUpload = () => {
     if (!bulkFile) {
-      toast( "Please select a file before uploading."
-        );
+      toast("Please select a file before uploading.");
       return;
     }
 
@@ -405,25 +420,21 @@ const Seller = () => {
         setBulkUploadResults(response.data);
 
         if (statusCode === 200) {
-          toast( message || "Upload successful");
+          toast(message || "Upload successful");
           fetchPurchases();
           if (fileInputRef.current) {
             fileInputRef.current.value = "";
             setBulkFile(null);
           }
         } else if (statusCode === 509) {
-          toast( message || "File format issue",
-          );
+          toast(message || "File format issue");
         } else {
-          toast(message || "Couldn't upload file",
-          );
+          toast(message || "Couldn't upload file");
         }
       })
       .catch((error: unknown) => {
         console.error("Bulk upload failed:", error);
-        toast(
-           "Please check the console for details.",
-        );
+        toast("Please check the console for details.");
       });
   };
 
@@ -759,7 +770,10 @@ const Seller = () => {
                 >
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="font-semibold text-gray-900 flex flex-row ">
-                     <p className="flex text-sm text-gray-600 items-center justify-center">Product : </p> {" "}{ prod.product_name || "Unknown Product"}
+                      <p className="flex text-sm text-gray-600 items-center justify-center">
+                        Product :{" "}
+                      </p>{" "}
+                      {prod.product_name || "Unknown Product"}
                     </h3>
                     <span className="text-xs bg-stone-100 text-gray-700 px-2 py-1 rounded">
                       {prod.model_no}
@@ -903,10 +917,10 @@ const Seller = () => {
                 >
                   <div className="mb-3">
                     <h3 className="font-semibold text-gray-900 mb-1">
-                      {purchase.name}
+                      Name : {purchase.name}
                     </h3>
-                    <p className="text-sm text-gray-600">{purchase.email}</p>
-                    <p className="text-sm text-gray-600">{purchase.phono}</p>
+                    <p className="text-sm text-gray-600">Email : {purchase.email}</p>
+                    <p className="text-sm text-gray-600">Phone No : {purchase.phono}</p>
                   </div>
 
                   <div className="space-y-2 text-sm text-gray-700 border-t border-gray-100 pt-2">
@@ -1035,7 +1049,7 @@ const Seller = () => {
                   className="bg-stone-500 text-white h-9 flex items-center justify-center"
                   onClick={() => setbulkUploadb(!bulkuploadb)}
                 >
-                  {bulkuploadb?"<-":"Bulk Upload"}
+                  {bulkuploadb ? "<-" : "Bulk Upload"}
                 </button>
                 {bulkuploadb && (
                   <TemplateGenerator
@@ -1171,6 +1185,7 @@ const Seller = () => {
                     <input
                       {...inventoryForm.register("model_no")}
                       placeholder="Model No"
+                      disabled={editingItem}
                       required
                       className="w-full h-8 px-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
                     />
@@ -1201,8 +1216,9 @@ const Seller = () => {
                     <input
                       {...inventoryForm.register("price")}
                       type="number"
+                      disabled
                       required
-                      className="w-full h-8 px-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                      className="w-full cursor-not-allowed h-8 px-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
                     />
                   </div>
                   <div>
@@ -1212,8 +1228,9 @@ const Seller = () => {
                     <input
                       {...inventoryForm.register("warranty")}
                       type="number"
+                      disabled
                       required
-                      className="w-full h-8 px-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                      className="cursor-not-allowed w-full h-8 px-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
                     />
                   </div>
                 </div>
@@ -1373,7 +1390,7 @@ const Seller = () => {
               <button
                 type="submit"
                 disabled={!purchaseModelValid}
-                className={`w-full px-2 h-8 rounded-md text-white text-sm font-medium transition ${
+                className={`w-full px-2 h-8 rounded-md text-white text-sm font-medium transition flex items-center justify-center ${
                   purchaseModelValid
                     ? "bg-stone-500 hover:bg-stone-700"
                     : "bg-stone-400 cursor-not-allowed"

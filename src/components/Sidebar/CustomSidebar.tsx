@@ -33,7 +33,7 @@ const Sidebar: React.FC = () => {
 
   text-white p-4 flex flex-col z-50">
       <div className="space-y-4">
-        <h2 className="text-xl font-bold mb-6">Dashboard</h2>
+        {/* <h2 className="text-xl font-bold mb-6">Dashboard</h2> */}
 
         {userType === "3" && (
           <>

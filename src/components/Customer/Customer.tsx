@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import customerService from "../../services/CustomerServices";
+import { toast } from "sonner";
+import { Toaster } from "../ui/sonner";
 
 type Product = {
   productImages: string[];
@@ -42,6 +44,8 @@ const CustomerWarrantyPage = () => {
   const [pendingPayload, setPendingPayload] = useState<any>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [modelValid, setModelValid] = useState(false);
@@ -118,17 +122,20 @@ const CustomerWarrantyPage = () => {
   };
 
   const handleDelete = async (purchaseId: number) => {
-    try {
-      const res = await customerService.deleteRegisteredWarranty(purchaseId);
-      if (res.data?.message === "Cant Delete") {
-        alert("Cannot delete this warranty");
-      } else {
-        fetchRegistered();
-      }
-    } catch (err: any) {
-      alert(err.response?.data?.message || err.message);
+  try {
+    const res = await customerService.deleteRegisteredWarranty(purchaseId);
+
+    if (res.data?.message === "Cant Delete") {
+      toast.error("Cannot delete this warranty.");
+    } else {
+      toast.success("Deleted Successfully");
+      fetchRegistered();
     }
-  };
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || "Something went wrong while deleting.");
+  }
+};
+
 
   // const handleRegisterSubmit = async (data: any) => {
   //   const payload = { ...data, customerId };
@@ -187,6 +194,7 @@ const confirmAndSave = async () => {
 
     if (isEdit) {
       await customerService.editRegisteredWarranty(purchase_Id, payload);
+      toast.success("Updated Successfully")
     } else {
       await customerService.registerWarranty(payload);
       await customerService.updateHolderStatus(modelNo, 4);
@@ -247,6 +255,7 @@ const confirmAndSave = async () => {
       setModelValid(false);
       fetchRequests();
       setImages([]);
+      toast.success("Submitted Successfully")
     } catch (err: any) {
       alert(err.response?.data?.message || err.message);
     }
@@ -270,6 +279,7 @@ const confirmAndSave = async () => {
   
   return (
     <div className="p-4 max-w-screen bg-white min-h-screen text-gray-900">
+      <Toaster />
       <h1 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-6">
         Customer Dashboard
       </h1>
@@ -312,7 +322,7 @@ const confirmAndSave = async () => {
               fetchRegistered();
               fetchRequests();
             }}
-            className="bg-stone-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-blue-700 transition"
+            className="bg-stone-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-stone-700 transition"
           >
             Search
           </button>
@@ -328,7 +338,7 @@ const confirmAndSave = async () => {
               setEditItem(null);
               setShowRegisterForm(true);
             }}
-            className="bg-stone-500 hover:bg-blue-700 text-white px-4 py-1.5 text-sm rounded-md"
+            className="bg-stone-500 hover:bg-stone-700 text-white px-4 py-1.5 text-sm rounded-md"
           >
             + Register Product
           </button>
@@ -337,7 +347,7 @@ const confirmAndSave = async () => {
 
       {/* Registered Products */}
       {activeTab === "registered" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-5 gap-4">
           {registered.length > 0 ? (
             registered.map((item) => {
               const product = productDetailsMap[item.model_no] || {};
@@ -438,8 +448,12 @@ const confirmAndSave = async () => {
                         </svg>
                     </button>
                     <button
-                      onClick={() => handleDelete(item.purchase_Id)}
+                      onClick={() => {
+                        setDeleteId(item.purchase_Id);
+                        setShowDeleteConfirm(true);
+                      }}
                       className="text-white hover:text-red-600 p-1 rounded hover:bg-blue-100"
+                      title="Delete"
                     >
                       <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -464,7 +478,7 @@ const confirmAndSave = async () => {
                           product.company_id
                         )
                       }
-                      className="text-xs bg-stone-500 hover:bg-blue-700 text-white px-2 py-1 rounded"
+                      className="text-xs bg-stone-500 hover:bg-stone-700 text-white px-2 py-1 rounded"
                     >
                       Request
                     </button>
@@ -479,10 +493,40 @@ const confirmAndSave = async () => {
           )}
         </div>
       )}
+{showDeleteConfirm && (
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+      <p className="text-gray-800 mb-4">Are you sure you want to delete this item?</p>
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => {
+            if (deleteId !== null) {
+              handleDelete(deleteId); // Call your delete logic
+            }
+            setShowDeleteConfirm(false);
+            setDeleteId(null);
+          }}
+          className="bg-stone-600 text-white px-4 py-2 rounded hover:bg-red-700"
+        >
+          Yes
+        </button>
+        <button
+          onClick={() => {
+            setShowDeleteConfirm(false);
+            setDeleteId(null);
+          }}
+          className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+        >
+          No
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Warranty Requests */}
       {activeTab === "requests" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-4 gap-4">
           {requests.length > 0 ? (
             requests.map((req) => {
               const product = productDetailsMap[req.model_no] || {};
@@ -728,7 +772,7 @@ const confirmAndSave = async () => {
               </div>
               <button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-sm"
+                className="w-full bg-stone-500 hover:bg-stone-700 text-white py-2 rounded text-sm"
               >
                 Submit
               </button>
@@ -743,7 +787,7 @@ const confirmAndSave = async () => {
       <div className="flex justify-end gap-3">
         <button
           onClick={confirmAndSave}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="bg-stone-500 text-white px-4 py-2 rounded hover:bg-stone-700"
         >
           Yes
         </button>
@@ -770,7 +814,7 @@ const confirmAndSave = async () => {
               <h3 className="text-lg font-medium">Raise Warranty Request</h3>
               <button
                 onClick={() => setShowRequestForm(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 bg-white"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -848,7 +892,7 @@ const confirmAndSave = async () => {
                     onChange={handleImageChange}
                     className="w-full border px-4 py-2 rounded-lg"
                   />
-                  <span onClick={() => setImages([])}>Clear</span>
+                  
                 </div>
               </div>
               <div>
@@ -864,7 +908,7 @@ const confirmAndSave = async () => {
               </div>
               <button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-sm"
+                className="w-full bg-stone-500 hover:bg-stone-700 text-white py-2 rounded text-sm"
               >
                 Submit Request
               </button>

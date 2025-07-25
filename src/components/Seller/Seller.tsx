@@ -7,8 +7,8 @@ import SellerService from "../../services/SellerService";
 import TemplateGenerator, {
   type Columns,
 } from "../BulkUpload/TemplateGenerator";
-import { toast } from "../../hooks/use-toast";
-import { Toaster } from "../ui/toaster";
+import { toast } from "sonner"
+import { Toaster } from "../../components/ui/sonner"
 
 export interface ProductDetails {
   company_id: number;
@@ -29,6 +29,13 @@ export interface BulkUploadResponse {
   successRecords: string[]; // list of successful entries (e.g., product names)
   failedRecords: string[]; // list of failed rows or error messages
 }
+
+export interface PostResponse {
+  statusCode: number;
+  message: string;
+  errors?: { [key: string]: string }; // optional map of field errors
+}
+
 
 const Seller = () => {
   const [activeTab, setActiveTab] = useState<"inventory" | "purchases">(
@@ -111,7 +118,8 @@ const Seller = () => {
     try {
       const prod = await SellerService.getProductByModelNo(modelNo);
       if (!prod || !prod.model_no) {
-        alert("Invalid model number");
+       // toast("Invalid model number");
+        toast("Invalid model number")
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         formType === "inventory"
           ? setInventoryModelValid(false)
@@ -138,7 +146,7 @@ const Seller = () => {
       }
     } catch (err) {
       console.error(err);
-      alert("Error fetching model details");
+      toast("Error fetching model details");
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       formType === "inventory"
         ? setInventoryModelValid(false)
@@ -148,7 +156,7 @@ const Seller = () => {
 
   const handleInventorySubmit = async (data: any) => {
     if (!inventoryModelValid) {
-      alert("Please fetch & validate model number first.");
+      toast("Please fetch & validate model number first.");
       return;
     }
 
@@ -169,14 +177,19 @@ const Seller = () => {
       } else {
         const eligible = await SellerService.checkEligibility(data.model_no, 2);
         if (!eligible) {
-          alert(
+          toast(
             "Model number is not eligible for inventory. Please check the model number or contact support."
           );
           return;
         }
 
         await SellerService.saveInventory(payload);
-        await SellerService.changeHolderStatus(data.model_no, 2);
+        await SellerService.changeHolderStatus(data.model_no, 2).then((response:PostResponse)=>{
+          if(response.statusCode==200){
+            toast("Item Added to Inventory");
+          }
+        })
+        
       }
 
       inventoryForm.reset();
@@ -184,13 +197,14 @@ const Seller = () => {
       setInventoryModelValid(false);
       fetchInventory();
     } catch (err: any) {
-      alert(err.response?.data?.message || err.message);
+      toast(err.response?.data?.message || err.message);
     }
   };
 
   const handlePurchaseSubmit = async (data: any) => {
     if (!purchaseModelValid) {
-      alert("Please fetch & validate model number first.");
+      // toast("Please fetch & validate model number first.");
+      toast("Please fetch & validate model number first.")
       return;
     }
 
@@ -212,7 +226,7 @@ const Seller = () => {
       } else {
         const eligible = await SellerService.checkEligibility(data.modelNo, 3);
         if (!eligible) {
-          alert(
+          toast(
             "Model number is not eligible for purchase. Add it to the inventory first."
           );
           return;
@@ -227,7 +241,7 @@ const Seller = () => {
       setPurchaseModelValid(false);
       fetchPurchases();
     } catch (err: any) {
-      alert(err.response?.data?.message || err.message);
+      toast(err.response?.data?.message || err.message);
     }
   };
 
@@ -249,10 +263,7 @@ const Seller = () => {
 
   const handleBulkUploadb = () => {
     if (!bulkFileb) {
-      toast({
-        title: "Please select a file before uploading.",
-        type: "destructive",
-      });
+      toast( "Please select a file before uploading.");
       return;
     }
     SellerService.BulkUploadProduct(bulkFileb as File, sellerId)
@@ -261,34 +272,25 @@ const Seller = () => {
         setBulkUploadResultsb(response.data);
 
         if (statusCode === 200) {
-          toast({
-            type: "success",
-            title: message || "Upload successful",
-          });
+          toast( message || "Upload successful");
           fetchInventory();
           if (fileInputRefb.current) {
             fileInputRefb.current.value = "";
             setBulkFileb(null);
           }
         } else if (statusCode === 509) {
-          toast({
-            type: "destructive",
-            title: message || "File format issue",
-          });
+          toast( message || "File format issue"
+          );
         } else {
-          toast({
-            type: "destructive",
-            title: message || "Couldn't upload file",
-          });
+          toast(
+          message || "Couldn't upload file",
+          );
         }
       })
       .catch((error: unknown) => {
         console.error("Bulk upload failed:", error);
-        toast({
-          type: "destructive",
-          title: "Failed to upload file",
-          description: "Please check the console for details.",
-        });
+        toast( "Please check the console for details.",
+        );
       });
   };
 
@@ -373,7 +375,7 @@ const Seller = () => {
       columnWidth: 20,
       isRequired: true,
       isList: false,
-      comment: "Enter the purchase date in format YYYY-MM-DD",
+      comment: "Enter the purchase date in format YYYY-MM-DD (months)",
     },
     {
       Name: "Price",
@@ -392,10 +394,8 @@ const Seller = () => {
 
   const handleBulkUpload = () => {
     if (!bulkFile) {
-      toast({
-        title: "Please select a file before uploading.",
-        type: "destructive",
-      });
+      toast( "Please select a file before uploading."
+        );
       return;
     }
 
@@ -405,34 +405,25 @@ const Seller = () => {
         setBulkUploadResults(response.data);
 
         if (statusCode === 200) {
-          toast({
-            type: "success",
-            title: message || "Upload successful",
-          });
+          toast( message || "Upload successful");
           fetchPurchases();
           if (fileInputRef.current) {
             fileInputRef.current.value = "";
             setBulkFile(null);
           }
         } else if (statusCode === 509) {
-          toast({
-            type: "destructive",
-            title: message || "File format issue",
-          });
+          toast( message || "File format issue",
+          );
         } else {
-          toast({
-            type: "destructive",
-            title: message || "Couldn't upload file",
-          });
+          toast(message || "Couldn't upload file",
+          );
         }
       })
       .catch((error: unknown) => {
         console.error("Bulk upload failed:", error);
-        toast({
-          type: "destructive",
-          title: "Failed to upload file",
-          description: "Please check the console for details.",
-        });
+        toast(
+           "Please check the console for details.",
+        );
       });
   };
 
@@ -451,7 +442,7 @@ const Seller = () => {
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
               activeTab === "inventory"
                 ? "bg-stone-500 text-white shadow"
-                : "bg-white border border-gray-200 text-gray-700 hover:bg-blue-50"
+                : "bg-white border border-gray-200 text-gray-700 hover:bg-stone-50"
             }`}
           >
             Inventory
@@ -461,7 +452,7 @@ const Seller = () => {
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
               activeTab === "purchases"
                 ? "bg-stone-500 text-white shadow"
-                : "bg-white border border-gray-200 text-gray-700 hover:bg-blue-50"
+                : "bg-white border border-gray-200 text-gray-700 hover:bg-stone-50"
             }`}
           >
             Sold Items
@@ -499,7 +490,7 @@ const Seller = () => {
                   />
                   <button
                     onClick={handleBulkUpload}
-                    className="bg-stone-700 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+                    className="bg-stone-700 text-white px-4 py-2 rounded-lg hover:bg-stone-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
                     title="Upload"
                   >
                     <svg
@@ -519,7 +510,7 @@ const Seller = () => {
                   </button>
 
                   <button
-                    className="bg-stone-700 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+                    className="bg-stone-700 text-white px-4 py-2 rounded-lg hover:bg-stone-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
                     onClick={() => {
                       setBulkUploadResults(null);
                       setBulkFile(null);
@@ -554,7 +545,7 @@ const Seller = () => {
 
                     <div className="border rounded-lg overflow-hidden max-h-60 overflow-y-auto">
                       <table className="w-full text-sm">
-                        <thead className="bg-blue-50 sticky top-0">
+                        <thead className="bg-stone-50 sticky top-0">
                           <tr>
                             <th className="px-4 py-2 text-left border-b">
                               Status
@@ -626,7 +617,7 @@ const Seller = () => {
                   type="number"
                   min={0}
                   placeholder="Warranty"
-                  className="p-2 border border-gray-200 h-8 rounded-md text-sm w-28 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                  className="p-2 border h-8 border-gray-200 rounded-md text-sm w-28 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
                   value={warrantys || ""}
                   onChange={(e) =>
                     setWarrantys(
@@ -674,13 +665,13 @@ const Seller = () => {
               <input
                 type="text"
                 placeholder="Model No"
-                className="p-2 border border-gray-200 rounded-md text-sm w-40 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                className="px-2 border border-gray-200 rounded-md text-sm w-40 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black h-8"
                 value={modelnopurchase}
                 onChange={(e) => setModelNoPurchase(e.target.value)}
               />
               <button
                 onClick={fetchPurchases}
-                className="bg-stone-500 hover:bg-stone-700 text-white px-3 py-2 rounded-md shadow-sm text-sm"
+                className="bg-stone-500 hover:bg-stone-700 text-white px-3 py-2 rounded-md shadow-sm text-sm h-8 flex items-center justify-center"
               >
                 Search
               </button>
@@ -694,7 +685,7 @@ const Seller = () => {
           <div className="bg-white p-6 rounded-xl shadow-xl relative max-w-4xl w-full">
             <button
               onClick={() => setPreviewImage(null)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200 p-1 rounded-full hover:bg-blue-100"
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200 p-1 rounded-full hover:bg-stone-100"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -770,7 +761,7 @@ const Seller = () => {
                     <h3 className="font-semibold text-gray-900 flex flex-row ">
                      <p className="flex text-sm text-gray-600 items-center justify-center">Product : </p> {" "}{ prod.product_name || "Unknown Product"}
                     </h3>
-                    <span className="text-xs bg-blue-100 text-gray-700 px-2 py-1 rounded">
+                    <span className="text-xs bg-stone-100 text-gray-700 px-2 py-1 rounded">
                       {prod.model_no}
                     </span>
                   </div>
@@ -806,7 +797,7 @@ const Seller = () => {
                           ? "bg-green-100 text-green-800"
                           : prod.holderStatus === 3
                           ? "bg-red-100 text-red-800"
-                          : "bg-blue-100 text-gray-800"
+                          : "bg-stone-100 text-gray-800"
                       }`}
                     >
                       {prod.holderStatus === 2
@@ -945,7 +936,7 @@ const Seller = () => {
                     <span
                       className={`text-xs px-2 py-1 rounded ${
                         prod.holderStatus === 4
-                          ? "bg-blue-100 text-blue-800"
+                          ? "bg-stone-100 text-blue-800"
                           : "bg-yellow-100 text-yellow-800"
                       }`}
                     >
@@ -1041,7 +1032,7 @@ const Seller = () => {
               </h3>
               <div className="flex flex-row gap-2">
                 <button
-                  className="bg-blue-900 text-white h-9 flex items-center justify-center"
+                  className="bg-stone-500 text-white h-9 flex items-center justify-center"
                   onClick={() => setbulkUploadb(!bulkuploadb)}
                 >
                   {bulkuploadb?"<-":"Bulk Upload"}
@@ -1068,7 +1059,7 @@ const Seller = () => {
                   />
                   <button
                     onClick={handleBulkUploadb}
-                    className="bg-stone-700 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+                    className="bg-stone-700 text-white px-4 py-2 rounded-lg hover:bg-stone-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
                     title="Upload"
                   >
                     <svg
@@ -1088,7 +1079,7 @@ const Seller = () => {
                   </button>
 
                   <button
-                    className="bg-stone-700 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+                    className="bg-stone-700 text-white px-4 py-2 rounded-lg hover:bg-stone-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
                     onClick={() => {
                       setBulkUploadResultsb(null);
                       setBulkFileb(null);
@@ -1121,7 +1112,7 @@ const Seller = () => {
 
                     <div className="border rounded-lg overflow-hidden max-h-60 overflow-y-auto">
                       <table className="w-full text-sm">
-                        <thead className="bg-blue-50 sticky top-0">
+                        <thead className="bg-stone-50 sticky top-0">
                           <tr>
                             <th className="px-4 py-2 text-left border-b">
                               Status
@@ -1181,7 +1172,7 @@ const Seller = () => {
                       {...inventoryForm.register("model_no")}
                       placeholder="Model No"
                       required
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                      className="w-full h-8 px-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
                     />
                   </div>
                   {!editingItem && (
@@ -1194,7 +1185,7 @@ const Seller = () => {
                             "inventory"
                           )
                         }
-                        className="bg-blue-900 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm"
+                        className="bg-stone-500 flex items-center justify-center hover:bg-stone-700 text-white h-8 px-2 rounded-md text-sm"
                       >
                         Fetch
                       </button>
@@ -1211,7 +1202,7 @@ const Seller = () => {
                       {...inventoryForm.register("price")}
                       type="number"
                       required
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                      className="w-full h-8 px-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
                     />
                   </div>
                   <div>
@@ -1222,7 +1213,7 @@ const Seller = () => {
                       {...inventoryForm.register("warranty")}
                       type="number"
                       required
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                      className="w-full h-8 px-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
                     />
                   </div>
                 </div>
@@ -1236,7 +1227,7 @@ const Seller = () => {
                     type="date"
                     max={new Date().toISOString().split("T")[0]}
                     required
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-blue-200 text-black"
+                    className="w-full h-8 px-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-stone-200 text-black"
                   />
                 </div>
 
@@ -1245,8 +1236,8 @@ const Seller = () => {
                   disabled={!inventoryModelValid}
                   className={`w-full py-2 rounded-md text-white text-sm font-medium transition ${
                     inventoryModelValid
-                      ? "bg-blue-900 hover:bg-blue-700"
-                      : "bg-blue-400 cursor-not-allowed"
+                      ? "bg-stone-500 hover:bg-stone-700"
+                      : "bg-stone-400 cursor-not-allowed"
                   }`}
                 >
                   {editingItem ? "Update Item" : "Add to Inventory"}
@@ -1263,7 +1254,7 @@ const Seller = () => {
           <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md relative">
             <button
               onClick={() => setShowPurchaseForm(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 bg-white"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -1296,7 +1287,7 @@ const Seller = () => {
                   placeholder="Model No"
                   required
                   disabled
-                  className="w-full p-2 border border-gray-300 rounded-md bg-white text-black"
+                  className="w-full px-2 h-8 border border-gray-300 rounded-md bg-white text-black"
                 />
               </div>
 
@@ -1310,7 +1301,7 @@ const Seller = () => {
                     type="number"
                     required
                     disabled
-                    className="w-full p-2 border border-gray-300 rounded-md bg-blue-100"
+                    className="w-full px-2 h-8 border border-gray-300 rounded-md bg-stone-100"
                   />
                 </div>
                 <div>
@@ -1322,7 +1313,7 @@ const Seller = () => {
                     type="number"
                     required
                     disabled
-                    className="w-full p-2 border border-gray-300 rounded-md bg-white text-black"
+                    className="w-full px-2 h-8 border border-gray-300 rounded-md bg-white text-black"
                   />
                 </div>
               </div>
@@ -1336,7 +1327,7 @@ const Seller = () => {
                   type="date"
                   required
                   max={new Date().toISOString().split("T")[0]}
-                  className="w-full p-2 border bg-blue-200 text-black border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  className="w-full px-2 h-8 border bg-stone-200 text-black border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
                 />
               </div>
 
@@ -1348,7 +1339,7 @@ const Seller = () => {
                   {...purchaseForm.register("name")}
                   placeholder="Name"
                   required
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                  className="w-full px-2 h-8 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
                 />
               </div>
 
@@ -1362,7 +1353,7 @@ const Seller = () => {
                     type="email"
                     placeholder="Email"
                     required
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                    className="w-full px-2 h-8 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
                   />
                 </div>
                 <div>
@@ -1371,10 +1362,10 @@ const Seller = () => {
                   </label>
                   <input
                     {...purchaseForm.register("phono")}
-                    type="tel"
+                    type="number"
                     placeholder="Phone"
                     required
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
+                    className="w-full px-2 h-8 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
                   />
                 </div>
               </div>
@@ -1382,10 +1373,10 @@ const Seller = () => {
               <button
                 type="submit"
                 disabled={!purchaseModelValid}
-                className={`w-full py-2 rounded-md text-white text-sm font-medium transition ${
+                className={`w-full px-2 h-8 rounded-md text-white text-sm font-medium transition ${
                   purchaseModelValid
-                    ? "bg-blue-900 hover:bg-blue-700"
-                    : "bg-blue-400 cursor-not-allowed"
+                    ? "bg-stone-500 hover:bg-stone-700"
+                    : "bg-stone-400 cursor-not-allowed"
                 }`}
               >
                 {editingPurchase ? "Update Sale" : "Mark as Sold"}

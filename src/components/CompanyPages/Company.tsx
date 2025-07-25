@@ -4,8 +4,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import companyService from "../../services/CompanyServices";
-import { toast } from "../../hooks/use-toast";
-import { Toaster } from "../ui/toaster";
+import { toast } from "sonner"
+import { Toaster } from "../../components/ui/sonner"
 import TemplateGenerator, {
   type Columns,
 } from "../BulkUpload/TemplateGenerator";
@@ -70,13 +70,14 @@ const Company = () => {
   );
   const [holderStatus, setHolderStatus] = useState("");
   const [productCategory, setProductCategory] = useState("");
-  const [modelNo, setModelNo] = useState("");
+  const [ModelNo, setModelNo] = useState("");
   const [astatus, setAstatus] = useState("");
   const [amodelNo, setAmodelNo] = useState("");
   const [bulkuploadmode, setbulkuploadmode] = useState(true);
   const [remarksmode, setremarksmode] = useState(false);
   const { register, handleSubmit, reset } = useForm<Product>();
   const [bulkFile, setBulkFile] = useState<File | null>(null);
+  const [resetDone, setResetDone] = useState(false);
   const [bulkUploadResults, setBulkUploadResults] = useState<{
     failedRecords: string[];
     successRecords: string[];
@@ -100,7 +101,7 @@ const Company = () => {
         company_id: companyId,
         holderStatus,
         productCategory,
-        modelNo,
+        ModelNo,
         page: 0,
         size: 1000,
       });
@@ -111,7 +112,8 @@ const Company = () => {
 
       setProducts(productsWithImages);
     } catch (err: any) {
-      alert("Failed to fetch products: " + err.message);
+     // alert("Failed to fetch products: " + err.message);
+        toast( "Failed to fetch products: " + err.message );
     }
   };
 
@@ -126,7 +128,9 @@ const Company = () => {
       });
       setRequests(data);
     } catch (err: any) {
-      alert("Failed to fetch warranty requests: " + err.message);
+     // alert("Failed to fetch warranty requests: " + err.message);
+              toast( "Failed to fetch warranty requests: : " + err.message );
+
     }
   };
   const convertToBase64 = (file: File): Promise<string> =>
@@ -159,13 +163,15 @@ const Company = () => {
         company_id: companyId,
       };
       await companyService.postProduct(payload);
-      alert("Product added!");
-      reset();
+               toast( "Added Product successfully" );
+     reset();
       setShowForm(false);
       setImages([]);
       fetchProducts();
     } catch (error: any) {
-      alert("Error adding product: " + error.message);
+     // alert("Error adding product: " + error.message);
+                    toast( "Error Adding Product"+error.message);
+
     }
   };
 
@@ -175,36 +181,54 @@ const Company = () => {
         .updateWarrantyStatus(requestId, status, remarks)
         .then((response) => {
           if (response.data.statusCode === 200) {
-            toast({
-              type: "success",
-              title: "Status updated successfully",
-            });
+            // toast({
+            //   type: "success",
+            //   title: "Status updated successfully",
+            // });
+                                      toast( "Status updated successfully");
+
             setRemarks(""); // Clear remarks after successful update
             setremarksmode(false);
           }
         });
       fetchRequests();
     } catch (err: any) {
-      alert("Failed to update status: " + err.message);
+    //  alert("Failed to update status: " + err.message);
+        // toast({
+        //       type: "success",
+        //       title: "Failed to update status: " + err.message,
+        //     });
+                          toast( "Failed to update status:  " + err.message );
+
     }
   };
 
-  const handleReset = () => {
-    setModelNo("");
-    setHolderStatus("");
-    setProductCategory("");
-    setAstatus("");
-    setAmodelNo("");
+ const handleReset = () => {
+  setModelNo("");
+  setHolderStatus("");
+  setProductCategory("");
+  setAstatus("");
+  setAmodelNo("");
+  setResetDone(true); // trigger useEffect
+};
+
+// This useEffect will run AFTER all states have been reset
+useEffect(() => {
+  if (resetDone) {
     fetchProducts();
     fetchRequests();
-  };
+    setResetDone(false); // reset the flag
+  }
+}, [resetDone]);
 
   const handleBulkUpload = () => {
     if (!bulkFile) {
-      toast({
-        title: "Please select a file before uploading.",
-        type: "destructive",
-      });
+      // toast({
+      //   title: "Please select a file before uploading.",
+      //   type: "destructive",
+      // });
+
+      toast("Please select a file before uploading");
       return;
     }
 
@@ -215,34 +239,28 @@ const Company = () => {
         setBulkUploadResults(response.data); // Store the results
 
         if (statusCode === 200) {
-          toast({
-            type: "success",
-            title: message || "Upload successful",
-          });
+          toast( message || "Upload successful",
+          );
           fetchProducts();
           if (fileInputRef.current) {
             fileInputRef.current.value = ""; // ✅
             setBulkFile(null); // Clear the file state
           }
         } else if (statusCode === 509) {
-          toast({
-            type: "destructive",
-            title: message || "File format issue",
-          });
+          toast(
+             message || "File format issue");
+          
+          
         } else {
-          toast({
-            type: "destructive",
-            title: message || "Couldn't upload file",
-          });
+          toast( message || "Couldn't upload file",
+          );
         }
       })
       .catch((error: unknown) => {
         console.error("Bulk upload failed:", error);
-        toast({
-          type: "destructive",
-          title: "Failed to upload file",
-          description: "Please check the console for details.",
-        });
+        toast(
+          "Failed to upload file",
+        );
       });
   };
 
@@ -367,7 +385,7 @@ const Company = () => {
               <div className="flex gap-1">
                 <input
                   type="text"
-                  value={modelNo}
+                  value={ModelNo}
                   onChange={(e) => setModelNo(e.target.value)}
                   placeholder="Model No"
                   className="text-gray-900 px-2 placeholder-gray-400 border border-gray-200 rounded-lg h-8 items-center justify-center w-full md:w-48 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
@@ -643,7 +661,7 @@ const Company = () => {
               <p className="text-gray-500 mt-4 text-lg">No products found</p>
               <button
                 onClick={() => setShowForm(true)}
-                className="mt-4 text-gray-600 hover:text-gray-800 font-medium flex items-center gap-1"
+                className="mt-4 hover:bg-stone-500 bg-stone-600 text-white font-medium flex items-center gap-1"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -988,10 +1006,8 @@ const Company = () => {
                             value={req.warranty_status}
                             onChange={(e) => {
                               if (remarks.trim() === "") {
-                                toast({
-                                  variant: "destructive",
-                                  title: "Please enter remarks first",
-                                });
+                                toast( "Please enter remarks first",
+                                );
                                 return;
                               }
                               handleStatusChange(

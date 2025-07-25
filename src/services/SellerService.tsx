@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // services/SellerService.ts
 import axios from "axios";
+import type { PostResponse } from "../components/Seller/Seller";
 
 const BASE_URL = "http://localhost:3089";
 const PRODUCT_URL = "http://localhost:1089";
@@ -110,11 +111,16 @@ class SellerService {
     return res.data;
   }
 
-  async changeHolderStatus(modelNo: string, status: number) {
-    await axios.post(`${PRODUCT_URL}/changeholderstatus`, null, {
+ async changeHolderStatus(modelNo: string, status: number): Promise<PostResponse> {
+  const response = await axios.post<PostResponse>(
+    `${PRODUCT_URL}/changeholderstatus`,
+    null,
+    {
       params: { Model_no: modelNo, status },
-    });
-  }
+    }
+  );
+  return response.data;
+}
 
   async saveInventory(payload: any) {
     await axios.post(`${BASE_URL}/inventory`, payload);

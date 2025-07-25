@@ -22,13 +22,16 @@ const Sidebar: React.FC = () => {
 
   const isActive = (tab: string) =>
     activeTab === tab
-      ? "w-full text-left px-4 py-2 bg-blue-200 text-black rounded"
-      : "w-full text-left px-4 py-2 hover:bg-blue-300 rounded bg-white text-black";
+      ? "w-full text-left px-4 py-2 bg-stone-300 text-black rounded"
+      : "w-full text-left px-4 py-2 hover:bg-stone-300 rounded bg-white text-black";
 
   return (
     <div>
     {/* <Navbar/> */}
-    <div className="h-screen w-64 bg-stone-400 text-white p-4 flex flex-col z-50">
+    <div className="h-screen w-64 bg-gradient-to-r from-stone-700  to-stone-600
+
+
+  text-white p-4 flex flex-col z-50">
       <div className="space-y-4">
         <h2 className="text-xl font-bold mb-6">Dashboard</h2>
 

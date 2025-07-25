@@ -52,10 +52,12 @@ const CustomerWarrantyPage = () => {
         customerId,
         searchModelNo
       );
-      setRegistered(data);
+
+      console.log(data,"data")
+      setRegistered(data.content);
 
       const modelNos = [
-        ...new Set(data.map((item: any) => String(item.model_no))),
+        ...new Set(data.content.map((item: any) => String(item.model_no))),
       ] as string[];
       if (modelNos.length > 0) {
         const productDetails = await customerService.getProductDetailsByModels(
@@ -215,10 +217,10 @@ const CustomerWarrantyPage = () => {
       setImages(Array.from(e.target.files));
     }
   };
-  console.log(modelNoo, "modelNoo");
+  
   return (
-    <div className="p-4 max-w-screen bg-white min-h-screen text-gray-800">
-      <h1 className="text-2xl font-bold mb-6 text-center text-gray-900">
+    <div className="p-4 max-w-screen bg-white min-h-screen text-gray-900">
+      <h1 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-6">
         Customer Dashboard
       </h1>
 
@@ -228,8 +230,8 @@ const CustomerWarrantyPage = () => {
           <button
             className={`px-4 py-1.5 text-sm rounded-md font-medium transition ${
               activeTab === "registered"
-                ? "bg-gray-800 text-white"
-                : "bg-white border border-gray-300 text-gray-800 hover:bg-gray-50"
+                ? "bg-stone-500 text-white"
+                : "bg-white border border-gray-300 text-gray-800 hover:bg-blue-50"
             }`}
             onClick={() => setActiveTab("registered")}
           >
@@ -238,8 +240,8 @@ const CustomerWarrantyPage = () => {
           <button
             className={`px-4 py-1.5 text-sm rounded-md font-medium transition ${
               activeTab === "requests"
-                ? "bg-gray-800 text-white"
-                : "bg-white border border-gray-300 text-gray-800 hover:bg-gray-50"
+                ? "bg-stone-500 text-white"
+                : "bg-white border border-gray-300 text-gray-800 hover:bg-blue-50"
             }`}
             onClick={() => setActiveTab("requests")}
           >
@@ -260,7 +262,7 @@ const CustomerWarrantyPage = () => {
               fetchRegistered();
               fetchRequests();
             }}
-            className="bg-gray-800 text-white px-3 py-1.5 text-sm rounded-md hover:bg-gray-700 transition"
+            className="bg-stone-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-blue-700 transition"
           >
             Search
           </button>
@@ -276,7 +278,7 @@ const CustomerWarrantyPage = () => {
               setEditItem(null);
               setShowRegisterForm(true);
             }}
-            className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-1.5 text-sm rounded-md"
+            className="bg-stone-500 hover:bg-blue-700 text-white px-4 py-1.5 text-sm rounded-md"
           >
             + Register Product
           </button>
@@ -367,15 +369,42 @@ const CustomerWarrantyPage = () => {
                   <div className="flex space-x-2 mt-3">
                     <button
                       onClick={() => handleEdit(item)}
-                      className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 px-2 py-1 rounded"
+                      className="text-white hover:text-gray-900 p-1 rounded hover:bg-blue-100"
+                      title="Edit"
                     >
-                      Edit
+                      <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          />
+                        </svg>
                     </button>
                     <button
                       onClick={() => handleDelete(item.purchase_Id)}
-                      className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 px-2 py-1 rounded"
+                      className="text-white hover:text-red-600 p-1 rounded hover:bg-blue-100"
                     >
-                      Delete
+                      <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
                     </button>
                     <button
                       onClick={() =>
@@ -385,7 +414,7 @@ const CustomerWarrantyPage = () => {
                           product.company_id
                         )
                       }
-                      className="text-xs bg-gray-800 hover:bg-gray-700 text-white px-2 py-1 rounded"
+                      className="text-xs bg-stone-500 hover:bg-blue-700 text-white px-2 py-1 rounded"
                     >
                       Request
                     </button>
@@ -509,7 +538,7 @@ const CustomerWarrantyPage = () => {
                 setPreviewImage(null);
                 setPreviewImages(null);
               }}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100"
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200 p-1 rounded-full hover:bg-blue-100"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -644,12 +673,12 @@ const CustomerWarrantyPage = () => {
                   type="date"
                   max={new Date().toISOString().split("T")[0]}
                   required
-                  className="text-sm p-2 border border-gray-300 rounded w-full bg-gray-200 focus:ring-1 focus:ring-gray-500 focus:border-gray-500"
+                  className="text-sm p-2 border border-gray-300 rounded w-full bg-blue-200 focus:ring-1 focus:ring-gray-500 focus:border-gray-500"
                 />
               </div>
               <button
                 type="submit"
-                className="w-full bg-gray-800 hover:bg-gray-700 text-white py-2 rounded text-sm"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-sm"
               >
                 Submit
               </button>
@@ -695,7 +724,7 @@ const CustomerWarrantyPage = () => {
                   placeholder="Model No"
                   required
                   disabled
-                  className="text-sm p-2 border border-gray-300 rounded w-full bg-white bg-gray-100"
+                  className="text-sm p-2 border border-gray-300 rounded w-full bg-white bg-blue-100"
                 />
               </div>
               <div>
@@ -760,7 +789,7 @@ const CustomerWarrantyPage = () => {
               </div>
               <button
                 type="submit"
-                className="w-full bg-gray-800 hover:bg-gray-700 text-white py-2 rounded text-sm"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-sm"
               >
                 Submit Request
               </button>

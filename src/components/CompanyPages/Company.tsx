@@ -320,7 +320,7 @@ const Company = () => {
         {activeTab === "products" && (
           <button
             onClick={() => setShowForm(true)}
-            className="bg-blue-600 h-8 justify-center hover:bg-gray-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2"
+            className="bg-stone-500 h-8 justify-center hover:bg-gray-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -346,7 +346,7 @@ const Company = () => {
             onClick={() => setActiveTab("products")}
             className={`h-8 items-center justify-center flex rounded-lg font-medium transition-colors duration-200 ${
               activeTab === "products"
-                ? "bg-blue-600 text-white shadow-sm"
+                ? "bg-stone-500 text-white shadow-sm"
                 : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
             }`}
           >
@@ -356,7 +356,7 @@ const Company = () => {
             onClick={() => setActiveTab("requests")}
             className={`h-8 items-center justify-center flex rounded-lg font-medium transition-colors duration-200 ${
               activeTab === "requests"
-                ? "bg-blue-600 text-white shadow-sm"
+                ? "bg-stone-500 text-white shadow-sm"
                 : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
             }`}
           >
@@ -399,7 +399,7 @@ const Company = () => {
               <div className="flex flex-row gap-1">
                 <button
                   onClick={fetchProducts}
-                  className="bg-blue-600 text-white h-8 items-center justify-center rounded-lg hover:bg-gray-700 transition-colors duration-200 flex items-center justify-center gap-2"
+                  className="bg-stone-500 text-white h-8 items-center justify-center rounded-lg hover:bg-gray-700 transition-colors duration-200 flex gap-2"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -466,7 +466,7 @@ const Company = () => {
             </div>
             <button
               onClick={fetchRequests}
-              className="bg-blue-600 text-white py-1.5 rounded-lg hover:bg-gray-700 transition-colors duration-200 w-fit flex items-center justify-center gap-2"
+              className="bg-stone-500 text-white py-1.5 rounded-lg hover:bg-gray-700 transition-colors duration-200 w-fit flex items-center justify-center gap-2"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -1046,7 +1046,7 @@ const Company = () => {
                     />
                   )}
                   <button
-                    className="bg-blue-500 text-white h-9 flex items-center justify-center"
+                    className="bg-stone-500 text-white h-9 flex items-center justify-center"
                     onClick={() => setbulkuploadmode(!bulkuploadmode)}
                     title="Back"
                   >

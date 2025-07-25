@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Sidebar from "./components/Sidebar/CustomSidebar";
 import Company from "./components/CompanyPages/Company";
 import Seller from "./components/Seller/Seller";
@@ -9,11 +9,11 @@ import Dashboard from "./components/Landingpage/Dashboard";
 import SellerReport from "./components/Seller/SellerReport";
 import Login from "./components/Login/Login";
 import Admin from "./components/Admin/Admin";
+import Navbar from "./components/Navbar/Navbar"; // ✅ import Navbar
 
 const App = () => {
   const [token, setToken] = useState(localStorage.getItem("token"));
 
-  // Listen to login state changes using the storage event (useful across tabs too)
   useEffect(() => {
     const handleStorageChange = () => {
       setToken(localStorage.getItem("token"));
@@ -22,49 +22,43 @@ const App = () => {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  // Optional: update token when it changes in the same tab
   useEffect(() => {
     const checkToken = setInterval(() => {
       const currentToken = localStorage.getItem("token");
       setToken(currentToken);
-    }, 500); // check every 0.5s
-
+    }, 500);
     return () => clearInterval(checkToken);
   }, []);
-console.log("Token in App:", token);
- return (
 
+  console.log("Token in App:", token);
 
-
-<Router>
-  {token ? (
-    <div className="flex h-screen w-screen">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto h-full">
+  return (
+    <Router>
+      {token ? (
+        <div className="flex flex-col h-screen w-screen">
+          <Navbar /> {/* ✅ Add Navbar here */}
+          <div className="flex flex-1 overflow-hidden">
+            <Sidebar />
+            <main className="flex-1 overflow-y-auto h-full">
+              <Routes>
+                <Route path="/company" element={<Company />} />
+                <Route path="/seller" element={<Seller />} />
+                <Route path="/customer" element={<Customer />} />
+                <Route path="/reports/companyreport" element={<CompanyReport />} />
+                <Route path="/reports/sellerreports" element={<SellerReport />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="*" element={<Dashboard />} />
+              </Routes>
+            </main>
+          </div>
+        </div>
+      ) : (
         <Routes>
-          <Route path="/company" element={<Company />} />
-          <Route path="/seller" element={<Seller />} />
-          <Route path="/customer" element={<Customer />} />
-          <Route path="/reports/companyreport" element={<CompanyReport />} />
-          <Route path="/reports/sellerreports" element={<SellerReport />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="*" element={<Dashboard />} />
+          <Route path="*" element={<Login setToken={setToken} />} />
         </Routes>
-      </main>
-    </div>
-  ) : (
-
-    <Routes>
-      <Route path="*" element={<Login setToken={setToken} />} />
-    </Routes>
-
-  )}
-</Router>
-
-
-  
-);
-
+      )}
+    </Router>
+  );
 };
 
 export default App;

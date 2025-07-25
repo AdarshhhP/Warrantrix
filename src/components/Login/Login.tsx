@@ -24,6 +24,7 @@ export default function Login({ setToken }: LoginProps) {
           setToken(result.jwt);
           localStorage.setItem("token", result.jwt);
           localStorage.setItem("user_type", result.user_type);
+          localStorage.setItem("user_name",result.user_name);
 
           const userType = result.user_type.toString();
           const userId = result.user_id.toString();

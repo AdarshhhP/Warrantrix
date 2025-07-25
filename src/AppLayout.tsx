@@ -1,4 +1,5 @@
 import "./App.css";
+import Navbar from "./components/Navbar/Navbar";
 import CustomSidebar from "./components/Sidebar/CustomSidebar";
 // import ProtectedLayout from "./ProtectedLayout";
 
@@ -9,6 +10,7 @@ const AppLayout = ({ children }: any) => {
     // <ProtectedLayout>
         <div className="flex sm:h-[100vh] w-[100vw] bg-gray-100">
           {/* Sidebar */}
+          <Navbar/>
           <CustomSidebar />
           {
             children

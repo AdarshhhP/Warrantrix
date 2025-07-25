@@ -12,7 +12,7 @@ class CompanyService {
     company_id: number;
     holderStatus?: string;
     productCategory?: string;
-    modelNo?: string;
+    ModelNo?: string;
     page?: number;
     size?: number;
   }) {

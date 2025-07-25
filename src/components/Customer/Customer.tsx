@@ -39,6 +39,10 @@ const CustomerWarrantyPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [images, setImages] = useState<File[]>([]);
 
+  const [pendingPayload, setPendingPayload] = useState<any>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [modelValid, setModelValid] = useState(false);
 
@@ -126,35 +130,81 @@ const CustomerWarrantyPage = () => {
     }
   };
 
-  const handleRegisterSubmit = async (data: any) => {
-    const payload = { ...data, customerId };
-    try {
-      const eligible = await customerService.checkEligibility(data.model_no, 4);
-      if (!eligible) {
-        alert(
-          "You are not eligible to register this product. Please contact support."
-        );
-        return;
-      }
+  // const handleRegisterSubmit = async (data: any) => {
+  //   const payload = { ...data, customerId };
+  //   try {
+  //     const eligible = await customerService.checkEligibility(data.model_no, 4);
+  //     if (!eligible&&!editItem) {
+  //       alert(
+  //         "You are not eligible to register this product. Please contact support."
+  //       );
+  //       return;
+  //     }
 
-      if (editItem) {
-        await customerService.editRegisteredWarranty(
-          editItem.purchase_Id,
-          payload
-        );
-      } else {
-        await customerService.registerWarranty(payload);
-        await customerService.updateHolderStatus(data.model_no, 4);
-      }
+  //     if (editItem) {
+  //       await customerService.editRegisteredWarranty(
+  //         editItem.purchase_Id,
+  //         payload
+  //       );
+  //     } else {
+  //       await customerService.registerWarranty(payload);
+  //       await customerService.updateHolderStatus(data.model_no, 4);
+  //     }
 
-      setShowRegisterForm(false);
-      setEditItem(null);
-      registerForm.reset();
-      fetchRegistered();
-    } catch (err: any) {
-      alert(err.response?.data?.message || err.message);
+  //     setShowRegisterForm(false);
+  //     setEditItem(null);
+  //     registerForm.reset();
+  //     fetchRegistered();
+  //   } catch (err: any) {
+  //     alert(err.response?.data?.message || err.message);
+  //   }
+  // };
+
+const handleRegisterSubmit = async (data: any) => {
+  const payload = { ...data, customerId };
+
+  try {
+    const eligible = await customerService.checkEligibility(data.model_no, 4);
+
+    // If not eligible (and not editing), block immediately
+    if (!eligible && !editItem) {
+      alert("You are not eligible to register this product. Please contact support.");
+      return;
     }
-  };
+
+    // Store the payload for later and show confirmation dialog
+    setPendingPayload({ payload, modelNo: data.model_no, isEdit: !!editItem, purchase_Id: editItem?.purchase_Id });
+    setShowConfirmModal(true);
+
+  } catch (err: any) {
+    alert(err.response?.data?.message || err.message);
+  }
+};
+
+const confirmAndSave = async () => {
+  try {
+    const { payload, modelNo, isEdit, purchase_Id } = pendingPayload;
+
+    if (isEdit) {
+      await customerService.editRegisteredWarranty(purchase_Id, payload);
+    } else {
+      await customerService.registerWarranty(payload);
+      await customerService.updateHolderStatus(modelNo, 4);
+    }
+
+    // Success cleanup
+    setShowRegisterForm(false);
+    setEditItem(null);
+    registerForm.reset();
+    fetchRegistered();
+
+  } catch (err: any) {
+    alert(err.response?.data?.message || err.message);
+  } finally {
+    setShowConfirmModal(false);
+    setPendingPayload(null);
+  }
+};
 
   const convertToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -686,6 +736,31 @@ const CustomerWarrantyPage = () => {
           </div>
         </div>
       )}
+      {showConfirmModal && (
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
+      <p className="mb-4 text-gray-800">Are you sure you want to save the changes?</p>
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={confirmAndSave}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Yes
+        </button>
+        <button
+          onClick={() => {
+            setShowConfirmModal(false);
+            setPendingPayload(null);
+          }}
+          className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+        >
+          No
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
       {/* Warranty Request Form Modal */}
       {showRequestForm && (

@@ -15,7 +15,7 @@ const Navbar = () => {
   return (
     <>
       {/* Navbar */}
-      <div className="bg-stone-500 w-full h-16 flex items-center px-6 text-white shadow z-40 relative">
+      <div className="bg-gradient-to-r from-stone-700  to-stone-600 w-full h-16 flex items-center px-6 text-white shadow z-40 relative">
         <div className="flex w-full justify-end items-center gap-4">
           {/* Username Display */}
           <div className="flex items-center gap-2 pr-2">

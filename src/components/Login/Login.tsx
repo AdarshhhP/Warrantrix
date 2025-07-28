@@ -60,7 +60,7 @@ export default function Login({ setToken }: LoginProps) {
   };
 
   return (
-    <div className="w-screen h-screen bg-stone-200 flex items-center justify-center p-4 sm:p-8 flex-col">
+    <div className="w-screen h-screen bg-teal-100 flex items-center justify-center p-4 sm:p-8 flex-col">
 
   <div className="justify-start flex pb-2">
  <svg
@@ -86,7 +86,7 @@ export default function Login({ setToken }: LoginProps) {
             }}
             className={`px-5 py-2 rounded-full font-medium transition ${
               isLogin
-                ? "bg-stone-600 text-white shadow"
+                ? "bg-teal-600 text-white shadow"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
           >
@@ -99,7 +99,7 @@ export default function Login({ setToken }: LoginProps) {
             }}
             className={`px-5 py-2 rounded-full font-medium transition ${
               !isLogin
-                ? "bg-stone-600 text-white shadow"
+                ? "bg-teal-600 text-white shadow"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
           >
@@ -134,7 +134,7 @@ export default function Login({ setToken }: LoginProps) {
           />
           <button
             type="submit"
-            className="w-full bg-stone-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition"
+            className="w-full bg-teal-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition"
           >
             {isLogin ? "Login" : "Sign Up"}
           </button>

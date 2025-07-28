@@ -37,7 +37,7 @@ const Admin = () => {
   return (
     <div className="h-full flex items-center justify-center bg-gray-100 p-8">
       <Toaster/>
-      <div className="w-full max-w-md bg-stone-600 shadow-md rounded-xl p-6 space-y-6">
+      <div className="w-full max-w-md bg-teal-600 shadow-md rounded-xl p-6 space-y-6">
         <h2 className="text-2xl font-bold text-center">Create Seller or Company</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <input
@@ -71,7 +71,7 @@ const Admin = () => {
           </select>
           <button
             type="submit"
-            className="w-full bg-stone-700 text-white py-2 rounded-lg hover:bg-stone-700 transition"
+            className="w-full bg-teal-700 text-white py-2 rounded-lg hover:bg-teal-700 transition"
           >
             Create Account
           </button>

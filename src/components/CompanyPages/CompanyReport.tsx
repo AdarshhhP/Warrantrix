@@ -159,7 +159,7 @@ const CompanyReport = () => {
         <h1 className="text-4xl font-bold text-gray-900">Reports</h1>
         <button
           onClick={handleDownload}
-          className="flex items-center bg-stone-600 h-8 text-white text-sm px-4 py-2 rounded-md hover:bg-gray-800 transition"
+          className="flex items-center bg-teal-600 h-8 text-white text-sm px-4 py-2 rounded-md hover:bg-gray-800 transition"
         >
           Download Excel
         </button>
@@ -171,7 +171,7 @@ const CompanyReport = () => {
             onClick={() => setActiveTab("products")}
             className={`px-6 h-8 flex items-center justify-center rounded-lg font-medium ${
               activeTab === "products"
-                ? "bg-stone-600 text-white"
+                ? "bg-teal-600 text-white"
                 : "bg-white text-gray-700 border border-gray-300"
             }`}
           >
@@ -181,7 +181,7 @@ const CompanyReport = () => {
             onClick={() => setActiveTab("requests")}
             className={`px-6 h-8 flex items-center justify-center rounded-lg font-medium ${
               activeTab === "requests"
-                ? "bg-stone-600 text-white"
+                ? "bg-teal-600 text-white"
                 : "bg-white text-gray-700 border border-gray-300"
             }`}
           >
@@ -214,7 +214,7 @@ const CompanyReport = () => {
                 setRequestPage(0);
                 loadRequests();
               }}
-              className="bg-stone-600 text-gray-100 px-4 py-1.5 rounded hover:bg-gray-800 transition"
+              className="bg-teal-600 text-gray-100 px-4 py-1.5 rounded hover:bg-gray-800 transition"
             >
               {/* Search */}
               <svg
@@ -274,7 +274,7 @@ const CompanyReport = () => {
                 setPage(0);
                 loadProducts();
               }}
-              className="bg-stone-600 text-gray-100 px-4 py-1.5 rounded hover:bg-gray-800 transition"
+              className="bg-teal-600 text-gray-100 px-4 py-1.5 rounded hover:bg-gray-800 transition"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

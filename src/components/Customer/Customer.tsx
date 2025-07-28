@@ -290,7 +290,7 @@ const confirmAndSave = async () => {
           <button
             className={`px-4 py-1.5 text-sm rounded-md font-medium transition ${
               activeTab === "registered"
-                ? "bg-stone-500 text-white"
+                ? "bg-teal-500 text-white"
                 : "bg-white border border-gray-300 text-gray-800 hover:bg-blue-50"
             }`}
             onClick={() => setActiveTab("registered")}
@@ -300,7 +300,7 @@ const confirmAndSave = async () => {
           <button
             className={`px-4 py-1.5 text-sm rounded-md font-medium transition ${
               activeTab === "requests"
-                ? "bg-stone-500 text-white"
+                ? "bg-teal-500 text-white"
                 : "bg-white border border-gray-300 text-gray-800 hover:bg-blue-50"
             }`}
             onClick={() => setActiveTab("requests")}
@@ -322,7 +322,7 @@ const confirmAndSave = async () => {
               fetchRegistered();
               fetchRequests();
             }}
-            className="bg-stone-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-stone-700 transition"
+            className="bg-teal-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-teal-700 transition"
           >
             Search
           </button>
@@ -338,7 +338,7 @@ const confirmAndSave = async () => {
               setEditItem(null);
               setShowRegisterForm(true);
             }}
-            className="bg-stone-500 hover:bg-stone-700 text-white px-4 py-1.5 text-sm rounded-md"
+            className="bg-teal-500 hover:bg-teal-700 text-white px-4 py-1.5 text-sm rounded-md"
           >
             + Register Product
           </button>
@@ -489,7 +489,7 @@ const confirmAndSave = async () => {
                           product.company_id
                         )
                       }
-                      className="text-xs bg-stone-500 hover:bg-stone-700 text-white px-2 py-1 rounded"
+                      className="text-xs bg-teal-500 hover:bg-teal-700 text-white px-2 py-1 rounded"
                     >
                       Request
                     </button>
@@ -517,7 +517,7 @@ const confirmAndSave = async () => {
             setShowDeleteConfirm(false);
             setDeleteId(null);
           }}
-          className="bg-stone-600 text-white px-4 py-2 rounded hover:bg-red-700"
+          className="bg-teal-500 text-white px-4 py-2 rounded hover:bg-red-700"
         >
           Yes
         </button>
@@ -748,7 +748,7 @@ const confirmAndSave = async () => {
                   setShowRegisterForm(false);
                   setEditItem(null);
                 }}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 bg-white"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -793,7 +793,7 @@ const confirmAndSave = async () => {
               </div>
               <button
                 type="submit"
-                className="w-full bg-stone-500 hover:bg-stone-700 text-white py-2 rounded text-sm"
+                className="w-full bg-teal-500 hover:bg-teal-700 text-white py-2 rounded text-sm"
               >
                 Submit
               </button>
@@ -808,7 +808,7 @@ const confirmAndSave = async () => {
       <div className="flex justify-end gap-3">
         <button
           onClick={confirmAndSave}
-          className="bg-stone-500 text-white px-4 py-2 rounded hover:bg-stone-700"
+          className="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700"
         >
           Yes
         </button>
@@ -929,7 +929,7 @@ const confirmAndSave = async () => {
               </div>
               <button
                 type="submit"
-                className="w-full bg-stone-500 hover:bg-stone-700 text-white py-2 rounded text-sm"
+                className="w-full bg-teal-500 hover:bg-teal-700 text-white py-2 rounded text-sm"
               >
                 Submit Request
               </button>

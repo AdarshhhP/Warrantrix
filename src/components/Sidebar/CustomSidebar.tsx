@@ -22,8 +22,8 @@ const Sidebar: React.FC = () => {
 
   const isActive = (tab: string) =>
     activeTab === tab
-      ? "w-full text-left px-4 py-2 bg-stone-300 text-black rounded"
-      : "w-full text-left px-4 py-2 hover:bg-stone-300 rounded bg-white text-black";
+      ? "w-full text-left px-4 py-2 bg-teal-300 text-black rounded"
+      : "w-full text-left px-4 py-2 hover:bg-teal-300 rounded bg-white text-black";
 
   return (
     <div>

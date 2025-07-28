@@ -9,6 +9,7 @@ import { Toaster } from "../../components/ui/sonner";
 import TemplateGenerator, {
   type Columns,
 } from "../BulkUpload/TemplateGenerator";
+import Loader from "../Loader/Loader";
 
 const categories = [
   { id: 1, name: "Electronics" },
@@ -59,6 +60,7 @@ const Company = () => {
     "products"
   );
   const [products, setProducts] = useState<Product[]>([]);
+  const[loader,setloader]=useState(false);
   const [requests, setRequests] = useState<WarrantyRequest[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [images, setImages] = useState<File[]>([]);
@@ -96,6 +98,7 @@ const Company = () => {
   }, [companyId]);
 
   const fetchProducts = async () => {
+    setloader(true);
     try {
       const data = await companyService.fetchProducts({
         company_id: companyId,
@@ -109,8 +112,8 @@ const Company = () => {
         ...product,
         productImages: product.productImages || [],
       }));
-
       setProducts(productsWithImages);
+      setloader(false);
     } catch (err: any) {
       // alert("Failed to fetch products: " + err.message);
       toast("Failed to fetch products: " + err.message);
@@ -325,7 +328,7 @@ const Company = () => {
         {activeTab === "products" && (
           <button
             onClick={() => setShowForm(true)}
-            className="bg-stone-500 h-8 justify-center hover:bg-gray-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2"
+            className="bg-teal-500 h-8 justify-center hover:bg-gray-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -351,7 +354,7 @@ const Company = () => {
             onClick={() => setActiveTab("products")}
             className={`h-8 items-center justify-center flex rounded-lg font-medium transition-colors duration-200 ${
               activeTab === "products"
-                ? "bg-stone-500 text-white shadow-sm"
+                ? "bg-teal-500 text-white shadow-sm"
                 : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
             }`}
           >
@@ -361,7 +364,7 @@ const Company = () => {
             onClick={() => setActiveTab("requests")}
             className={`h-8 items-center justify-center flex rounded-lg font-medium transition-colors duration-200 ${
               activeTab === "requests"
-                ? "bg-stone-500 text-white shadow-sm"
+                ? "bg-teal-500 text-white shadow-sm"
                 : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
             }`}
           >
@@ -404,7 +407,7 @@ const Company = () => {
               <div className="flex flex-row gap-1">
                 <button
                   onClick={fetchProducts}
-                  className="bg-stone-500 text-white h-8 items-center justify-center rounded-lg hover:bg-gray-700 transition-colors duration-200 flex gap-2"
+                  className="bg-teal-500 text-white h-8 items-center justify-center rounded-lg hover:bg-gray-700 transition-colors duration-200 flex gap-2"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -424,7 +427,7 @@ const Company = () => {
                 </button>
                 <button
                   onClick={handleReset}
-                  className="bg-stone-500 text-white h-8 justify-centerrounded-lg hover:bg-gray-300 transition-colors duration-200 flex items-center justify-center gap-2"
+                  className="bg-teal-500 text-white h-8 justify-centerrounded-lg hover:bg-gray-300 transition-colors duration-200 flex items-center justify-center gap-2"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -471,7 +474,7 @@ const Company = () => {
             </div>
             <button
               onClick={fetchRequests}
-              className="bg-stone-500 text-white py-1.5 rounded-lg hover:bg-gray-700 transition-colors duration-200 w-fit flex items-center justify-center gap-2"
+              className="bg-teal-500 text-white py-1.5 rounded-lg hover:bg-gray-700 transition-colors duration-200 w-fit flex items-center justify-center gap-2"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -563,7 +566,7 @@ const Company = () => {
 
       {previewImageREquest && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white p-6 rounded-xl shadow-xl relative max-w-4xl w-full">
+          <div className="bg-white p-6 rounded-xl shadow-xl relative max-w-xl w-full">
             <button
               onClick={() => setpreviewImageREquest(null)}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100"
@@ -631,7 +634,11 @@ const Company = () => {
         <div className="grid gap-6 grid-cols-4">
           {products.length === 0 ? (
             <div className="col-span-full flex flex-col items-center justify-center py-12">
-              <svg
+
+{loader?(              <Loader/>
+):(
+<div>
+ <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-16 w-16 text-gray-400"
                 fill="none"
@@ -648,7 +655,7 @@ const Company = () => {
               <p className="text-gray-500 mt-4 text-lg">No products found</p>
               <button
                 onClick={() => setShowForm(true)}
-                className="mt-4 hover:bg-stone-500 bg-stone-600 text-white font-medium flex items-center gap-1"
+                className="mt-4 hover:bg-teal-500 bg-teal-600 text-white font-medium flex items-center gap-1"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -664,6 +671,14 @@ const Company = () => {
                 </svg>
                 Add your first product
               </button>
+</div>
+  
+)
+
+
+}
+             
+
             </div>
           ) : (
             products.map((product, index) => (
@@ -1056,7 +1071,7 @@ const Company = () => {
                     />
                   )}
                   <button
-                    className="bg-stone-500 text-white h-9 flex items-center justify-center"
+                    className="bg-teal-500 text-white h-9 flex items-center justify-center"
                     onClick={() => setbulkuploadmode(!bulkuploadmode)}
                     title="Back"
                   >

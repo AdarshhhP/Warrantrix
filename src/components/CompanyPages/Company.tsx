@@ -4,8 +4,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import companyService from "../../services/CompanyServices";
-import { toast } from "sonner"
-import { Toaster } from "../../components/ui/sonner"
+import { toast } from "sonner";
+import { Toaster } from "../../components/ui/sonner";
 import TemplateGenerator, {
   type Columns,
 } from "../BulkUpload/TemplateGenerator";
@@ -112,8 +112,8 @@ const Company = () => {
 
       setProducts(productsWithImages);
     } catch (err: any) {
-     // alert("Failed to fetch products: " + err.message);
-        toast( "Failed to fetch products: " + err.message );
+      // alert("Failed to fetch products: " + err.message);
+      toast("Failed to fetch products: " + err.message);
     }
   };
 
@@ -128,9 +128,8 @@ const Company = () => {
       });
       setRequests(data);
     } catch (err: any) {
-     // alert("Failed to fetch warranty requests: " + err.message);
-              toast( "Failed to fetch warranty requests: : " + err.message );
-
+      // alert("Failed to fetch warranty requests: " + err.message);
+      toast("Failed to fetch warranty requests: : " + err.message);
     }
   };
   const convertToBase64 = (file: File): Promise<string> =>
@@ -163,15 +162,14 @@ const Company = () => {
         company_id: companyId,
       };
       await companyService.postProduct(payload);
-               toast( "Added Product successfully" );
-     reset();
+      toast("Added Product successfully");
+      reset();
       setShowForm(false);
       setImages([]);
       fetchProducts();
     } catch (error: any) {
-     // alert("Error adding product: " + error.message);
-                    toast( "Error Adding Product"+error.message);
-
+      // alert("Error adding product: " + error.message);
+      toast("Error Adding Product" + error.message);
     }
   };
 
@@ -185,7 +183,7 @@ const Company = () => {
             //   type: "success",
             //   title: "Status updated successfully",
             // });
-                                      toast( "Status updated successfully");
+            toast("Status updated successfully");
 
             setRemarks(""); // Clear remarks after successful update
             setremarksmode(false);
@@ -193,33 +191,32 @@ const Company = () => {
         });
       fetchRequests();
     } catch (err: any) {
-    //  alert("Failed to update status: " + err.message);
-        // toast({
-        //       type: "success",
-        //       title: "Failed to update status: " + err.message,
-        //     });
-                          toast( "Failed to update status:  " + err.message );
-
+      //  alert("Failed to update status: " + err.message);
+      // toast({
+      //       type: "success",
+      //       title: "Failed to update status: " + err.message,
+      //     });
+      toast("Failed to update status:  " + err.message);
     }
   };
 
- const handleReset = () => {
-  setModelNo("");
-  setHolderStatus("");
-  setProductCategory("");
-  setAstatus("");
-  setAmodelNo("");
-  setResetDone(true); // trigger useEffect
-};
+  const handleReset = () => {
+    setModelNo("");
+    setHolderStatus("");
+    setProductCategory("");
+    setAstatus("");
+    setAmodelNo("");
+    setResetDone(true); // trigger useEffect
+  };
 
-// This useEffect will run AFTER all states have been reset
-useEffect(() => {
-  if (resetDone) {
-    fetchProducts();
-    fetchRequests();
-    setResetDone(false); // reset the flag
-  }
-}, [resetDone]);
+  // This useEffect will run AFTER all states have been reset
+  useEffect(() => {
+    if (resetDone) {
+      fetchProducts();
+      fetchRequests();
+      setResetDone(false); // reset the flag
+    }
+  }, [resetDone]);
 
   const handleBulkUpload = () => {
     if (!bulkFile) {
@@ -239,28 +236,21 @@ useEffect(() => {
         setBulkUploadResults(response.data); // Store the results
 
         if (statusCode === 200) {
-          toast( message || "Upload successful",
-          );
+          toast(message || "Upload successful");
           fetchProducts();
           if (fileInputRef.current) {
             fileInputRef.current.value = ""; // ✅
             setBulkFile(null); // Clear the file state
           }
         } else if (statusCode === 509) {
-          toast(
-             message || "File format issue");
-          
-          
+          toast(message || "File format issue");
         } else {
-          toast( message || "Couldn't upload file",
-          );
+          toast(message || "Couldn't upload file");
         }
       })
       .catch((error: unknown) => {
         console.error("Bulk upload failed:", error);
-        toast(
-          "Failed to upload file",
-        );
+        toast("Failed to upload file");
       });
   };
 
@@ -325,15 +315,12 @@ useEffect(() => {
       comment: "Enter base64 string for product image (optional)",
     },
   ];
-  console.log(products, "products");
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 p-6 md:p-8">
+    <div className="min-h-screen bg-gray-200 text-gray-900 p-6 md:p-8">
       <Toaster />
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <p className="text-sm md:text-xl font-bold text-gray-800">
-          Products
-        </p>
+        <p className="text-sm md:text-xl font-bold text-gray-800">Products</p>
 
         {activeTab === "products" && (
           <button
@@ -437,7 +424,7 @@ useEffect(() => {
                 </button>
                 <button
                   onClick={handleReset}
-                  className="bg-gray-200 text-gray-700 h-8 justify-centerrounded-lg hover:bg-gray-300 transition-colors duration-200 flex items-center justify-center gap-2"
+                  className="bg-stone-500 text-white h-8 justify-centerrounded-lg hover:bg-gray-300 transition-colors duration-200 flex items-center justify-center gap-2"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -509,10 +496,10 @@ useEffect(() => {
       {/* Image Preview Modal */}
       {previewImage && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white p-6 rounded-xl shadow-xl relative max-w-4xl w-full">
+          <div className="bg-white p-6 rounded-xl shadow-xl relative max-w-xl w-full">
             <button
               onClick={() => setPreviewImage(null)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100"
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100 bg-white"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -682,20 +669,24 @@ useEffect(() => {
             products.map((product, index) => (
               <div
                 key={index}
-                className="bg-white shadow-sm rounded-xl p-3 space-y-2 border border-gray-100 hover:shadow-md transition-shadow duration-200"
+                className="bg-white shadow-lg rounded-xl p-2 space-y-2  border-gray-300 hover:shadow-md transition-shadow duration-200"
               >
                 {/* Header */}
-                <div className="flex items-center justify-between">
-                  <p className="text-xs font-semibold text-gray-700 truncate">
-                    Product:{" "}
-                    <span className="font-normal text-gray-600">
+                <div className="flex flex-col items-center justify-between">
+                  <p className="text-sm pb-1 font-semibold text-gray-700 truncate">
+                    {product.product_name}
+                    {/* <span className="font-semibold text-gray-600 pb-1">
                       {product.product_name}
-                    </span>
+                    </span> */}
                   </p>
-                  {product.productImages&&(
-                  <img
-                  src={product.productImages[0]}
-                  />)}
+                  {product.productImages && (
+                    <div className="">
+                      <img
+                        className="h-28 w-auto object-contain"
+                        src={product.productImages[0]}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* Info Section */}
@@ -1010,8 +1001,7 @@ useEffect(() => {
                             value={req.warranty_status}
                             onChange={(e) => {
                               if (remarks.trim() === "") {
-                                toast( "Please enter remarks first",
-                                );
+                                toast("Please enter remarks first");
                                 return;
                               }
                               handleStatusChange(
@@ -1109,7 +1099,7 @@ useEffect(() => {
                       />
                     </div>
 
-                   <div>
+                    <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Model No
                       </label>
@@ -1136,7 +1126,7 @@ useEffect(() => {
                         {/* <span onClick={() => setImages([])}>Clear</span> */}
                       </div>
                     </div>
-                      <div>
+                    <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Product Category
                       </label>
@@ -1153,8 +1143,6 @@ useEffect(() => {
                         ))}
                       </select>
                     </div>
-
-                   
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">

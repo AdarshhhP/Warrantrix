@@ -60,7 +60,7 @@ const Company = () => {
     "products"
   );
   const [products, setProducts] = useState<Product[]>([]);
-  const[loader,setloader]=useState(false);
+  const [loader, setloader] = useState(false);
   const [requests, setRequests] = useState<WarrantyRequest[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [images, setImages] = useState<File[]>([]);
@@ -634,51 +634,47 @@ const Company = () => {
         <div className="grid gap-6 grid-cols-4">
           {products.length === 0 ? (
             <div className="col-span-full flex flex-col items-center justify-center py-12">
-
-{loader?(              <Loader/>
-):(
-<div>
- <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-16 w-16 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <p className="text-gray-500 mt-4 text-lg">No products found</p>
-              <button
-                onClick={() => setShowForm(true)}
-                className="mt-4 hover:bg-teal-500 bg-teal-600 text-white font-medium flex items-center gap-1"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Add your first product
-              </button>
-</div>
-  
-)
-
-
-}
-             
-
+              {loader ? (
+                <Loader />
+              ) : (
+                <div className="flex justify-center items-center flex-col">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-16 w-16 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <p className="text-gray-500 mt-4 text-lg">
+                    No products found
+                  </p>
+                  <button
+                    onClick={() => setShowForm(true)}
+                    className="mt-4 hover:bg-teal-500 bg-teal-600 text-white font-medium flex items-center gap-1"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Add your first product
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             products.map((product, index) => (
@@ -694,14 +690,19 @@ const Company = () => {
                       {product.product_name}
                     </span> */}
                   </p>
-                  {product.productImages && (
+                  {product.productImages.length>0 ? (
                     <div className="">
                       <img
                         className="h-28 w-auto object-contain rounded-md"
                         src={product.productImages[0]}
                       />
                     </div>
-                  )}
+                  )
+                  :(
+<div className="h-28 w-28 bg-gray-200 animate-pulse text-gray-600 rounded-md flex items-center justify-center text-sm whitespace-nowrap">
+  🧑‍🎨No Image
+</div>                  )
+                  }
                 </div>
 
                 {/* Info Section */}

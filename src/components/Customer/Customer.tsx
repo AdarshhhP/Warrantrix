@@ -386,17 +386,25 @@ const confirmAndSave = async () => {
                       {product.productImages &&
                       product.productImages.length > 0 ? (
                         <div className="flex items-center space-x-2">
-                          <span className="text-sm font-medium text-gray-700">
-                            View Image
-                          </span>
+                           {product.productImages && (
+                    <div className="p-1">
+                      <img
+                        className="h-28 w-auto object-contain rounded-md"
+                        src={product.productImages[0]}
+                      />
+                    </div>
+                  )}
+                          
 
                           <button
-                            onClick={() =>
-                              setPreviewImage(product.productImages[0])
+                            onClick={() =>{
+                              setPreviewImage(product.productImages[0]);
+                              setmodelNoo(item.model_no)}
                             }
+                            title="view more"
                             className="text-gray-600 hover:text-gray-800 bg-white text-sm p-2 flex items-center justify-center transition duration-200 ease-in-out"
                           >
-                            <svg
+                            {/* <svg
                               xmlns="http://www.w3.org/2000/svg"
                               className="h-4 w-4"
                               fill="none"
@@ -415,7 +423,10 @@ const confirmAndSave = async () => {
                                 strokeWidth={2}
                                 d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                               />
-                            </svg>
+                            </svg> */}
+                            <span className="text-sm font-medium text-blue-700 ">
+                            View More
+                          </span>
                           </button>
                         </div>
                       ) : (
@@ -537,8 +548,19 @@ const confirmAndSave = async () => {
 >
   {/* Header */}
   <div className="flex items-center justify-between mb-3">
-    <p className="text-sm font-semibold text-gray-800">Model: {req.model_no}</p>
+<div className="flex flex-col">
+  {product.productImages && (
+                    <div className="p-1">
+                      <img
+                        className="h-28 w-auto object-contain rounded-md"
+                        src={product.productImages[0]}
+                      />
+                    </div>
+                  )}
 
+
+    <p className="text-sm font-semibold text-gray-800">Model: {req.model_no}</p>
+</div>
     {product.productImages && (
       <button
         onClick={() => {
@@ -547,7 +569,7 @@ const confirmAndSave = async () => {
         }}
         className="text-xs text-blue-600 hover:underline bg-white"
       >
-        View Product Image
+        View More
       </button>
     )}
   </div>
@@ -578,11 +600,10 @@ const confirmAndSave = async () => {
   </p>
 
   {/* Company Remarks */}
-  {req.rejection_remark && (
     <p className="text-sm text-gray-500 mb-3">
-      <span className="font-medium">Remarks:</span> {req.rejection_remark}
+      <span className="font-medium">Remarks:</span> {req.rejection_remark && req.rejection_remark} {!req.rejection_remark && "No Remarks"}
     </p>
-  )}
+
 
   {/* Uploaded Image Button */}
   <button
@@ -632,7 +653,7 @@ const confirmAndSave = async () => {
                 setPreviewImage(null);
                 setPreviewImages(null);
               }}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200 p-1 rounded-full hover:bg-blue-100"
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200 p-1 rounded-full hover:bg-blue-100 bg-white"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

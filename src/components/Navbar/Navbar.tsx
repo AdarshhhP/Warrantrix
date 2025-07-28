@@ -15,7 +15,7 @@ const Navbar = () => {
   return (
     <>
       {/* Navbar */}
-      <div className="bg-gradient-to-r from-stone-700  to-stone-600 w-full h-16 flex items-center px-6 text-white shadow z-40 relative">
+      <div className="bg-gradient-to-l from-slate-800 to-teal-700 w-full h-16 flex items-center px-6 text-white shadow z-40 relative">
         <div className="justify-start flex">
  <svg
     xmlns="http://www.w3.org/2000/svg"

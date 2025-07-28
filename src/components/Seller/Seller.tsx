@@ -795,15 +795,26 @@ const Seller = () => {
                     </div>
                   </div>
 
+
+
+ <div className="flex flex-row">               
+ {prod.productImages && (
+                    <div className="p-1">
+                      <img
+                        className="h-28 w-auto object-contain rounded-md"
+                        src={prod.productImages[0]}
+                      />
+                    </div>
+                  )}
                   {prod.productImages && (
                     <button
                       onClick={() => setPreviewImage(prod.productImages[0])}
                       className="mt-2 text-xs text-blue-600 bg-white"
                     >
-                      View Product Image
+                      View More
                     </button>
                   )}
-
+</div>  
                   <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
                     <span
                       className={`text-xs px-2 py-1 rounded ${

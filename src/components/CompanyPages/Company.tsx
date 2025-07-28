@@ -682,7 +682,7 @@ const Company = () => {
                   {product.productImages && (
                     <div className="">
                       <img
-                        className="h-28 w-auto object-contain"
+                        className="h-28 w-auto object-contain rounded-md"
                         src={product.productImages[0]}
                       />
                     </div>

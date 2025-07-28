@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import customerService from "../../services/CustomerServices";
+import { toast } from "sonner";
+import { Toaster } from "../ui/sonner";
 
 type Product = {
   productImages: string[];
@@ -39,6 +41,12 @@ const CustomerWarrantyPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [images, setImages] = useState<File[]>([]);
 
+  const [pendingPayload, setPendingPayload] = useState<any>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [modelValid, setModelValid] = useState(false);
 
@@ -52,10 +60,12 @@ const CustomerWarrantyPage = () => {
         customerId,
         searchModelNo
       );
-      setRegistered(data);
+
+      console.log(data,"data")
+      setRegistered(data.content);
 
       const modelNos = [
-        ...new Set(data.map((item: any) => String(item.model_no))),
+        ...new Set(data.content.map((item: any) => String(item.model_no))),
       ] as string[];
       if (modelNos.length > 0) {
         const productDetails = await customerService.getProductDetailsByModels(
@@ -112,47 +122,97 @@ const CustomerWarrantyPage = () => {
   };
 
   const handleDelete = async (purchaseId: number) => {
-    try {
-      const res = await customerService.deleteRegisteredWarranty(purchaseId);
-      if (res.data?.message === "Cant Delete") {
-        alert("Cannot delete this warranty");
-      } else {
-        fetchRegistered();
-      }
-    } catch (err: any) {
-      alert(err.response?.data?.message || err.message);
-    }
-  };
+  try {
+    const res = await customerService.deleteRegisteredWarranty(purchaseId);
 
-  const handleRegisterSubmit = async (data: any) => {
-    const payload = { ...data, customerId };
-    try {
-      const eligible = await customerService.checkEligibility(data.model_no, 4);
-      if (!eligible) {
-        alert(
-          "You are not eligible to register this product. Please contact support."
-        );
-        return;
-      }
-
-      if (editItem) {
-        await customerService.editRegisteredWarranty(
-          editItem.purchase_Id,
-          payload
-        );
-      } else {
-        await customerService.registerWarranty(payload);
-        await customerService.updateHolderStatus(data.model_no, 4);
-      }
-
-      setShowRegisterForm(false);
-      setEditItem(null);
-      registerForm.reset();
+    if (res.data?.message === "Cant Delete") {
+      toast.error("Cannot delete this warranty.");
+    } else {
+      toast.success("Deleted Successfully");
       fetchRegistered();
-    } catch (err: any) {
-      alert(err.response?.data?.message || err.message);
     }
-  };
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || "Something went wrong while deleting.");
+  }
+};
+
+
+  // const handleRegisterSubmit = async (data: any) => {
+  //   const payload = { ...data, customerId };
+  //   try {
+  //     const eligible = await customerService.checkEligibility(data.model_no, 4);
+  //     if (!eligible&&!editItem) {
+  //       alert(
+  //         "You are not eligible to register this product. Please contact support."
+  //       );
+  //       return;
+  //     }
+
+  //     if (editItem) {
+  //       await customerService.editRegisteredWarranty(
+  //         editItem.purchase_Id,
+  //         payload
+  //       );
+  //     } else {
+  //       await customerService.registerWarranty(payload);
+  //       await customerService.updateHolderStatus(data.model_no, 4);
+  //     }
+
+  //     setShowRegisterForm(false);
+  //     setEditItem(null);
+  //     registerForm.reset();
+  //     fetchRegistered();
+  //   } catch (err: any) {
+  //     alert(err.response?.data?.message || err.message);
+  //   }
+  // };
+
+const handleRegisterSubmit = async (data: any) => {
+  const payload = { ...data, customerId };
+
+  try {
+    const eligible = await customerService.checkEligibility(data.model_no, 4);
+
+    // If not eligible (and not editing), block immediately
+    if (!eligible && !editItem) {
+      alert("You are not eligible to register this product. Please contact support.");
+      return;
+    }
+
+    // Store the payload for later and show confirmation dialog
+    setPendingPayload({ payload, modelNo: data.model_no, isEdit: !!editItem, purchase_Id: editItem?.purchase_Id });
+    setShowConfirmModal(true);
+
+  } catch (err: any) {
+    alert(err.response?.data?.message || err.message);
+  }
+};
+
+const confirmAndSave = async () => {
+  try {
+    const { payload, modelNo, isEdit, purchase_Id } = pendingPayload;
+
+    if (isEdit) {
+      await customerService.editRegisteredWarranty(purchase_Id, payload);
+      toast.success("Updated Successfully")
+    } else {
+      await customerService.registerWarranty(payload);
+      await customerService.updateHolderStatus(modelNo, 4);
+    }
+
+    // Success cleanup
+    setShowRegisterForm(false);
+    setEditItem(null);
+    registerForm.reset();
+    fetchRegistered();
+
+  } catch (err: any) {
+    alert(err.response?.data?.message || err.message);
+  } finally {
+    setShowConfirmModal(false);
+    setPendingPayload(null);
+  }
+};
 
   const convertToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -195,6 +255,7 @@ const CustomerWarrantyPage = () => {
       setModelValid(false);
       fetchRequests();
       setImages([]);
+      toast.success("Submitted Successfully")
     } catch (err: any) {
       alert(err.response?.data?.message || err.message);
     }
@@ -215,10 +276,11 @@ const CustomerWarrantyPage = () => {
       setImages(Array.from(e.target.files));
     }
   };
-  console.log(modelNoo, "modelNoo");
+  
   return (
-    <div className="p-4 max-w-screen bg-white min-h-screen text-gray-800">
-      <h1 className="text-2xl font-bold mb-6 text-center text-gray-900">
+    <div className="p-4 max-w-screen bg-white min-h-screen text-gray-900">
+      <Toaster />
+      <h1 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-6">
         Customer Dashboard
       </h1>
 
@@ -228,8 +290,8 @@ const CustomerWarrantyPage = () => {
           <button
             className={`px-4 py-1.5 text-sm rounded-md font-medium transition ${
               activeTab === "registered"
-                ? "bg-gray-800 text-white"
-                : "bg-white border border-gray-300 text-gray-800 hover:bg-gray-50"
+                ? "bg-stone-500 text-white"
+                : "bg-white border border-gray-300 text-gray-800 hover:bg-blue-50"
             }`}
             onClick={() => setActiveTab("registered")}
           >
@@ -238,8 +300,8 @@ const CustomerWarrantyPage = () => {
           <button
             className={`px-4 py-1.5 text-sm rounded-md font-medium transition ${
               activeTab === "requests"
-                ? "bg-gray-800 text-white"
-                : "bg-white border border-gray-300 text-gray-800 hover:bg-gray-50"
+                ? "bg-stone-500 text-white"
+                : "bg-white border border-gray-300 text-gray-800 hover:bg-blue-50"
             }`}
             onClick={() => setActiveTab("requests")}
           >
@@ -260,7 +322,7 @@ const CustomerWarrantyPage = () => {
               fetchRegistered();
               fetchRequests();
             }}
-            className="bg-gray-800 text-white px-3 py-1.5 text-sm rounded-md hover:bg-gray-700 transition"
+            className="bg-stone-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-stone-700 transition"
           >
             Search
           </button>
@@ -276,7 +338,7 @@ const CustomerWarrantyPage = () => {
               setEditItem(null);
               setShowRegisterForm(true);
             }}
-            className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-1.5 text-sm rounded-md"
+            className="bg-stone-500 hover:bg-stone-700 text-white px-4 py-1.5 text-sm rounded-md"
           >
             + Register Product
           </button>
@@ -285,7 +347,7 @@ const CustomerWarrantyPage = () => {
 
       {/* Registered Products */}
       {activeTab === "registered" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-5 gap-4">
           {registered.length > 0 ? (
             registered.map((item) => {
               const product = productDetailsMap[item.model_no] || {};
@@ -367,15 +429,46 @@ const CustomerWarrantyPage = () => {
                   <div className="flex space-x-2 mt-3">
                     <button
                       onClick={() => handleEdit(item)}
-                      className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 px-2 py-1 rounded"
+                      className="text-white hover:text-gray-900 p-1 rounded hover:bg-blue-100"
+                      title="Edit"
                     >
-                      Edit
+                      <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          />
+                        </svg>
                     </button>
                     <button
-                      onClick={() => handleDelete(item.purchase_Id)}
-                      className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 px-2 py-1 rounded"
+                      onClick={() => {
+                        setDeleteId(item.purchase_Id);
+                        setShowDeleteConfirm(true);
+                      }}
+                      className="text-white hover:text-red-600 p-1 rounded hover:bg-blue-100"
+                      title="Delete"
                     >
-                      Delete
+                      <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
                     </button>
                     <button
                       onClick={() =>
@@ -385,7 +478,7 @@ const CustomerWarrantyPage = () => {
                           product.company_id
                         )
                       }
-                      className="text-xs bg-gray-800 hover:bg-gray-700 text-white px-2 py-1 rounded"
+                      className="text-xs bg-stone-500 hover:bg-stone-700 text-white px-2 py-1 rounded"
                     >
                       Request
                     </button>
@@ -400,10 +493,40 @@ const CustomerWarrantyPage = () => {
           )}
         </div>
       )}
+{showDeleteConfirm && (
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+      <p className="text-gray-800 mb-4">Are you sure you want to delete this item?</p>
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => {
+            if (deleteId !== null) {
+              handleDelete(deleteId); // Call your delete logic
+            }
+            setShowDeleteConfirm(false);
+            setDeleteId(null);
+          }}
+          className="bg-stone-600 text-white px-4 py-2 rounded hover:bg-red-700"
+        >
+          Yes
+        </button>
+        <button
+          onClick={() => {
+            setShowDeleteConfirm(false);
+            setDeleteId(null);
+          }}
+          className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+        >
+          No
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Warranty Requests */}
       {activeTab === "requests" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-4 gap-4">
           {requests.length > 0 ? (
             requests.map((req) => {
               const product = productDetailsMap[req.model_no] || {};
@@ -509,7 +632,7 @@ const CustomerWarrantyPage = () => {
                 setPreviewImage(null);
                 setPreviewImages(null);
               }}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100"
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200 p-1 rounded-full hover:bg-blue-100"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -644,12 +767,12 @@ const CustomerWarrantyPage = () => {
                   type="date"
                   max={new Date().toISOString().split("T")[0]}
                   required
-                  className="text-sm p-2 border border-gray-300 rounded w-full bg-gray-200 focus:ring-1 focus:ring-gray-500 focus:border-gray-500"
+                  className="text-sm p-2 border border-gray-300 rounded w-full bg-blue-200 focus:ring-1 focus:ring-gray-500 focus:border-gray-500"
                 />
               </div>
               <button
                 type="submit"
-                className="w-full bg-gray-800 hover:bg-gray-700 text-white py-2 rounded text-sm"
+                className="w-full bg-stone-500 hover:bg-stone-700 text-white py-2 rounded text-sm"
               >
                 Submit
               </button>
@@ -657,6 +780,31 @@ const CustomerWarrantyPage = () => {
           </div>
         </div>
       )}
+      {showConfirmModal && (
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
+      <p className="mb-4 text-gray-800">Are you sure you want to save the changes?</p>
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={confirmAndSave}
+          className="bg-stone-500 text-white px-4 py-2 rounded hover:bg-stone-700"
+        >
+          Yes
+        </button>
+        <button
+          onClick={() => {
+            setShowConfirmModal(false);
+            setPendingPayload(null);
+          }}
+          className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+        >
+          No
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
       {/* Warranty Request Form Modal */}
       {showRequestForm && (
@@ -666,7 +814,7 @@ const CustomerWarrantyPage = () => {
               <h3 className="text-lg font-medium">Raise Warranty Request</h3>
               <button
                 onClick={() => setShowRequestForm(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 bg-white"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -695,7 +843,7 @@ const CustomerWarrantyPage = () => {
                   placeholder="Model No"
                   required
                   disabled
-                  className="text-sm p-2 border border-gray-300 rounded w-full bg-white bg-gray-100"
+                  className="text-sm p-2 border border-gray-300 rounded w-full bg-white bg-blue-100"
                 />
               </div>
               <div>
@@ -744,7 +892,7 @@ const CustomerWarrantyPage = () => {
                     onChange={handleImageChange}
                     className="w-full border px-4 py-2 rounded-lg"
                   />
-                  <span onClick={() => setImages([])}>Clear</span>
+                  
                 </div>
               </div>
               <div>
@@ -760,7 +908,7 @@ const CustomerWarrantyPage = () => {
               </div>
               <button
                 type="submit"
-                className="w-full bg-gray-800 hover:bg-gray-700 text-white py-2 rounded text-sm"
+                className="w-full bg-stone-500 hover:bg-stone-700 text-white py-2 rounded text-sm"
               >
                 Submit Request
               </button>

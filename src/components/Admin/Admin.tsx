@@ -5,13 +5,15 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { toast } from "sonner";
 import { Toaster } from "../ui/sonner";
+import SmallLoader from "../Loader/SmallLoader";
 
 const Admin = () => {
   const { register, handleSubmit, reset } = useForm();
-  const [userType, setUserType] = useState(2); // Default to Company
-
+  const [userType, setUserType] = useState(3); // Default to Company
+  const [loader, setloader] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onSubmit = async (data: any) => {
+    setloader(true);
     try {
       const payload = {
         userName: data.userName,
@@ -20,25 +22,32 @@ const Admin = () => {
         userType: userType,
       };
 
-      const response = await axios.post("http://localhost:2089/createuser", payload);
+      const response = await axios.post(
+        "http://localhost:2089/createuser",
+        payload
+      );
 
       if (response.status === 200) {
         // alert("User created successfully!");
-        toast("New user created")
+        toast.success("New user created");
         reset();
         setUserType(2); // Reset to default
+        setloader(false);
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      alert("Error: " + (error.response?.data?.message || error.message));
+      //alert("Error: " + (error.response?.data?.message || error.message));
+      toast.success(
+        "Error: " + (error.response?.data?.message || error.message)
+      );
     }
   };
 
   return (
     <div className="h-full flex items-center justify-center bg-gray-100 p-8">
-      <Toaster/>
+      <Toaster />
       <div className="w-full max-w-md bg-teal-600 shadow-md rounded-xl p-6 space-y-6">
-        <h2 className="text-2xl font-bold text-center">Create Seller or Company</h2>
+        <h2 className="text-2xl font-bold text-center">Create User</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <input
             {...register("userName")}
@@ -73,7 +82,15 @@ const Admin = () => {
             type="submit"
             className="w-full bg-teal-700 text-white py-2 rounded-lg hover:bg-teal-700 transition"
           >
-            Create Account
+            {loader ? (
+              <div className="flex justify-center items-center">
+                <SmallLoader />
+              </div>
+            ) : (
+              <div className="flex items-center justify-center w-full">
+                Create Account
+              </div>
+            )}
           </button>
         </form>
       </div>
@@ -82,5 +99,3 @@ const Admin = () => {
 };
 
 export default Admin;
-
-

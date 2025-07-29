@@ -1,21 +1,13 @@
-import React from 'react'
+import React from 'react';
 
-const Loader = () => {
+const SmallLoader = () => {
   return (
-      <svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" fill="none">
-  <circle cx="25" cy="25" r="20" stroke="#6366f1" stroke-width="5" opacity="0.25"/>
-  <path fill="#6366f1" d="M25 5a20 20 0 0 1 0 40v-5a15 15 0 0 0 0-30V5z">
-    <animateTransform 
-      attributeName="transform" 
-      type="rotate"
-      from="0 25 25"
-      to="360 25 25"
-      dur="1s"
-      repeatCount="indefinite" />
-  </path>
+   <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="10" cy="10" r="8" stroke="#ffffff" stroke-width="2" fill="none" stroke-dasharray="12 12">
+    <animateTransform attributeName="transform" type="rotate" from="0 10 10" to="360 10 10" dur="1s" repeatCount="indefinite"/>
+  </circle>
 </svg>
+  );
+};
 
-  )
-}
-
-export default Loader
+export default SmallLoader;

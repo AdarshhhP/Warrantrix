@@ -9,6 +9,7 @@ import TemplateGenerator, {
 } from "../BulkUpload/TemplateGenerator";
 import { toast } from "sonner";
 import { Toaster } from "../../components/ui/sonner";
+import Loader from "../Loader/Loader";
 
 export interface ProductDetails {
   company_id: number;
@@ -66,6 +67,7 @@ const Seller = () => {
     statusCode?: number;
   } | null>(null);
   const fileInputRefb = useRef<HTMLInputElement | null>(null);
+  const[loader,setloader]=useState(false);
   const [bulkuploadmode, setBulkUpload] = useState(false);
   const [bulkFile, setBulkFile] = useState<File | null>(null);
   const [bulkUploadResults, setBulkUploadResults] = useState<{
@@ -82,6 +84,7 @@ const Seller = () => {
   console.log(productDetailsMap, "productDetailsMap");
 
   const fetchInventory = async () => {
+    setloader(true);
     const data = await SellerService.fetchInventory(
       sellerId,
       categoryIds,
@@ -101,6 +104,7 @@ const Seller = () => {
   const enrichWithProductDetails = async (modelNos: string[]) => {
     const details = await SellerService.getProductDetailsByModelNos(modelNos);
     setProductDetailsMap((prev) => ({ ...prev, ...details }));
+    setloader(false);
   };
 
   useEffect(() => {
@@ -908,8 +912,11 @@ const Seller = () => {
               );
             })
           ) : (
-            <div className="text-gray-500 col-span-full text-center py-8">
-              No items available in inventory
+            <div className="text-gray-500 col-span-full text-center py-8 flex items-center justify-center h-96">
+              {loader? (<Loader/>):
+              
+                (<div>No items available in inventory</div>)}
+              
             </div>
           )}
         </div>

@@ -415,6 +415,7 @@ const Company = () => {
                 <button
                   onClick={fetchProducts}
                   className="bg-teal-500 text-white h-8 items-center justify-center rounded-lg hover:bg-gray-700 transition-colors duration-200 flex gap-2"
+                  title="Search"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -435,6 +436,7 @@ const Company = () => {
                 <button
                   onClick={handleReset}
                   className="bg-teal-500 text-white h-8 justify-centerrounded-lg hover:bg-gray-300 transition-colors duration-200 flex items-center justify-center gap-2"
+                  title="Reset"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -662,11 +664,13 @@ const Company = () => {
                   <p className="text-gray-500 mt-4 text-lg">
                     No products found
                   </p>
-                  <button
+
+                  {!(holderStatus||productCategory||ModelNo) && (
+                     <button
                     onClick={() => setShowForm(true)}
                     className="mt-4 hover:bg-teal-500 bg-teal-600 text-white font-medium flex items-center gap-1"
                   >
-                    <svg
+                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-5 w-5"
                       viewBox="0 0 20 20"
@@ -677,9 +681,11 @@ const Company = () => {
                         d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
                         clipRule="evenodd"
                       />
-                    </svg>
+                    </svg> 
                     Add your first product
                   </button>
+                  )}
+                 
                 </div>
               )}
             </div>
@@ -1196,7 +1202,7 @@ const Company = () => {
                         min="0"
                         required
                         className="w-full border h-8 border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
-                        placeholder="12"
+                        placeholder="Ex:12"
                       />
                     </div>
 

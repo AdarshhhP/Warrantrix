@@ -82,12 +82,16 @@ const Company = () => {
   const [bulkFile, setBulkFile] = useState<File | null>(null);
   const [resetDone, setResetDone] = useState(false);
   const [loaders,setLoaders] = useState(false);
+  const [statuss,setstatuss] = useState("");
+  const [requestId,setRequestId] = useState(0);
   const [bulkUploadResults, setBulkUploadResults] = useState<{
     failedRecords: string[];
     successRecords: string[];
     message?: string;
     statusCode?: number;
   } | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const companyId = Number(localStorage.getItem("company_id"));
@@ -179,9 +183,15 @@ const Company = () => {
   };
 
   const handleStatusChange = async (status: any, requestId: number) => {
-    try {
+    setstatuss(status);
+    setRequestId(requestId);
+    setShowConfirmModal(true);
+   
+  };
+  const confirmAndSave=async()=>{
+     try {
       await companyService
-        .updateWarrantyStatus(requestId, status, remarks)
+        .updateWarrantyStatus(requestId, statuss, remarks)
         .then((response) => {
           if (response.data.statusCode === 200) {
             // toast({
@@ -189,7 +199,9 @@ const Company = () => {
             //   title: "Status updated successfully",
             // });
             toast("Status updated successfully");
-
+            setShowConfirmModal(false);
+setstatuss(""); // Clear status after successful update
+setRequestId(0); // Reset requestId
             setRemarks(""); // Clear remarks after successful update
             setremarksmode(false);
           }
@@ -202,8 +214,9 @@ const Company = () => {
       //       title: "Failed to update status: " + err.message,
       //     });
       toast("Failed to update status:  " + err.message);
+      setShowConfirmModal(false);
     }
-  };
+  }
 
   const handleReset = () => {
     setModelNo("");
@@ -328,6 +341,29 @@ const Company = () => {
   return (
     <div className="min-h-screen bg-gray-200 text-gray-900 p-6 md:p-8">
       <Toaster />
+{showConfirmModal && (
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
+      <p className="mb-4 text-gray-800">Are you sure you want to save the changes?</p>
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={confirmAndSave}
+          className="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700"
+        >
+          Yes
+        </button>
+        <button
+          onClick={() => {
+            setShowConfirmModal(false);
+          }}
+          className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+        >
+          No
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <p className="text-sm md:text-xl font-bold text-gray-800">Products</p>
@@ -704,7 +740,7 @@ const Company = () => {
                     </span> */}
                   </p>
                   {product.productImages.length>0 ? (
-                    <div className="">
+                    <div className="flex justify-between">
                       <img
                         className="h-28 w-auto object-contain rounded-md"
                         src={product.productImages[0]}
@@ -974,7 +1010,7 @@ const Company = () => {
                 </div>
 
                 {remarksmode && (
-                  <div className="fixed inset-0 bg-black/10 flex justify-center items-center z-50">
+                  <div className="fixed inset-0 bg-black/10 flex justify-center items-center z-40">
                     <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
                       <button
                         onClick={() => setremarksmode(false)}
@@ -1037,7 +1073,7 @@ const Company = () => {
                                 Number(e.target.value),
                                 req.warranty_request_id
                               );
-                              setremarksmode(false);
+                              //setremarksmode(false);
                             }}
                             className={`w-full border px-3 py-2 rounded-lg font-medium focus:ring-2 focus:ring-blue-500 outline-none transition ${
                               req.warranty_status === 1

@@ -600,8 +600,12 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
   </p>
 
   {/* Company Remarks */}
-    <p className="text-sm text-gray-500 mb-3">
+    <p className="text-sm text-gray-500 mb-1">
       <span className="font-medium">Remarks:</span> {req.rejection_remark && req.rejection_remark} {!req.rejection_remark && "No Remarks"}
+    </p>
+
+    <p className="text-sm text-gray-500">
+      <span className="font-medium">Reason:</span> {req.reason || "No reason provided"}
     </p>
 
 
@@ -834,7 +838,7 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
             <div className="flex justify-between items-center mb-3">
               <h3 className="text-lg font-medium">Raise Warranty Request</h3>
               <button
-                onClick={() => setShowRequestForm(false)}
+                onClick={() => {setShowRequestForm(false);requestForm.reset();}}
                 className="text-gray-400 hover:text-gray-600 bg-white"
               >
                 <svg

@@ -142,7 +142,7 @@ const SellerReport = () => {
   };
 
   return (
-    <div className="p-6 min-w-sc mx-auto space-y-6 bg-white h-full text-gray-900">
+    <div className="p-6 min-w-sc mx-auto space-y-6 bg-stone-200 h-full text-gray-900">
       <div className="w-full flex justify-between">
         <h1 className="text-4xl font-bold text-center text-gray-900 flex flex-row">
           Reports
@@ -150,7 +150,7 @@ const SellerReport = () => {
         </h1>
          <button
           onClick={handleDownload}
-          className="flex h-8 items-center bg-blue-600 text-white text-sm px-4 py-2 rounded-md hover:bg-blue-800 transition"
+          className="flex h-8 items-center bg-teal-600 text-white text-sm px-4 py-2 rounded-md hover:bg-teal-800 transition"
         >
           Download
         </button>
@@ -162,8 +162,8 @@ const SellerReport = () => {
             onClick={() => setActiveTab("inventory")}
             className={`px-5 py-2 h-8 flex items-center justify-center rounded-full font-medium transition ${
               activeTab === "inventory"
-                ? "bg-blue-600 text-white shadow"
-                : "bg-white border border-gray-300 text-gray-700 hover:bg-blue-100"
+                ? "bg-teal-600 text-white shadow"
+                : "bg-white border border-gray-300 text-gray-700 hover:bg-teal-100"
             }`}
           >
             Inventory
@@ -172,8 +172,8 @@ const SellerReport = () => {
             onClick={() => setActiveTab("purchases")}
             className={`px-5 h-8 py-2 flex items-center justify-center rounded-full font-medium transition ${
               activeTab === "purchases"
-                ? "bg-blue-600 text-white shadow"
-                : "bg-white border border-gray-300 text-gray-700 hover:bg-blue-100"
+                ? "bg-teal-600 text-white shadow"
+                : "bg-white border border-gray-300 text-gray-700 hover:bg-teal-100"
             }`}
           >
             Sold Items
@@ -215,7 +215,7 @@ const SellerReport = () => {
               </select>
               <button
                 onClick={() => {setInventoryPage(0);fetchInventory();fetchPurchases()}}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-md shadow-sm text-sm"
+                className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-1.5 rounded-md shadow-sm text-sm"
               >
                 Search
               </button>
@@ -231,7 +231,7 @@ const SellerReport = () => {
               />
               <button
                 onClick={() => setPurchasePage(0)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-md shadow-sm text-sm"
+                className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-1.5 rounded-md shadow-sm text-sm"
               >
                 Search
               </button>
@@ -243,8 +243,8 @@ const SellerReport = () => {
      {activeTab === "inventory" && (
   <div className="border border-gray-300 shadow-sm flex flex-col justify-between" style={{ height: '280px' }}>
     <div className="overflow-auto flex-1">
-      <table className="min-w-full table-auto text-sm text-left text-gray-800">
-        <thead className="bg-blue-100 text-gray-900 sticky top-0">
+      <table className="min-w-full table-auto text-sm text-left text-gray-800 bg-white">
+        <thead className="bg-teal-100 text-gray-900 sticky top-0">
           <tr>
             <th className="p-2 border">Sl No</th>
             <th className="p-2 border">Model No</th>
@@ -261,7 +261,7 @@ const SellerReport = () => {
           {inventory.map((item, index) => {
             const prod = productDetailsMap[item.model_no] || {};
             return (
-              <tr key={index + 1} className="text-center hover:bg-blue-50">
+              <tr key={index + 1} className="text-center hover:bg-teal-50">
                 <td className="p-2 border">{inventoryPage * inventorySize + index + 1}</td>
                 <td className="p-2 border">{item.model_no}</td>
                 <td className="p-2 border">₹{item.price}</td>
@@ -295,7 +295,7 @@ const SellerReport = () => {
         <button
           onClick={() => setInventoryPage((prev) => Math.max(prev - 1, 0))}
           disabled={inventoryPage === 0}
-          className="px-4 py-1.5 rounded bg-blue-200 text-gray-700 hover:bg-blue-300 disabled:opacity-50"
+          className="px-4 py-1.5 rounded bg-teal-200 text-gray-700 hover:bg-teal-300 disabled:opacity-50"
         >
           Prev
         </button>
@@ -305,7 +305,7 @@ const SellerReport = () => {
             setInventoryPage((prev) => Math.min(prev + 1, inventoryTotalPages - 1))
           }
           disabled={inventoryPage >= inventoryTotalPages - 1}
-          className="px-4 py-1.5 rounded bg-blue-200 text-gray-700 hover:bg-blue-300 disabled:opacity-50"
+          className="px-4 py-1.5 rounded bg-teal-200 text-gray-700 hover:bg-teal-300 disabled:opacity-50"
         >
           Next
         </button>
@@ -330,8 +330,8 @@ const SellerReport = () => {
 {activeTab === "purchases" && (
   <div className="border border-gray-300 shadow-sm flex flex-col justify-between" style={{ height: '280px' }}>
     <div className="overflow-auto flex-1">
-      <table className="min-w-full table-auto text-sm text-left text-gray-800">
-        <thead className="bg-blue-100 text-gray-900 sticky top-0">
+      <table className="min-w-full table-auto text-sm text-left text-gray-800 bg-white">
+        <thead className="bg-teal-100 text-gray-900 sticky top-0">
           <tr>
             <th className="p-2 border">Sl.No</th>
             <th className="p-2 border">Model No</th>
@@ -348,7 +348,7 @@ const SellerReport = () => {
           {purchases.map((purchase, index) => {
             const prod = productDetailsMap[purchase.modelNo] || {};
             return (
-              <tr key={purchase.sale_id} className="text-center hover:bg-blue-50">
+              <tr key={purchase.sale_id} className="text-center hover:bg-teal-50">
                 <td className="p-2 border">{purchasePage * purchaseSize + index + 1}</td>
                 <td className="p-2 border">{purchase.modelNo}</td>
                 <td className="p-2 border">{purchase.name}</td>
@@ -374,7 +374,7 @@ const SellerReport = () => {
         <button
           onClick={() => setPurchasePage((prev) => Math.max(prev - 1, 0))}
           disabled={purchasePage === 0}
-          className="px-4 py-1.5 rounded bg-blue-200 text-gray-700 hover:bg-blue-300 disabled:opacity-50"
+          className="px-4 py-1.5 rounded bg-teal-200 text-gray-700 hover:bg-teal-300 disabled:opacity-50"
         >
           Prev
         </button>
@@ -384,7 +384,7 @@ const SellerReport = () => {
             setPurchasePage((prev) => Math.min(prev + 1, purchaseTotalPages - 1))
           }
           disabled={purchasePage >= purchaseTotalPages - 1}
-          className="px-4 py-1.5 rounded bg-blue-200 text-gray-700 hover:bg-blue-300 disabled:opacity-50"
+          className="px-4 py-1.5 rounded bg-teal-200 text-gray-700 hover:bg-teal-300 disabled:opacity-50"
         >
           Next
         </button>

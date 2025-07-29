@@ -5,43 +5,18 @@ import React, { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import SellerService from "../../services/SellerService";
 
-const SellerReport = () => {
-  const [activeTab, setActiveTab] = useState<"inventory" | "purchases">("inventory");
-  const [inventory, setInventory] = useState<any[]>([]);
+const SellerSoldItems = () => {
+  const [activeTab, setActiveTab] = useState<"inventory" | "purchases">("purchases");
   const [purchases, setPurchases] = useState<any[]>([]);
   const [productDetailsMap, setProductDetailsMap] = useState<Record<string, any>>({});
   const sellerId = Number(localStorage.getItem("seller_id"));
-
-  const [categoryIds, setCategoryIds] = useState<number | "">("");
-  const [modelNoss, setModelNos] = useState<string>("");
-  const [warrantys, setWarrantys] = useState<number | "">("");
   const [modelnopurchase, setModelNoPurchase] = useState<string>("");
 
   const [inventoryPage, setInventoryPage] = useState(0);
   const [inventorySize, setInventorySize] = useState(5);
-  const [inventoryTotalPages, setInventoryTotalPages] = useState(1);
-
   const [purchasePage, setPurchasePage] = useState(0);
   const [purchaseSize, setPurchaseSize] = useState(5);
   const [purchaseTotalPages, setPurchaseTotalPages] = useState(1);
-
-  const fetchInventory = async () => {
-    try {
-      const data = await SellerService.getInventory({
-        Seller_Id: sellerId,
-        categoryId: categoryIds,
-        modelNo: modelNoss,
-        warranty: warrantys === 0 ? "" : warrantys,
-        page: inventoryPage,
-        size: inventorySize,
-      });
-      setInventory(data.content || []);
-      setInventoryTotalPages(data.totalPages || 1);
-      enrichWithProductDetails(data.content.map((i: any) => i.model_no));
-    } catch (err) {
-      console.error("Inventory fetch error", err);
-    }
-  };
 
   const fetchPurchases = async () => {
     try {
@@ -69,7 +44,7 @@ const SellerReport = () => {
   };
 
   useEffect(() => {
-    if (sellerId) fetchInventory();
+    if (sellerId) fetchPurchases();
   }, [sellerId, inventoryPage, inventorySize]);
 
   useEffect(() => {
@@ -88,7 +63,7 @@ const SellerReport = () => {
   };
 
   const handleDownload = () => {
-    const data = activeTab === "inventory" ? inventory : purchases;
+    const data = activeTab === "inventory" ? purchases : purchases;
     if (!data || data.length === 0) {
       alert("No data available to download");
       return;
@@ -145,7 +120,7 @@ const SellerReport = () => {
     <div className="p-6 min-w-sc mx-auto space-y-6 bg-stone-200 h-full text-gray-900">
       <div className="w-full flex justify-between">
         <h1 className="text-2xl font-bold text-center text-gray-900 flex flex-row">
-          Reports
+          Sold Items
           
         </h1>
          <button
@@ -159,16 +134,6 @@ const SellerReport = () => {
       <div className="flex justify-between items-center mb-6">
         <div className="space-x-4 flex flex-row">
           <button
-            onClick={() => setActiveTab("inventory")}
-            className={`px-5 py-2 h-8 flex items-center justify-center rounded-full font-medium transition ${
-              activeTab === "inventory"
-                ? "bg-teal-600 text-white shadow"
-                : "bg-white border border-gray-300 text-gray-700 hover:bg-teal-100"
-            }`}
-          >
-            Inventory
-          </button>
-          <button
             onClick={() => setActiveTab("purchases")}
             className={`px-5 h-8 py-2 flex items-center justify-center rounded-full font-medium transition ${
               activeTab === "purchases"
@@ -181,46 +146,7 @@ const SellerReport = () => {
         </div>
 
         <div>
-          {activeTab === "inventory" ? (
-            <div className="flex flex-wrap items-center gap-2 text-sm">
-              <input
-                type="text"
-                placeholder="Model No"
-                className="p-1.5 border border-gray-300 rounded-md w-36 bg-white text-black"
-                value={modelNoss}
-                onChange={(e) => setModelNos(e.target.value)}
-              />
-              <input
-                type="number"
-                min={0}
-                placeholder="Warranty"
-                className="p-1.5 border border-gray-300 rounded-md w-28 bg-white text-black"
-                value={warrantys || ""}
-                onChange={(e) =>
-                  setWarrantys(e.target.value === "" ? "" : Number(e.target.value))
-                }
-              />
-              <select
-                onChange={(e) =>
-                  setCategoryIds(e.target.value === "" ? "" : Number(e.target.value))
-                }
-                value={categoryIds || ""}
-                className="p-1.5 border border-gray-300 rounded-md w-36 bg-white text-black"
-              >
-                <option value="">Select Category</option>
-                <option value="1">Electronics</option>
-                <option value="2">Plastic</option>
-                <option value="3">Wood</option>
-                <option value="4">Metal</option>
-              </select>
-              <button
-                onClick={() => {setInventoryPage(0);fetchInventory();fetchPurchases()}}
-                className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-1.5 rounded-md shadow-sm text-sm"
-              >
-                Search
-              </button>
-            </div>
-          ) : (
+          
             <div className="flex justify-between items-center gap-2">
               <input
                 type="text"
@@ -228,6 +154,11 @@ const SellerReport = () => {
                 className="p-1.5 border border-gray-300 rounded-md w-36 h-8 bg-white text-black"
                 value={modelnopurchase}
                 onChange={(e) => setModelNoPurchase(e.target.value)}
+                 onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        fetchPurchases();
+      }
+    }}
               />
               <button
                 onClick={() => setPurchasePage(0)}
@@ -236,96 +167,8 @@ const SellerReport = () => {
                 Search
               </button>
             </div>
-          )}
         </div>
       </div>
-
-     {activeTab === "inventory" && (
-  <div className="border border-gray-300 shadow-sm flex flex-col justify-between" style={{ height: '280px' }}>
-    <div className="overflow-auto flex-1">
-      <table className="min-w-full table-auto text-sm text-left text-gray-800 bg-white">
-        <thead className="bg-teal-100 text-gray-900 sticky top-0">
-          <tr>
-            <th className="p-2 border">Sl No</th>
-            <th className="p-2 border">Model No</th>
-            <th className="p-2 border">Price</th>
-            <th className="p-2 border">Warranty (months)</th>
-            <th className="p-2 border">Purchase Date</th>
-            <th className="p-2 border">Product Name</th>
-            <th className="p-2 border">Tenure (years)</th>
-            <th className="p-2 border">Mfg Date</th>
-            <th className="p-2 border">Item Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {inventory.map((item, index) => {
-            const prod = productDetailsMap[item.model_no] || {};
-            return (
-              <tr key={index + 1} className="text-center hover:bg-teal-50">
-                <td className="p-2 border">{inventoryPage * inventorySize + index + 1}</td>
-                <td className="p-2 border">{item.model_no}</td>
-                <td className="p-2 border">₹{item.price}</td>
-                <td className="p-2 border">{item.warranty}</td>
-                <td className="p-2 border">{item.purchase_date}</td>
-                <td className="p-2 border">{prod.product_name || "-"}</td>
-                <td className="p-2 border">{prod.warrany_tenure || "-"}</td>
-                <td className="p-2 border">{prod.man_date || "-"}</td>
-                <td className="p-2 border">
-                  {prod.holderStatus === 2
-                    ? "Item Available"
-                    : prod.holderStatus === 3
-                    ? "Item Sold"
-                    : prod.holderStatus === 4
-                    ? "With Customer"
-                    : prod.holderStatus === 1
-                    ? "Product Shipped"
-                    : prod.holderStatus === 5
-                    ? "Warranty Requested"
-                    : "No Data"}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-
-    <div className="sticky bottom-0 bg-white border-t border-gray-200 py-2 px-4">
-      <div className="flex justify-center items-center gap-2">
-        <button
-          onClick={() => setInventoryPage((prev) => Math.max(prev - 1, 0))}
-          disabled={inventoryPage === 0}
-          className="px-4 py-1.5 rounded bg-teal-200 text-gray-700 hover:bg-teal-300 disabled:opacity-50"
-        >
-          Prev
-        </button>
-        <span className="px-4 py-1.5">{`Page ${inventoryPage+1} of ${inventoryTotalPages}`}</span>
-        <button
-          onClick={() =>
-            setInventoryPage((prev) => Math.min(prev + 1, inventoryTotalPages - 1))
-          }
-          disabled={inventoryPage >= inventoryTotalPages - 1}
-          className="px-4 py-1.5 rounded bg-teal-200 text-gray-700 hover:bg-teal-300 disabled:opacity-50"
-        >
-          Next
-        </button>
-        <div className="flex items-center gap-2 ml-4">
-          <select
-            className="bg-white border border-gray-300 rounded text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500"
-            onChange={(e) => handlePageSizeChange(e, "inventory")}
-            value={inventorySize}
-          >
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-          </select>
-          <span className="text-sm">per page</span>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
 
 {activeTab === "purchases" && (
   <div className="border border-gray-300 shadow-sm flex flex-col justify-between" style={{ height: '280px' }}>
@@ -409,4 +252,4 @@ const SellerReport = () => {
   );
 };
 
-export default SellerReport;
+export default SellerSoldItems;

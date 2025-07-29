@@ -10,6 +10,9 @@ import SellerReport from "./components/Seller/SellerReport";
 import Login from "./components/Login/Login";
 import Admin from "./components/Admin/Admin";
 import Navbar from "./components/Navbar/Navbar"; // ✅ import Navbar
+import CompanyRequests from "./components/CompanyPages/CompanyRequests";
+import SellerSoldItems from "./components/Seller/SellerSoldItems";
+import CustomerWarrantyRequests from "./components/Customer/CustomerWarrantyRequests";
 
 const App = () => {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -44,8 +47,11 @@ const App = () => {
                 <Route path="/company" element={<Company />} />
                 <Route path="/seller" element={<Seller />} />
                 <Route path="/customer" element={<Customer />} />
+                <Route path="/customer/warrantyrequests" element={<CustomerWarrantyRequests />} />
                 <Route path="/reports/companyreport" element={<CompanyReport />} />
+                <Route path="/reports/companyrequests" element={<CompanyRequests />} />
                 <Route path="/reports/sellerreports" element={<SellerReport />} />
+                <Route path="/reports/sellerpurchases" element={<SellerSoldItems />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="*" element={<Dashboard />} />
               </Routes>

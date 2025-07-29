@@ -51,6 +51,14 @@ const Sidebar: React.FC = () => {
               >
                 Company Report
               </button>
+              <button
+                className={isActive("wcompany")}
+                onClick={() =>
+                  handleTabClick("wcompany", "/reports/companyrequests")
+                }
+              >
+                Raised Warranty Requests
+              </button>
             </>
           )}
 
@@ -70,16 +78,32 @@ const Sidebar: React.FC = () => {
               >
                 Seller Report
               </button>
+              <button
+                className={isActive("pseller")}
+                onClick={() =>
+                  handleTabClick("pseller", "/reports/sellerpurchases")
+                }
+              >
+                Sold Items
+              </button>
             </>
           )}
 
           {userType === "1" && (
+            <>
             <button
               className={isActive("customer")}
               onClick={() => handleTabClick("customer", "/customer")}
             >
               Customer
             </button>
+             <button
+              className={isActive("wcustomer")}
+              onClick={() => handleTabClick("wcustomer", "/customer/warrantyrequests")}
+            >
+              Raised Requests 
+            </button>
+            </>
           )}
         </div>
 

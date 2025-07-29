@@ -1066,6 +1066,7 @@ const Seller = () => {
                 <button
                   className="bg-teal-500 text-white h-9 flex items-center justify-center"
                   onClick={() => setbulkUploadb(!bulkuploadb)}
+                  title="Back"
                 >
                   {bulkuploadb ? "<-" : "Bulk Upload"}
                 </button>

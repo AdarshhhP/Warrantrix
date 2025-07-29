@@ -65,7 +65,6 @@ const CustomerWarrantyPage = () => {
         searchModelNo
       );
 
-      console.log(data,"data")
       setRegistered(data.content);
 
       const modelNos = [
@@ -85,6 +84,8 @@ const CustomerWarrantyPage = () => {
           productImages: product.productImages || [],
         }));
         setProducts(productsWithImages);
+        setloader(false);
+      }else{
         setloader(false);
       }
     } catch (err: any) {
@@ -321,6 +322,12 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
             placeholder="Search Model No"
             value={searchModelNo}
             onChange={(e) => setSearchModelNo(e.target.value)}
+            onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        fetchRegistered();
+        fetchRequests();
+      }
+    }}
             className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 w-full"
           />
           <button
@@ -328,6 +335,7 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
               fetchRegistered();
               fetchRequests();
             }}
+             
             className="bg-teal-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-teal-700 transition"
           >
             Search

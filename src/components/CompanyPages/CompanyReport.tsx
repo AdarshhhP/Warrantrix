@@ -196,6 +196,11 @@ const CompanyReport = () => {
             <input
               type="text"
               onChange={(e) => setAmodelNo(e.target.value)}
+              onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        loadRequests();
+      }
+    }}
               placeholder="Model No"
               className="text-gray-900 placeholder-gray-900 border border-gray-700 rounded px-3 py-1 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
             />
@@ -243,6 +248,11 @@ const CompanyReport = () => {
               type="text"
               onChange={(e) => setModelNo(e.target.value)}
               placeholder="Model No"
+               onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        loadProducts();
+      }
+    }}
               className="text-gray-900 placeholder-gray-900 border border-gray-700 rounded px-3 py-1 w-48 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
             />
 

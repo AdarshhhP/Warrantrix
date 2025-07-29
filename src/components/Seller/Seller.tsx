@@ -624,6 +624,11 @@ const Seller = () => {
                 <input
                   type="text"
                   placeholder="Model No"
+                   onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        fetchInventory();
+      }
+    }}
                   className="p-2 border border-gray-200 h-8 rounded-md text-sm w-32 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
                   value={modelNoss}
                   onChange={(e) => setModelNos(e.target.value)}
@@ -632,6 +637,11 @@ const Seller = () => {
                   type="number"
                   min={0}
                   placeholder="Warranty"
+                   onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        fetchInventory();
+      }
+    }}
                   className="p-2 border h-8 border-gray-200 rounded-md text-sm w-28 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
                   value={warrantys || ""}
                   onChange={(e) =>
@@ -646,6 +656,11 @@ const Seller = () => {
                       e.target.value === "" ? "" : Number(e.target.value)
                     )
                   }
+                   onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        fetchInventory();
+      }
+    }}
                   value={categoryIds || ""}
                   className="px-2 border border-gray-200 rounded-md h-8 text-sm w-36 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
                 >
@@ -683,6 +698,11 @@ const Seller = () => {
                 className="px-2 border border-gray-200 rounded-md text-sm w-40 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black h-8"
                 value={modelnopurchase}
                 onChange={(e) => setModelNoPurchase(e.target.value)}
+                  onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        fetchPurchases();
+      }
+    }}
               />
               <button
                 onClick={fetchPurchases}

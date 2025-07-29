@@ -81,9 +81,9 @@ const Company = () => {
   const { register, handleSubmit, reset } = useForm<Product>();
   const [bulkFile, setBulkFile] = useState<File | null>(null);
   const [resetDone, setResetDone] = useState(false);
-  const [loaders,setLoaders] = useState(false);
-  const [statuss,setstatuss] = useState("");
-  const [requestId,setRequestId] = useState(0);
+  const [loaders, setLoaders] = useState(false);
+  const [statuss, setstatuss] = useState("");
+  const [requestId, setRequestId] = useState(0);
   const [bulkUploadResults, setBulkUploadResults] = useState<{
     failedRecords: string[];
     successRecords: string[];
@@ -186,10 +186,9 @@ const Company = () => {
     setstatuss(status);
     setRequestId(requestId);
     setShowConfirmModal(true);
-   
   };
-  const confirmAndSave=async()=>{
-     try {
+  const confirmAndSave = async () => {
+    try {
       await companyService
         .updateWarrantyStatus(requestId, statuss, remarks)
         .then((response) => {
@@ -200,8 +199,8 @@ const Company = () => {
             // });
             toast("Status updated successfully");
             setShowConfirmModal(false);
-setstatuss(""); // Clear status after successful update
-setRequestId(0); // Reset requestId
+            setstatuss(""); // Clear status after successful update
+            setRequestId(0); // Reset requestId
             setRemarks(""); // Clear remarks after successful update
             setremarksmode(false);
           }
@@ -216,7 +215,7 @@ setRequestId(0); // Reset requestId
       toast("Failed to update status:  " + err.message);
       setShowConfirmModal(false);
     }
-  }
+  };
 
   const handleReset = () => {
     setModelNo("");
@@ -262,13 +261,13 @@ setRequestId(0); // Reset requestId
             fileInputRef.current.value = ""; // ✅
             setBulkFile(null); // Clear the file state
           }
-              setLoaders(false);
+          setLoaders(false);
         } else if (statusCode === 509) {
           toast(message || "File format issue");
-                        setLoaders(false);
+          setLoaders(false);
         } else {
           toast(message || "Couldn't upload file");
-                        setLoaders(false);
+          setLoaders(false);
         }
       })
       .catch((error: unknown) => {
@@ -338,32 +337,66 @@ setRequestId(0); // Reset requestId
       comment: "Enter base64 string for product image (optional)",
     },
   ];
+
+  // Track current image index for each product
+  const [currentImageIndices, setCurrentImageIndices] = useState<number[]>([]);
+
+  // Initialize indices when products load
+  useEffect(() => {
+    setCurrentImageIndices(new Array(products.length).fill(0));
+  }, [products]);
+
+  const handleNextImage = (productIndex: number) => {
+    setCurrentImageIndices((prev) => {
+      const newIndices = [...prev];
+      const currentIndex = newIndices[productIndex] || 0;
+      newIndices[productIndex] =
+        currentIndex >= products[productIndex].productImages.length - 1
+          ? 0
+          : currentIndex + 1;
+      return newIndices;
+    });
+  };
+
+  const handlePrevImage = (productIndex: number) => {
+    setCurrentImageIndices((prev) => {
+      const newIndices = [...prev];
+      const currentIndex = newIndices[productIndex] || 0;
+      newIndices[productIndex] =
+        currentIndex <= 0
+          ? products[productIndex].productImages.length - 1
+          : currentIndex - 1;
+      return newIndices;
+    });
+  };
   return (
     <div className="min-h-screen bg-gray-200 text-gray-900 p-6 md:p-8">
       <Toaster />
-{showConfirmModal && (
-  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-    <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
-      <p className="mb-4 text-gray-800">Are you sure you want to save the changes?</p>
-      <div className="flex justify-end gap-3">
-        <button
-          onClick={confirmAndSave}
-          className="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700"
-        >
-          Yes
-        </button>
-        <button
-          onClick={() => {
-            setShowConfirmModal(false);
-          }}
-          className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-        >
-          No
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
+            <p className="mb-4 text-gray-800">
+              Are you sure you want to save the changes?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={confirmAndSave}
+                className="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => {
+                  setShowConfirmModal(false);
+                }}
+                className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <p className="text-sm md:text-xl font-bold text-gray-800">Products</p>
@@ -421,11 +454,23 @@ setRequestId(0); // Reset requestId
                   value={ModelNo}
                   onChange={(e) => setModelNo(e.target.value)}
                   placeholder="Model No"
+                    onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        fetchProducts();
+        fetchRequests();
+      }
+    }}
                   className="text-gray-900 px-2 placeholder-gray-400 border border-gray-200 rounded-lg h-8 items-center justify-center w-full md:w-48 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
                 />
                 <select
                   value={holderStatus}
                   onChange={(e) => setHolderStatus(e.target.value)}
+                   onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        fetchProducts();
+        fetchRequests();
+      }
+    }}
                   className="text-gray-600 border px-2 border-gray-200 rounded-lg h-8 items-center justify-center w-full md:w-40 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
                 >
                   <option value="">All Status</option>
@@ -438,6 +483,12 @@ setRequestId(0); // Reset requestId
                 <select
                   value={productCategory}
                   onChange={(e) => setProductCategory(e.target.value)}
+                   onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        fetchProducts();
+        fetchRequests();
+      }
+    }}
                   className="text-gray-600 border px-2 border-gray-200 rounded-lg h-8 items-center justify-center w-full md:w-40 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
                 >
                   <option value="">All Categories</option>
@@ -504,11 +555,22 @@ setRequestId(0); // Reset requestId
                 value={amodelNo}
                 onChange={(e) => setAmodelNo(e.target.value)}
                 placeholder="Model No"
+                 onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        fetchRequests();
+      }
+    }}
                 className="text-gray-900 px-2 placeholder-gray-400 border border-gray-200 rounded-lg h-8 items-center justify-center focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
               />
               <select
                 value={astatus}
                 onChange={(e) => setAstatus(e.target.value)}
+                 onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        fetchProducts();
+        fetchRequests();
+      }
+    }}
                 className="text-gray-900 px-2 border border-gray-200 rounded-lg h-8 items-center justify-center focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
               >
                 <option value="">All Status</option>
@@ -701,27 +763,26 @@ setRequestId(0); // Reset requestId
                     No products found
                   </p>
 
-                  {!(holderStatus||productCategory||ModelNo) && (
-                     <button
-                    onClick={() => setShowForm(true)}
-                    className="mt-4 hover:bg-teal-500 bg-teal-600 text-white font-medium flex items-center gap-1"
-                  >
-                     <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
+                  {!(holderStatus || productCategory || ModelNo) && (
+                    <button
+                      onClick={() => setShowForm(true)}
+                      className="mt-4 hover:bg-teal-500 bg-teal-600 text-white font-medium flex items-center gap-1"
                     >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                        clipRule="evenodd"
-                      />
-                    </svg> 
-                    Add your first product
-                  </button>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      Add your first product
+                    </button>
                   )}
-                 
                 </div>
               )}
             </div>
@@ -739,19 +800,41 @@ setRequestId(0); // Reset requestId
                       {product.product_name}
                     </span> */}
                   </p>
-                  {product.productImages.length>0 ? (
+                  {product.productImages.length > 0 ? (
                     <div className="flex justify-between">
+                      <button
+                      onClick={(e) => {
+            e.stopPropagation();
+            handlePrevImage(index);
+          }}
+                    className="bg-transparent h-full flex justify-center items-center rounded-full p-1"
+
+                      >
+                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+                      </button>
                       <img
                         className="h-28 w-auto object-contain rounded-md"
-                        src={product.productImages[0]}
+      src={product.productImages[currentImageIndices[index] || 0]}
                       />
+                      <button
+                       onClick={(e) => {
+            e.stopPropagation();
+            handleNextImage(index);
+          }}
+          className="bg-transparent h-full flex justify-center items-center rounded-full p-1"
+                      >
+                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+                      </button>
                     </div>
-                  )
-                  :(
-<div className="h-28 w-28 bg-gray-200 animate-pulse text-gray-600 rounded-md flex items-center justify-center text-sm whitespace-nowrap">
-  🧑‍🎨No Image
-</div>                  )
-                  }
+                  ) : (
+                    <div className="h-28 w-28 bg-gray-200 animate-pulse text-gray-600 rounded-md flex items-center justify-center text-sm whitespace-nowrap">
+                      🧑‍🎨No Image
+                    </div>
+                  )}
                 </div>
 
                 {/* Info Section */}
@@ -1292,30 +1375,28 @@ setRequestId(0); // Reset requestId
                       className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
                       title="Upload"
                     >
-                      {!loaders
-                      ?(
-                      
-                      <div>
-<svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-5 h-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"
-                        />
-                      </svg>
-                      </div>):(
+                      {!loaders ? (
+                        <div>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-5 h-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"
+                            />
+                          </svg>
+                        </div>
+                      ) : (
                         <div className="flex items-center justify-center w-5 h-5">
-                                          <SmallLoader />
+                          <SmallLoader />
                         </div>
                       )}
-                      
                     </button>
 
                     <button

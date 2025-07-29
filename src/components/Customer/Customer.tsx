@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import customerService from "../../services/CustomerServices";
 import { toast } from "sonner";
 import { Toaster } from "../ui/sonner";
+import Loader from "../Loader/Loader";
 
 type Product = {
   productImages: string[];
@@ -41,6 +42,8 @@ const CustomerWarrantyPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [images, setImages] = useState<File[]>([]);
 
+  const [loader,setloader] = useState(false);
+
  // const [pendingPayload, setPendingPayload] = useState<any>(null);
  // const [showConfirmModal, setShowConfirmModal] = useState(false);
 
@@ -55,6 +58,7 @@ const CustomerWarrantyPage = () => {
   const requestForm = useForm();
 
   const fetchRegistered = async () => {
+    setloader(true);
     try {
       const data = await customerService.getRegisteredWarranties(
         customerId,
@@ -81,9 +85,11 @@ const CustomerWarrantyPage = () => {
           productImages: product.productImages || [],
         }));
         setProducts(productsWithImages);
+        setloader(false);
       }
     } catch (err: any) {
       toast.success("Failed to fetch products: " + err.message);
+      setloader(false);
     }
   };
 
@@ -255,7 +261,7 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
       setModelValid(false);
       fetchRequests();
       setImages([]);
-      toast.success("Submitted Successfully")
+      toast.success("Request Submitted Successfully")
     } catch (err: any) {
       toast.success(err.response?.data?.message || err.message);
     }
@@ -498,8 +504,10 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
               );
             })
           ) : (
-            <p className="text-center text-gray-500 col-span-full py-4">
-              No registered warranties found.
+            <p className="text-center text-gray-500 col-span-full py-4 flex items-center justify-center h-96">
+              {loader? 
+              (<Loader/>):
+              (<div>No registered warranties found.</div>)}
             </p>
           )}
         </div>

@@ -10,6 +10,7 @@ import TemplateGenerator, {
   type Columns,
 } from "../BulkUpload/TemplateGenerator";
 import Loader from "../Loader/Loader";
+import SmallLoader from "../Loader/SmallLoader";
 
 const categories = [
   { id: 1, name: "Electronics" },
@@ -80,6 +81,7 @@ const Company = () => {
   const { register, handleSubmit, reset } = useForm<Product>();
   const [bulkFile, setBulkFile] = useState<File | null>(null);
   const [resetDone, setResetDone] = useState(false);
+  const [loaders,setLoaders] = useState(false);
   const [bulkUploadResults, setBulkUploadResults] = useState<{
     failedRecords: string[];
     successRecords: string[];
@@ -222,6 +224,7 @@ const Company = () => {
   }, [resetDone]);
 
   const handleBulkUpload = () => {
+    setLoaders(true);
     if (!bulkFile) {
       // toast({
       //   title: "Please select a file before uploading.",
@@ -229,6 +232,7 @@ const Company = () => {
       // });
 
       toast("Please select a file before uploading");
+      setLoaders(false);
       return;
     }
 
@@ -245,10 +249,13 @@ const Company = () => {
             fileInputRef.current.value = ""; // ✅
             setBulkFile(null); // Clear the file state
           }
+              setLoaders(false);
         } else if (statusCode === 509) {
           toast(message || "File format issue");
+                        setLoaders(false);
         } else {
           toast(message || "Couldn't upload file");
+                        setLoaders(false);
         }
       })
       .catch((error: unknown) => {
@@ -1243,7 +1250,11 @@ const Company = () => {
                       className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
                       title="Upload"
                     >
-                      <svg
+                      {!loaders
+                      ?(
+                      
+                      <div>
+<svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="w-5 h-5"
                         fill="none"
@@ -1257,6 +1268,12 @@ const Company = () => {
                           d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"
                         />
                       </svg>
+                      </div>):(
+                        <div className="flex items-center justify-center w-5 h-5">
+                                          <SmallLoader />
+                        </div>
+                      )}
+                      
                     </button>
 
                     <button

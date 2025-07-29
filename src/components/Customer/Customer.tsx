@@ -647,7 +647,7 @@ const confirmAndSave = async () => {
       {/* Image Preview Modal */}
       {(previewImage || previewImages) && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white p-6 rounded-xl shadow-xl relative max-w-4xl w-full">
+          <div className="bg-white p-6 rounded-xl shadow-xl relative max-w-xl w-full">
             <button
               onClick={() => {
                 setPreviewImage(null);

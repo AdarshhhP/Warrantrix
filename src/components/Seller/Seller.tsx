@@ -443,9 +443,9 @@ const Seller = () => {
   };
 
   return (
-    <div className="p-4 md:p-6 mx-auto space-y-6 bg-white min-h-screen text-gray-900 max-w-7xl">
+    <div className="p-4 md:p-6 mx-auto space-y-6 bg-stone-200 min-h-screen text-gray-900 max-w-7xl">
       <h1 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-6">
-        Seller Dashboard
+        Inventory
       </h1>
       <Toaster />
 
@@ -890,6 +890,7 @@ const Seller = () => {
                         onClick={() => showEditOption(item)}
                         className="text-white hover:text-green-600 p-1 rounded bg-teal-700"
                         title="Mark Sold"
+                        disabled={prod.holderStatus !== 2}
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -913,7 +914,8 @@ const Seller = () => {
             })
           ) : (
             <div className="text-gray-500 col-span-full text-center py-8 flex items-center justify-center h-96">
-              {loader? (<Loader/>):
+              {loader? 
+              (<Loader/>):
               
                 (<div>No items available in inventory</div>)}
               

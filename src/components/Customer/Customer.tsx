@@ -41,8 +41,8 @@ const CustomerWarrantyPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [images, setImages] = useState<File[]>([]);
 
-  const [pendingPayload, setPendingPayload] = useState<any>(null);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
+ // const [pendingPayload, setPendingPayload] = useState<any>(null);
+ // const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -83,7 +83,7 @@ const CustomerWarrantyPage = () => {
         setProducts(productsWithImages);
       }
     } catch (err: any) {
-      alert("Failed to fetch products: " + err.message);
+      toast.success("Failed to fetch products: " + err.message);
     }
   };
 
@@ -142,7 +142,7 @@ const CustomerWarrantyPage = () => {
   //   try {
   //     const eligible = await customerService.checkEligibility(data.model_no, 4);
   //     if (!eligible&&!editItem) {
-  //       alert(
+  //       toast.success(
   //         "You are not eligible to register this product. Please contact support."
   //       );
   //       return;
@@ -163,7 +163,7 @@ const CustomerWarrantyPage = () => {
   //     registerForm.reset();
   //     fetchRegistered();
   //   } catch (err: any) {
-  //     alert(err.response?.data?.message || err.message);
+  //     toast.success(err.response?.data?.message || err.message);
   //   }
   // };
 
@@ -175,22 +175,22 @@ const handleRegisterSubmit = async (data: any) => {
 
     // If not eligible (and not editing), block immediately
     if (!eligible && !editItem) {
-      alert("You are not eligible to register this product. Please contact support.");
+      toast.success("You are not eligible to register this product. Please contact support.");
       return;
     }
 
     // Store the payload for later and show confirmation dialog
-    setPendingPayload({ payload, modelNo: data.model_no, isEdit: !!editItem, purchase_Id: editItem?.purchase_Id });
-    setShowConfirmModal(true);
-
+   // setPendingPayload({ payload, modelNo: data.model_no, isEdit: !!editItem, purchase_Id: editItem?.purchase_Id });
+    //setShowConfirmModal(true);
+confirmAndSave(payload, data.model_no,!!editItem,editItem?.purchase_Id)
   } catch (err: any) {
-    alert(err.response?.data?.message || err.message);
+    toast.success(err.response?.data?.message || err.message);
   }
 };
 
-const confirmAndSave = async () => {
+const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:any) => {
   try {
-    const { payload, modelNo, isEdit, purchase_Id } = pendingPayload;
+   // const { payload, modelNo, isEdit, purchase_Id } = pendingPayload;
 
     if (isEdit) {
       await customerService.editRegisteredWarranty(purchase_Id, payload);
@@ -207,10 +207,10 @@ const confirmAndSave = async () => {
     fetchRegistered();
 
   } catch (err: any) {
-    alert(err.response?.data?.message || err.message);
+    toast.success(err.response?.data?.message || err.message);
   } finally {
-    setShowConfirmModal(false);
-    setPendingPayload(null);
+    //setShowConfirmModal(false);
+   // setPendingPayload(null);
   }
 };
 
@@ -240,7 +240,7 @@ const confirmAndSave = async () => {
 
       const eligible = await customerService.checkEligibility(data.model_no, 5);
       if (!eligible) {
-        alert(
+        toast.success(
           "You are not eligible to raise a warranty request for this product."
         );
         return;
@@ -257,7 +257,7 @@ const confirmAndSave = async () => {
       setImages([]);
       toast.success("Submitted Successfully")
     } catch (err: any) {
-      alert(err.response?.data?.message || err.message);
+      toast.success(err.response?.data?.message || err.message);
     }
   };
 
@@ -278,10 +278,10 @@ const confirmAndSave = async () => {
   };
   
   return (
-    <div className="p-4 max-w-screen bg-white min-h-screen text-gray-900">
+    <div className="p-4 max-w-screen bg-stone-200 min-h-screen text-gray-900">
       <Toaster />
       <h1 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-6">
-        Customer Dashboard
+        Registered Products
       </h1>
 
       {/* Tabs */}
@@ -380,7 +380,7 @@ const confirmAndSave = async () => {
                       <p className="text-sm">Name: {product.product_name}</p>
                       <p className="text-sm">Price: ₹{product.product_price}</p>
                       <p className="text-sm">
-                        Warranty: {product.warrany_tenure} years
+                        Warranty: {product.warrany_tenure} months
                       </p>
 
                       {product.productImages &&
@@ -801,7 +801,7 @@ const confirmAndSave = async () => {
           </div>
         </div>
       )}
-      {showConfirmModal && (
+      {/* {showConfirmModal && (
   <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
     <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
       <p className="mb-4 text-gray-800">Are you sure you want to save the changes?</p>
@@ -824,7 +824,7 @@ const confirmAndSave = async () => {
       </div>
     </div>
   </div>
-)}
+)} */}
 
 
       {/* Warranty Request Form Modal */}

@@ -5,27 +5,11 @@ import { useForm } from "react-hook-form";
 import customerService from "../../services/CustomerServices";
 import { toast } from "sonner";
 import { Toaster } from "../ui/sonner";
-import Loader from "../Loader/Loader";
 
-type Product = {
-  productImages: string[];
-  holderStatus: number;
-  product_price: number;
-  product_name: string;
-  model_no: string;
-  image: FileList;
-  company_id: number;
-  warrany_tenure: number;
-  man_date: string;
-  product_images: string[];
-  product_category: number;
-};
-
-const CustomerWarrantyPage = () => {
+const CustomerWarrantyRequests = () => {
   const [activeTab, setActiveTab] = useState<"registered" | "requests">(
-    "registered"
+    "requests"
   );
-  const [registered, setRegistered] = useState<any[]>([]);
   const [requests, setRequests] = useState<any[]>([]);
   const [productDetailsMap, setProductDetailsMap] = useState<
     Record<string, any>
@@ -39,10 +23,8 @@ const CustomerWarrantyPage = () => {
   const [modelNoo,setmodelNoo]=useState<string>("");
 
   const [modelData, setModelData] = useState<any>(null);
-  const [products, setProducts] = useState<Product[]>([]);
   const [images, setImages] = useState<File[]>([]);
 
-  const [loader,setloader] = useState(false);
 
  // const [pendingPayload, setPendingPayload] = useState<any>(null);
  // const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -56,43 +38,6 @@ const CustomerWarrantyPage = () => {
   const customerId = Number(localStorage.getItem("user_id"));
   const registerForm = useForm();
   const requestForm = useForm();
-
-  const fetchRegistered = async () => {
-    setloader(true);
-    try {
-      const data = await customerService.getRegisteredWarranties(
-        customerId,
-        searchModelNo
-      );
-
-      setRegistered(data.content);
-
-      const modelNos = [
-        ...new Set(data.content.map((item: any) => String(item.model_no))),
-      ] as string[];
-      if (modelNos.length > 0) {
-        const productDetails = await customerService.getProductDetailsByModels(
-          modelNos
-        );
-        const productMap: Record<string, any> = {};
-        productDetails.forEach(
-          (prod: any) => (productMap[prod.model_no] = prod)
-        );
-        setProductDetailsMap((prev) => ({ ...prev, ...productMap }));
-        const productsWithImages = productDetails.map((product: any) => ({
-          ...product,
-          productImages: product.productImages || [],
-        }));
-        setProducts(productsWithImages);
-        setloader(false);
-      }else{
-        setloader(false);
-      }
-    } catch (err: any) {
-      toast.success("Failed to fetch products: " + err.message);
-      setloader(false);
-    }
-  };
 
   const fetchRequests = async () => {
     const data = await customerService.getWarrantyRequests(
@@ -116,17 +61,9 @@ const CustomerWarrantyPage = () => {
 
   useEffect(() => {
     if (customerId) {
-      fetchRegistered();
       fetchRequests();
     }
   }, [customerId]);
-
-  const handleEdit = (item: any) => {
-    setEditItem(item);
-    registerForm.setValue("model_no", item.model_no);
-    registerForm.setValue("purchase_date", item.purchase_date);
-    setShowRegisterForm(true);
-  };
 
   const handleDelete = async (purchaseId: number) => {
   try {
@@ -136,7 +73,7 @@ const CustomerWarrantyPage = () => {
       toast.error("Cannot delete this warranty.");
     } else {
       toast.success("Deleted Successfully");
-      fetchRegistered();
+      fetchRequests();
     }
   } catch (err: any) {
     toast.error(err.response?.data?.message || "Something went wrong while deleting.");
@@ -211,7 +148,7 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
     setShowRegisterForm(false);
     setEditItem(null);
     registerForm.reset();
-    fetchRegistered();
+    fetchRequests();
 
   } catch (err: any) {
     toast.success(err.response?.data?.message || err.message);
@@ -268,16 +205,6 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
     }
   };
 
-  const handleRaiseRequest = (
-    purchaseId: number,
-    modelNo: string,
-    company_id: string
-  ) => {
-    setModelData(company_id);
-    setShowRequestForm(true);
-    requestForm.setValue("model_no", modelNo);
-  };
-
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setImages(Array.from(e.target.files));
@@ -288,22 +215,12 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
     <div className="p-4 max-w-screen bg-stone-200 min-h-screen text-gray-900">
       <Toaster />
       <h1 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-6">
-        Registered Products
+        Raised Warranty Requests
       </h1>
 
       {/* Tabs */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <div className="flex space-x-2">
-          <button
-            className={`px-4 py-1.5 text-sm rounded-md font-medium transition ${
-              activeTab === "registered"
-                ? "bg-teal-500 text-white"
-                : "bg-white border border-gray-300 text-gray-800 hover:bg-blue-50"
-            }`}
-            onClick={() => setActiveTab("registered")}
-          >
-            Registered Products
-          </button>
           <button
             className={`px-4 py-1.5 text-sm rounded-md font-medium transition ${
               activeTab === "requests"
@@ -324,7 +241,6 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
             onChange={(e) => setSearchModelNo(e.target.value)}
             onKeyDown={(e) => {
       if (e.key === 'Enter') {
-        fetchRegistered();
         fetchRequests();
       }
     }}
@@ -332,7 +248,6 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
           />
           <button
             onClick={() => {
-              fetchRegistered();
               fetchRequests();
             }}
              
@@ -358,168 +273,6 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
           </button>
         ) : null}
       </div>
-
-      {/* Registered Products */}
-      {activeTab === "registered" && (
-        <div className="grid grid-cols-5 gap-4">
-          {registered.length > 0 ? (
-            registered.map((item) => {
-              const product = productDetailsMap[item.model_no] || {};
-              return (
-                <div
-                  key={item.purchase_Id}
-                  className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-medium">
-                      Model: {item.model_no}
-                    </p>
-                    {product.product_image && (
-                      <button
-                        onClick={() => setPreviewImage(product.product_image)}
-                        className="text-white text-xs"
-                      >
-                        View Image
-                      </button>
-                    )}
-                  </div>
-
-                  <p className="text-xs text-gray-600 mb-2">
-                    Purchased: {item.purchase_date}
-                  </p>
-
-                  {product.product_name && (
-                    <>
-                      <div className="border-t border-gray-100 my-2"></div>
-                      <p className="text-sm">Name: {product.product_name}</p>
-                      <p className="text-sm">Price: ₹{product.product_price}</p>
-                      <p className="text-sm">
-                        Warranty: {product.warrany_tenure} months
-                      </p>
-
-                      {product.productImages &&
-                      product.productImages.length > 0 ? (
-                        <div className="flex items-center space-x-2">
-                           {product.productImages && (
-                    <div className="p-1">
-                      <img
-                        className="h-28 w-auto object-contain rounded-md"
-                        src={product.productImages[0]}
-                      />
-                    </div>
-                  )}
-                          
-
-                          <button
-                            onClick={() =>{
-                              setPreviewImage(product.productImages[0]);
-                              setmodelNoo(item.model_no)}
-                            }
-                            title="view more"
-                            className="text-gray-600 hover:text-gray-800 bg-white text-sm p-2 flex items-center justify-center transition duration-200 ease-in-out"
-                          >
-                            {/* <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                              />
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                              />
-                            </svg> */}
-                            <span className="text-sm font-medium text-blue-700 ">
-                            View More
-                          </span>
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-gray-400 italic">
-                          No images
-                        </span>
-                      )}
-                    </>
-                  )}
-
-                  <div className="flex space-x-2 mt-3">
-                    <button
-                      onClick={() => handleEdit(item)}
-                      className="text-white hover:text-gray-900 p-1 rounded hover:bg-blue-100"
-                      title="Edit"
-                    >
-                      <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                          />
-                        </svg>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setDeleteId(item.purchase_Id);
-                        setShowDeleteConfirm(true);
-                      }}
-                      className="text-white hover:text-red-600 p-1 rounded hover:bg-blue-100"
-                      title="Delete"
-                    >
-                      <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          />
-                        </svg>
-                    </button>
-                    <button
-                      onClick={() =>
-                        handleRaiseRequest(
-                          item.purchase_Id,
-                          item.model_no,
-                          product.company_id
-                        )
-                      }
-                      className="text-xs bg-teal-500 hover:bg-teal-700 text-white px-2 py-1 rounded"
-                    >
-                      Request
-                    </button>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <p className="text-center text-gray-500 col-span-full py-4 flex items-center justify-center h-96">
-              {loader? 
-              (<Loader/>):
-              (<div>No registered warranties found.</div>)}
-            </p>
-          )}
-        </div>
-      )}
 {showDeleteConfirm && (
   <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
     <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
@@ -712,7 +465,7 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
             {/* Thumbnail Gallery */}
             {(() => {
               const foundProduct = previewImage
-                ? products.find((p) => p.model_no?.includes(modelNoo))
+                ? requests.find((p) => p.model_no?.includes(modelNoo))
                 : previewImages
                 ? requests.find((p) => p.model_no?.includes(modelNoo))
                 : null;
@@ -961,4 +714,4 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
   );
 };
 
-export default CustomerWarrantyPage;
+export default CustomerWarrantyRequests;

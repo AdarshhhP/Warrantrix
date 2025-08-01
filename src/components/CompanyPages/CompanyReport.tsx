@@ -18,6 +18,8 @@ type Product = {
 };
 
 type WarrantyRequest = {
+  rejection_remark: string;
+  reason: string;
   warranty_request_id: number;
   customer_id: number;
   request_date: string;
@@ -194,6 +196,11 @@ const CompanyReport = () => {
             <input
               type="text"
               onChange={(e) => setAmodelNo(e.target.value)}
+              onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        loadRequests();
+      }
+    }}
               placeholder="Model No"
               className="text-gray-900 placeholder-gray-900 border border-gray-700 rounded px-3 py-1 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
             />
@@ -241,6 +248,11 @@ const CompanyReport = () => {
               type="text"
               onChange={(e) => setModelNo(e.target.value)}
               placeholder="Model No"
+               onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        loadProducts();
+      }
+    }}
               className="text-gray-900 placeholder-gray-900 border border-gray-700 rounded px-3 py-1 w-48 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
             />
 
@@ -299,7 +311,7 @@ const CompanyReport = () => {
       {activeTab === "products" && (
         <div className="">
           <div className="border border-gray-300 shadow-sm flex flex-col justify-between h-[215px] overflow-x-auto">
-            <table className="min-w-full table-auto text-sm text-left text-gray-800">
+            <table className="min-w-full table-auto text-sm text-left text-gray-800 bg-white">
               <thead className="bg-gray-100 sticky top-0 z-10 text-gray-900">
                 <tr>
                   <th className="px-4 py-1 border">Sl No</th>
@@ -400,7 +412,7 @@ const CompanyReport = () => {
       {activeTab === "requests" && (
         <div>
         <div className="border border-gray-300 shadow-sm flex flex-col justify-between min-h-[215px] overflow-x-auto max-h-[300px]">
-          <table className="min-w-full table-auto text-sm text-left text-gray-800 max-h-[215px]">
+          <table className="min-w-full table-auto text-sm text-left text-gray-800 max-h-[215px] bg-white">
             <thead className="bg-gray-100 sticky top-0 z-10 text-gray-900">
               <tr>
                 <th className="px-4 py-1 border">Sl.No</th>
@@ -408,6 +420,8 @@ const CompanyReport = () => {
                 <th className="px-4 py-1 border">Customer Name</th>
                 <th className="px-4 py-1 border">Email</th>
                 <th className="px-4 py-1 border">Phone</th>
+                <th className="px-4 py-1 border">Request Reason</th>
+                <th className="px-4 py-1 border">Respone Message</th>
                 <th className="px-4 py-1 border">Request Date</th>
                 <th className="px-4 py-1 border">Status</th>
               </tr>
@@ -432,6 +446,8 @@ const CompanyReport = () => {
                     <td className="px-4 py-2 border">{req.customer_name}</td>
                     <td className="px-4 py-2 border">{req.customer_email}</td>
                     <td className="px-4 py-2 border">{req.phone_number}</td>
+                    <td className="px-4 py-2 border">{req.reason}</td>
+                    <td className="px-4 py-2 border">{req.rejection_remark||"Not Responded"}</td>
                     <td className="px-4 py-2 border">{req.request_date}</td>
                     <td className="px-4 py-2 border font-medium text-gray-700">
                       {

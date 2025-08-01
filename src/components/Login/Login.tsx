@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import authService from "../../services/AuthServices";
+import { toast } from "sonner";
+import { Toaster } from "../ui/sonner";
 
 interface LoginProps {
   setToken: (token: string) => void;
@@ -46,22 +48,24 @@ export default function Login({ setToken }: LoginProps) {
           if (userDetails?.userName) {
             localStorage.setItem("user_name", userDetails.userName);
           }
+        }else{
+          toast.error("Login failed: check your credentials");
         }
       } else {
         await authService.signup(data.userName, data.email, data.password);
-        alert("Signup successful! You can now log in.");
+        toast.success("Signup successful! You can now log in.");
         setIsLogin(true);
         reset();
       }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      alert("Error: " + error.message);
+      toast.success("Error: " + error.message);
     }
   };
 
   return (
     <div className="w-screen h-screen bg-teal-100 flex items-center justify-center p-4 sm:p-8 flex-col">
-
+<Toaster/>
   <div className="justify-start flex pb-2">
  <svg
     xmlns="http://www.w3.org/2000/svg"

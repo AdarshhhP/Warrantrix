@@ -61,8 +61,22 @@ const SellerReport = () => {
 
   const enrichWithProductDetails = async (modelNos: string[]) => {
     try {
-      const map = await SellerService.getProductDetails(modelNos);
-      setProductDetailsMap((prev) => ({ ...prev, ...map }));
+      const newData = await SellerService.getProductDetails(modelNos);
+const companyIds = Object.values(newData)
+  .map((item: any) => item.company_id)
+  .filter((id, index, self) => id != null && self.indexOf(id) === index); // removes duplicates + nulls
+
+console.log(companyIds, "Unique Company IDs");
+ // Fetch company names using companyIds
+    const companyData = await SellerService.getUsernamesByIds(companyIds); // backend should return list of { company_id, company_name }
+     console.log(companyData, "Bency");
+    // Create a mapping of company_id -> company_name
+    const companyNameMap: Record<number, string> = {};
+    companyData.forEach((c: any) => {
+      companyNameMap[c.company_id] = c.company_name;
+    });
+
+      setProductDetailsMap((prev) => ({ ...prev, ...newData }));
     } catch (err) {
       console.error("Product enrichment error", err);
     }

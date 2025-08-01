@@ -111,6 +111,12 @@ class SellerService {
     return res.data;
   }
 
+  // Add this method
+async getUsernamesByIds(userIds: number[]) {
+  const res = await axios.post("http://localhost:3089/getusername", userIds);
+  return res.data;
+}
+
  async changeHolderStatus(modelNo: string, status: number): Promise<PostResponse> {
   const response = await axios.post<PostResponse>(
     `${PRODUCT_URL}/changeholderstatus`,

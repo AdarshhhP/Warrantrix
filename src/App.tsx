@@ -13,6 +13,7 @@ import Navbar from "./components/Navbar/Navbar"; // ✅ import Navbar
 import CompanyRequests from "./components/CompanyPages/CompanyRequests";
 import SellerSoldItems from "./components/Seller/SellerSoldItems";
 import CustomerWarrantyRequests from "./components/Customer/CustomerWarrantyRequests";
+import UserList from "./components/Customer/UserListPage";
 
 const App = () => {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -39,7 +40,7 @@ const App = () => {
     <Router>
       {token ? (
         <div className="flex flex-col h-screen w-screen">
-          <Navbar /> {/* ✅ Add Navbar here */}
+          <Navbar/>
           <div className="flex flex-1 overflow-hidden">
             <Sidebar />
             <main className="flex-1 overflow-y-auto h-full">
@@ -52,6 +53,7 @@ const App = () => {
                 <Route path="/reports/companyrequests" element={<CompanyRequests />} />
                 <Route path="/reports/sellerreports" element={<SellerReport />} />
                 <Route path="/reports/sellerpurchases" element={<SellerSoldItems />} />
+                <Route path="/userlist" element={<UserList />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="*" element={<Dashboard />} />
               </Routes>

@@ -20,6 +20,7 @@ const categories = [
 ];
 
 type Product = {
+  productSerials: string[];
   productImages: string[];
   holderStatus: number;
   product_price: number;
@@ -31,6 +32,7 @@ type Product = {
   man_date: string;
   product_images: string[];
   product_category: number;
+  quantity: number;
 };
 
 type WarrantyRequest = {
@@ -71,6 +73,7 @@ const Company = () => {
   const [previewImageREquest, setpreviewImageREquest] = useState<string | null>(
     null
   );
+  const [serialNumbers, setserialNumbers] = useState<string[]>([]);
   const [holderStatus, setHolderStatus] = useState("");
   const [productCategory, setProductCategory] = useState("");
   const [ModelNo, setModelNo] = useState("");
@@ -169,7 +172,9 @@ const Company = () => {
         warrany_tenure: Number(data.warrany_tenure),
         model_no: data.model_no,
         company_id: companyId,
+        quantity: data.quantity,
       };
+      console.log("Payload to be sent:", payload);
       await companyService.postProduct(payload);
       toast("Added Product successfully");
       reset();
@@ -369,9 +374,70 @@ const Company = () => {
       return newIndices;
     });
   };
+
+  console.log(serialNumbers, "serialNumbers");
   return (
     <div className="min-h-screen bg-gray-200 text-gray-900 p-6 md:p-8">
       <Toaster />
+      {serialNumbers.length > 0 && (
+        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
+
+            <button
+                    onClick={() => setserialNumbers([])}
+                    className="bg-white text-gray-400 hover:text-gray-500 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100 absolute top-1 right-1"
+                    title="Close Form"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="black"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+    <div className="max-h-[80vh] bg-blue-200 overflow-y-auto">   
+      <div className="flex sticky top-0 bg-stone-200 w-full justify-center items-center">
+        serial Numbers
+        </div>         
+{serialNumbers.map((item,index)=>(
+<table >
+  <thead className="flex justify-between">
+<th>
+  Slno
+</th>
+<th>
+  Serial Nos
+</th>
+
+  </thead>
+  <tbody className="flex justify-between">
+    <td>
+{index}
+    </td>
+    <td>
+{item}
+    </td>
+
+  </tbody>
+</table>
+))
+
+
+
+}
+</div>  
+
+          </div>
+        </div>
+      )}
       {showConfirmModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
@@ -454,23 +520,23 @@ const Company = () => {
                   value={ModelNo}
                   onChange={(e) => setModelNo(e.target.value)}
                   placeholder="Model No"
-                    onKeyDown={(e) => {
-      if (e.key === 'Enter') {
-        fetchProducts();
-        fetchRequests();
-      }
-    }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      fetchProducts();
+                      fetchRequests();
+                    }
+                  }}
                   className="text-gray-900 px-2 placeholder-gray-400 border border-gray-200 rounded-lg h-8 items-center justify-center w-full md:w-48 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
                 />
                 <select
                   value={holderStatus}
                   onChange={(e) => setHolderStatus(e.target.value)}
-                   onKeyDown={(e) => {
-      if (e.key === 'Enter') {
-        fetchProducts();
-        fetchRequests();
-      }
-    }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      fetchProducts();
+                      fetchRequests();
+                    }
+                  }}
                   className="text-gray-600 border px-2 border-gray-200 rounded-lg h-8 items-center justify-center w-full md:w-40 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
                 >
                   <option value="">All Status</option>
@@ -483,12 +549,12 @@ const Company = () => {
                 <select
                   value={productCategory}
                   onChange={(e) => setProductCategory(e.target.value)}
-                   onKeyDown={(e) => {
-      if (e.key === 'Enter') {
-        fetchProducts();
-        fetchRequests();
-      }
-    }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      fetchProducts();
+                      fetchRequests();
+                    }
+                  }}
                   className="text-gray-600 border px-2 border-gray-200 rounded-lg h-8 items-center justify-center w-full md:w-40 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
                 >
                   <option value="">All Categories</option>
@@ -555,22 +621,22 @@ const Company = () => {
                 value={amodelNo}
                 onChange={(e) => setAmodelNo(e.target.value)}
                 placeholder="Model No"
-                 onKeyDown={(e) => {
-      if (e.key === 'Enter') {
-        fetchRequests();
-      }
-    }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    fetchRequests();
+                  }
+                }}
                 className="text-gray-900 px-2 placeholder-gray-400 border border-gray-200 rounded-lg h-8 items-center justify-center focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
               />
               <select
                 value={astatus}
                 onChange={(e) => setAstatus(e.target.value)}
-                 onKeyDown={(e) => {
-      if (e.key === 'Enter') {
-        fetchProducts();
-        fetchRequests();
-      }
-    }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    fetchProducts();
+                    fetchRequests();
+                  }
+                }}
                 className="text-gray-900 px-2 border border-gray-200 rounded-lg h-8 items-center justify-center focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
               >
                 <option value="">All Status</option>
@@ -803,31 +869,52 @@ const Company = () => {
                   {product.productImages.length > 0 ? (
                     <div className="flex justify-between">
                       <button
-                      onClick={(e) => {
-            e.stopPropagation();
-            handlePrevImage(index);
-          }}
-                    className="bg-transparent h-full flex justify-center items-center rounded-full p-1"
-
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePrevImage(index);
+                        }}
+                        className="bg-transparent h-full flex justify-center items-center rounded-full p-1"
                       >
-                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 19l-7-7 7-7"
+                          />
+                        </svg>
                       </button>
                       <img
                         className="h-28 w-auto object-contain rounded-md"
-      src={product.productImages[currentImageIndices[index] || 0]}
+                        src={
+                          product.productImages[currentImageIndices[index] || 0]
+                        }
                       />
                       <button
-                       onClick={(e) => {
-            e.stopPropagation();
-            handleNextImage(index);
-          }}
-          className="bg-transparent h-full flex justify-center items-center rounded-full p-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleNextImage(index);
+                        }}
+                        className="bg-transparent h-full flex justify-center items-center rounded-full p-1"
                       >
-                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
                       </button>
                     </div>
                   ) : (
@@ -911,6 +998,16 @@ const Company = () => {
                       🔍 View Images
                     </button>
                   )}
+                  {
+                    <button
+                      className="bg-white text-black h-5 flex justify-between items-center"
+                      onClick={() => {
+                        setserialNumbers(product.productSerials);
+                      }}
+                    >
+                      view details
+                    </button>
+                  }
                 </div>
               </div>
             ))
@@ -1335,6 +1432,20 @@ const Company = () => {
                         required
                         max={new Date().toISOString().split("T")[0]} // sets today's date as max
                         className="w-full border h-8 bg-gray-300 border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Quantity
+                      </label>
+                      <input
+                        {...register("quantity")}
+                        type="number"
+                        min="0"
+                        required
+                        className="w-full border h-8 border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+                        placeholder="Ex:12"
                       />
                     </div>
                   </div>

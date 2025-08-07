@@ -105,6 +105,22 @@ const Sidebar: React.FC = () => {
             </button>
             </>
           )}
+          {userType === "4" && (
+            <>
+            <button
+              className={isActive("admin")}
+              onClick={() => handleTabClick("admin", "/admin")}
+            >
+              User Creation
+            </button>
+            <button
+              className={isActive("userlist")}
+              onClick={() => handleTabClick("userlist", "/userlist")}
+            >
+              User List
+            </button>
+            </>
+          )}
         </div>
 
         <div className="mt-auto pt-4">

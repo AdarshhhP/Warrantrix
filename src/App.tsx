@@ -14,6 +14,7 @@ import CompanyRequests from "./components/CompanyPages/CompanyRequests";
 import SellerSoldItems from "./components/Seller/SellerSoldItems";
 import CustomerWarrantyRequests from "./components/Customer/CustomerWarrantyRequests";
 import UserList from "./components/Customer/UserListPage";
+import SerialNoTable from "./components/CompanyPages/SerialNoTable";
 
 const App = () => {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -56,6 +57,7 @@ const App = () => {
                 <Route path="/userlist" element={<UserList />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="*" element={<Dashboard />} />
+                <Route path="/serialNo" element={<SerialNoTable/>}/>
               </Routes>
             </main>
           </div>

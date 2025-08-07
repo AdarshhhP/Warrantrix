@@ -111,6 +111,9 @@ class SellerService {
     return res.data;
   }
 
+  // Add this method
+
+
  async changeHolderStatus(modelNo: string, status: number): Promise<PostResponse> {
   const response = await axios.post<PostResponse>(
     `${PRODUCT_URL}/changeholderstatus`,

@@ -11,6 +11,7 @@ import TemplateGenerator, {
 } from "../BulkUpload/TemplateGenerator";
 import Loader from "../Loader/Loader";
 import SmallLoader from "../Loader/SmallLoader";
+import { useNavigate } from "react-router-dom";
 
 const categories = [
   { id: 1, name: "Electronics" },
@@ -20,7 +21,7 @@ const categories = [
 ];
 
 type Product = {
-  productSerials: string[];
+  productSerials: SerialNumber[];
   productImages: string[];
   holderStatus: number;
   product_price: number;
@@ -57,6 +58,15 @@ export interface BulkUploadResponse {
   successRecords: string[]; // list of successful entries (e.g., product names)
   failedRecords: string[]; // list of failed rows or error messages
 }
+export interface SerialNumber 
+{
+  is_sold: number,
+  model_No: string,
+  prod_id: number,
+  serialNo: string
+}
+
+
 
 const Company = () => {
   const [activeTab, setActiveTab] = useState<"products" | "requests">(
@@ -73,7 +83,7 @@ const Company = () => {
   const [previewImageREquest, setpreviewImageREquest] = useState<string | null>(
     null
   );
-  const [serialNumbers, setserialNumbers] = useState<string[]>([]);
+  // const [serialNumbers, setserialNumbers] = useState<SerialNumber[]>([]);
   const [holderStatus, setHolderStatus] = useState("");
   const [productCategory, setProductCategory] = useState("");
   const [ModelNo, setModelNo] = useState("");
@@ -96,7 +106,7 @@ const Company = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
+const navigate=useNavigate();
   const companyId = Number(localStorage.getItem("company_id"));
 
   useEffect(() => {
@@ -375,69 +385,58 @@ const Company = () => {
     });
   };
 
-  console.log(serialNumbers, "serialNumbers");
   return (
     <div className="min-h-screen bg-gray-200 text-gray-900 p-6 md:p-8">
       <Toaster />
-      {serialNumbers.length > 0 && (
-        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex justify-center items-center z-50">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
-
-            <button
-                    onClick={() => setserialNumbers([])}
-                    className="bg-white text-gray-400 hover:text-gray-500 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100 absolute top-1 right-1"
-                    title="Close Form"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6"
-                      fill="black"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-    <div className="max-h-[80vh] bg-blue-200 overflow-y-auto">   
-      <div className="flex sticky top-0 bg-stone-200 w-full justify-center items-center">
-        serial Numbers
-        </div>         
-{serialNumbers.map((item,index)=>(
-<table >
-  <thead className="flex justify-between">
-<th>
-  Slno
-</th>
-<th>
-  Serial Nos
-</th>
-
-  </thead>
-  <tbody className="flex justify-between">
-    <td>
-{index}
-    </td>
-    <td>
-{item}
-    </td>
-
-  </tbody>
-</table>
-))
+      {/* {serialNumbers.length > 0 && (
 
 
-
-}
-</div>  
-
-          </div>
-        </div>
-      )}
+        // <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex justify-center items-center z-50">
+        //   <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
+        //     <button
+        //       onClick={() => setserialNumbers([])}
+        //       className="bg-white text-gray-400 hover:text-gray-500 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100 absolute top-1 right-1"
+        //       title="Close Form"
+        //     >
+        //       <svg
+        //         xmlns="http://www.w3.org/2000/svg"
+        //         className="h-6 w-6"
+        //         fill="black"
+        //         viewBox="0 0 24 24"
+        //         stroke="currentColor"
+        //       >
+        //         <path
+        //           strokeLinecap="round"
+        //           strokeLinejoin="round"
+        //           strokeWidth={1}
+        //           d="M6 18L18 6M6 6l12 12"
+        //         />
+        //       </svg>
+        //     </button>
+        //     <div className="max-h-[80vh] bg-blue-200 overflow-y-auto">
+        //       <div className="flex sticky top-0 bg-stone-200 w-full justify-center items-center">
+        //         serial Numbers
+        //       </div>
+        //       {serialNumbers.map((item, index) => (
+        //         <table>
+        //           <thead className="flex justify-between">
+        //             <th>Slno</th>
+        //             <th>Serial Nos</th>
+        //             <th>Action</th>
+        //           </thead>
+        //           <tbody className="flex justify-between">
+        //             <td>{index}</td>
+        //             <td>{item.serialNo}</td>
+        //             <td>
+        //               <input type="checkbox" />
+        //             </td>
+        //           </tbody>
+        //         </table>
+        //       ))}
+        //     </div>
+        //   </div>
+        // </div>
+      )} */}
       {showConfirmModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
@@ -1002,7 +1001,9 @@ const Company = () => {
                     <button
                       className="bg-white text-black h-5 flex justify-between items-center"
                       onClick={() => {
-                        setserialNumbers(product.productSerials);
+                       // setserialNumbers(product.productSerials);
+navigate("/serialNo")
+                        localStorage.setItem("serialNumbers", JSON.stringify(product.productSerials));
                       }}
                     >
                       view details

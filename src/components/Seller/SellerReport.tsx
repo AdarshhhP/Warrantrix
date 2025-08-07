@@ -4,6 +4,26 @@
 import React, { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import SellerService from "../../services/SellerService";
+import authService from "../../services/AuthServices";
+
+export interface ProductDetails {
+  company_id: number;
+  holderStatus: number;
+  man_date: string; // or use `Date` if you're converting it to Date object
+  model_no: string;
+  prod_id: number;
+  productImages: string[]; // base64 image strings
+  product_category: string;
+  product_name: string;
+  product_price: number;
+  warrany_tenure: number;
+}
+
+export interface UserInfo {
+  userId: number;
+  userName: string;
+  email: string;
+}
 
 const SellerReport = () => {
   const [activeTab, setActiveTab] = useState<"inventory" | "purchases">("inventory");
@@ -59,14 +79,39 @@ const SellerReport = () => {
     }
   };
 
-  const enrichWithProductDetails = async (modelNos: string[]) => {
-    try {
-      const map = await SellerService.getProductDetails(modelNos);
-      setProductDetailsMap((prev) => ({ ...prev, ...map }));
-    } catch (err) {
-      console.error("Product enrichment error", err);
+const enrichWithProductDetails = async (modelNos: string[]) => {
+  try {
+    const newData = await SellerService.getProductDetails(modelNos);
+
+    const companyIds = Object.values(newData)
+      .map((item: any) => item.company_id)
+      .filter((id, index, self) => id != null && self.indexOf(id) === index);
+
+    const companyData = await authService.getUsernamesByIds(companyIds);
+
+    // Create a map for quick lookup
+    const companyMap = companyData.reduce((map: Record<number, string>, user:any) => {
+      map[user.userId] = user.userName;
+      return map;
+    }, {});
+
+    // Inject companyName into product details
+    const enrichedData: Record<string, any> = {};
+    for (const [modelNo, product] of Object.entries(newData)) {
+      enrichedData[modelNo] = {
+        ...product,
+        company_name: companyMap[product.company_id] || "Unknown",
+      };
     }
-  };
+
+    setProductDetailsMap((prev) => ({ ...prev, ...enrichedData }));
+  } catch (err) {
+    console.error("Product enrichment error", err);
+  }
+};
+
+
+  console.log(productDetailsMap,"productDetailsMap aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
   useEffect(() => {
     if (sellerId) fetchInventory();
@@ -254,6 +299,7 @@ const SellerReport = () => {
             <th className="p-2 border">Product Name</th>
             <th className="p-2 border">Tenure (years)</th>
             <th className="p-2 border">Mfg Date</th>
+            <th className="p-2 border">Company Name</th>
             <th className="p-2 border">Item Status</th>
           </tr>
         </thead>
@@ -270,6 +316,7 @@ const SellerReport = () => {
                 <td className="p-2 border">{prod.product_name || "-"}</td>
                 <td className="p-2 border">{prod.warrany_tenure || "-"}</td>
                 <td className="p-2 border">{prod.man_date || "-"}</td>
+                <td className="p-2 border">{prod.company_name || "-"}</td>
                 <td className="p-2 border">
                   {prod.holderStatus === 2
                     ? "Item Available"

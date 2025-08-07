@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 import authService from "../../services/AuthServices";
 import { toast } from "sonner";
 import { Toaster } from "../ui/sonner";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+
 
 interface LoginProps {
   setToken: (token: string) => void;
@@ -15,6 +17,8 @@ export default function Login({ setToken }: LoginProps) {
   const [isLogin, setIsLogin] = useState(true);
   const { register, handleSubmit, reset } = useForm();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onSubmit = async (data: any) => {
@@ -129,13 +133,21 @@ export default function Login({ setToken }: LoginProps) {
             required
             className="w-full bg-white text-black px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 "
           />
+          <div className="relative">
           <input
             {...register("password")}
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="Password"
             required
             className="w-full px-4 bg-white text-black py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
           />
+          <span
+            className="absolute right-3 top-2.5 text-xl text-gray-600 cursor-pointer"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+          </span>
+        </div>
           <button
             type="submit"
             className="w-full bg-teal-600 hover:bg-gray-700 text-white py-2 rounded-lg font-semibold transition"

@@ -16,6 +16,12 @@ class AuthService {
     }
   }
 
+  async getUsernamesByIds(userIds: number[]) {
+  // const ff="1,4,5,54"
+  const res = await axios.post(`${BASE_URL}/getusername`, userIds);
+  return res.data;
+}
+
   async signup(userName: string, email: string, password: string): Promise<any> {
     try {
       const response = await axios.post(`${BASE_URL}/signup`, {

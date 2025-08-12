@@ -59,6 +59,14 @@ const Sidebar: React.FC = () => {
               >
                 Raised Warranty Requests
               </button>
+              <button
+              className={isActive("bcompany")}
+              onClick={() =>
+                handleTabClick("bcompany","/Batch")
+              }
+              >
+                Batch List
+              </button>
             </>
           )}
 

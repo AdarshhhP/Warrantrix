@@ -61,10 +61,12 @@ export interface BulkUploadResponse {
   failedRecords: string[]; // list of failed rows or error messages
 }
 export interface SerialNumber {
+  holderStatus: number;
   is_sold: number;
   model_No: string;
   prod_id: number;
   serialNo: string;
+  itemsStatus:number;
 }
 
 const Company = () => {
@@ -184,7 +186,7 @@ const Company = () => {
         quantity: data.quantity,
         item: data.item,
       };
-      console.log(payload,"payload")
+      console.log(payload, "payload");
       await companyService.postProduct(payload);
       toast("Added Product successfully");
       reset();
@@ -854,7 +856,15 @@ const Company = () => {
             products.map((product, index) => (
               <div
                 key={index}
-                className="bg-white shadow-lg rounded-xl p-2 space-y-2  border-gray-300 hover:shadow-md transition-shadow duration-200"
+                className="bg-white shadow-lg rounded-xl p-2 space-y-2  border-gray-300 hover:shadow-md transition-shadow duration-200 cursor-pointer"
+                onClick={() => {
+                  // setserialNumbers(product.productSerials);
+                  navigate(`/serialNo/${product?.prod_id}`);
+                  localStorage.setItem(
+                    "serialNumbers",
+                    JSON.stringify(product.productSerials)
+                  );
+                }}
               >
                 {/* Header */}
                 <div className="flex flex-col items-center justify-between">
@@ -990,7 +1000,8 @@ const Company = () => {
                   {/* View Image Button */}
                   {product.productImages && (
                     <button
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation(); // This stops the event from bubbling up to the parent div
                         setPreviewImage(product.productImages[0]);
                         setpreviewImageModelNo(product.model_no);
                       }}
@@ -999,7 +1010,7 @@ const Company = () => {
                       🔍 View Images
                     </button>
                   )}
-                  {
+                  {/* {
                     <button
                       className="bg-white text-black h-5 flex justify-between items-center"
                       onClick={() => {
@@ -1013,7 +1024,7 @@ const Company = () => {
                     >
                       Manage Batches
                     </button>
-                  }
+                  } */}
                 </div>
               </div>
             ))

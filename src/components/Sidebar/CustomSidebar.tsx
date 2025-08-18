@@ -52,6 +52,14 @@ const Sidebar: React.FC = () => {
                 Company Report
               </button>
               <button
+                className={isActive("wrcompany")}
+                onClick={() =>
+                  handleTabClick("wrcompany", "/warrantyreqapproval")
+                }
+              >
+                Warranty Requests Register
+              </button>
+              <button
                 className={isActive("wcompany")}
                 onClick={() =>
                   handleTabClick("wcompany", "/reports/companyrequests")
@@ -70,12 +78,12 @@ const Sidebar: React.FC = () => {
               >
                 Seller
               </button>
-              <button
+              {/* <button
                 className={isActive("aseller")}
                 onClick={() => handleTabClick("aseller", "/serialacknowledge")}
               >
                 Seller Acknowledge
-              </button>
+              </button> */}
               <button
                 className={isActive("rseller")}
                 onClick={() =>

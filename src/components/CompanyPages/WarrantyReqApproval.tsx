@@ -54,14 +54,14 @@ const CustomerWarrantyPage = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [modelValid, setModelValid] = useState(false);
 
-  const customerId = Number(localStorage.getItem("user_id"));
+  const customerId = Number(localStorage.getItem("company_id"));
   const registerForm = useForm();
   const requestForm = useForm();
 
   const fetchRegistered = async () => {
     setloader(true);
     try {
-      const data = await customerService.getRegisteredWarranties(
+      const data = await customerService.getRegisteredWarrantiesCompany(
         customerId,
         searchModelNo
       );
@@ -116,11 +116,10 @@ const CustomerWarrantyPage = () => {
   };
 
   useEffect(() => {
-    if (customerId) {
       fetchRegistered();
       fetchRequests();
-    }
-  }, [customerId]);
+    
+  }, []);
 
   const handleEdit = (item: any) => {
     setEditItem(item);
@@ -177,6 +176,7 @@ const CustomerWarrantyPage = () => {
   // };
 
   const handleRegisterSubmit = async (data: any) => {
+    const payload = { ...data, customerId };
 
     try {
       // const eligible = await customerService.checkEligibility(data.model_no, 4);
@@ -191,27 +191,19 @@ const CustomerWarrantyPage = () => {
       // setPendingPayload({ payload, modelNo: data.model_no, isEdit: !!editItem, purchase_Id: editItem?.purchase_Id });
       //setShowConfirmModal(true);
       console.log(data, "aaaaaaaaaaaaaaaaaaaaaa");
-await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
-      const payload = { ...data, customerId,company_id: response?.company_id};
-
- confirmAndSave(
-  //response?.data?.company_id,
+      confirmAndSave(
         payload,
         data.model_no,
         !!editItem,
         editItem?.purchase_Id,
         data.serial_no
       );
-})
-
-     
     } catch (err: any) {
       toast.success(err.response?.data?.message || err.message);
     }
   };
 
   const confirmAndSave = async (
-   // companyId:any,
     payload: any,
     modelNo: any,
     isEdit: any,
@@ -303,12 +295,10 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
   const handleRaiseRequest = (
     purchaseId: number,
     modelNo: string,
-    company_id: string,
-    serialNo:string
+    company_id: string
   ) => {
     setModelData(company_id);
     setShowRequestForm(true);
-    requestForm.setValue("serial_no",serialNo)
     requestForm.setValue("model_no", modelNo);
   };
 
@@ -318,7 +308,17 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
     }
   };
 
-  console.log(registered,"registered")
+  const handleApprovalChange=(e:any,purchase_id:number)=>{
+    const approvalvalue=e.target.value;
+    const payload = {
+           purchase_id: purchase_id,
+          approval_status: approvalvalue
+    }
+if(approvalvalue){
+    customerService.changeApprovalStatus(payload);
+}
+
+  }
 
   return (
     <div className="p-4 max-w-screen bg-stone-200 min-h-screen text-gray-900">
@@ -339,16 +339,6 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
             onClick={() => setActiveTab("registered")}
           >
             Registered Products
-          </button>
-          <button
-            className={`px-4 py-1.5 text-sm rounded-md font-medium transition ${
-              activeTab === "requests"
-                ? "bg-teal-500 text-white"
-                : "bg-white border border-gray-300 text-gray-800 hover:bg-blue-50"
-            }`}
-            onClick={() => setActiveTab("requests")}
-          >
-            Warranty Requests
           </button>
         </div>
 
@@ -432,6 +422,15 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
                       <p className="text-sm">Price: ₹{product.product_price}</p>
                       <p className="text-sm">
                         Warranty: {product.warrany_tenure} months
+                      </p>
+                      <p>
+                        <select className="bg-stone-200" onChange={(e)=>handleApprovalChange(e,item.purchase_Id)}
+                          defaultValue={item?.companyapprovalstatus}
+                          >
+                            <option value="">Change Status</option>
+                              <option value="1">Approve</option>
+                              <option value="2">Reject</option>
+                        </select>
                       </p>
 
                       {product.productImages &&
@@ -533,13 +532,12 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
                     </button>
                     {item.companyapprovalstatus == 1 && (
                       <button
-                        disabled={item.companyapprovalstatus == 0||item.companyapprovalstatus==2}
+                        disabled={item.companyapprovalstatus == 0}
                         onClick={() =>
                           handleRaiseRequest(
                             item.purchase_Id,
                             item.model_no,
-                            product.company_id,
-                            item.serial_no
+                            product.company_id
                           )
                         }
                         className="text-xs bg-teal-500 hover:bg-teal-700 text-white px-2 py-1 rounded"
@@ -588,123 +586,6 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
               </button>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Warranty Requests */}
-      {activeTab === "requests" && (
-        <div className="grid grid-cols-4 gap-4">
-          {requests.length > 0 ? (
-            requests.map((req) => {
-              const product = productDetailsMap[req.model_no] || {};
-              return (
-                <div
-                  key={req.warranty_request_id}
-                  className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300"
-                >
-                  {/* Header */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex flex-col">
-                      {product.productImages && (
-                        <div className="p-1">
-                          <img
-                            className="h-28 w-auto object-contain rounded-md"
-                            src={product.productImages[0]}
-                          />
-                        </div>
-                      )}
-
-                      <p className="text-sm font-semibold text-gray-800">
-                        Model: {req.model_no}
-                      </p>
-                    </div>
-                    {product.productImages && (
-                      <button
-                        onClick={() => {
-                          setPreviewImage(product.productImages[0]);
-                          setmodelNoo(product.model_no);
-                        }}
-                        className="text-xs text-blue-600 hover:underline bg-white"
-                      >
-                        View More
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Customer Info */}
-                  <p className="text-sm text-gray-700 mb-1">
-                    <span className="font-medium">Customer:</span>{" "}
-                    {req.customer_name}
-                  </p>
-
-                  {/* Warranty Status */}
-                  <p className="text-sm text-gray-600 mb-1">
-                    <span className="font-medium">Status:</span>
-                    <span
-                      className={`ml-1 font-semibold ${
-                        req.warranty_status === 1
-                          ? "text-yellow-600"
-                          : req.warranty_status === 2
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {req.warranty_status === 1
-                        ? "Pending"
-                        : req.warranty_status === 2
-                        ? "Approved"
-                        : "Rejected"}
-                    </span>
-                  </p>
-
-                  {/* Company Remarks */}
-                  <p className="text-sm text-gray-500 mb-1">
-                    <span className="font-medium">Remarks:</span>{" "}
-                    {req.rejection_remark && req.rejection_remark}{" "}
-                    {!req.rejection_remark && "No Remarks"}
-                  </p>
-
-                  <p className="text-sm text-gray-500">
-                    <span className="font-medium">Reason:</span>{" "}
-                    {req.reason || "No reason provided"}
-                  </p>
-
-                  {/* Uploaded Image Button */}
-                  <button
-                    onClick={() => {
-                      setPreviewImages(req.productImages[0]);
-                      setmodelNoo(req.model_no);
-                    }}
-                    className="text-xs text-blue-600 hover:underline mb-3 bg-white"
-                  >
-                    View Uploaded Image
-                  </button>
-
-                  {/* Product Info */}
-                  {product.product_name && (
-                    <>
-                      <hr className="my-3 border-gray-200" />
-
-                      <div className="space-y-1 text-sm text-gray-700">
-                        <p>
-                          <span className="font-medium">Product Name:</span>{" "}
-                          {product.product_name}
-                        </p>
-                        <p>
-                          <span className="font-medium">Price:</span> ₹
-                          {product.product_price}
-                        </p>
-                      </div>
-                    </>
-                  )}
-                </div>
-              );
-            })
-          ) : (
-            <p className="text-center text-gray-500 col-span-full py-4">
-              No warranty requests found.
-            </p>
-          )}
         </div>
       )}
 

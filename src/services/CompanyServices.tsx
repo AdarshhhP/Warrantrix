@@ -29,6 +29,8 @@ class CompanyService {
     return axios.post(`${this.baseProductUrl}/changeserialStatus`, payload);
   }
 
+  
+
   async postProduct(payload: any) {
     return axios.post(`${this.baseProductUrl}/postproduct`, payload);
   }

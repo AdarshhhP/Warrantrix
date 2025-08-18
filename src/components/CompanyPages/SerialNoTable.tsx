@@ -120,7 +120,7 @@ const SerialNumbersPage = () => {
     },
     {
       id: "status",
-      header: "Status",
+      header: "Batch Status",
       cell: ({ row }) => (
         <span
           className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -129,10 +129,38 @@ const SerialNumbersPage = () => {
               : "bg-red-100 text-red-800"
           }`}
         >
-          {row.original.is_sold == 0 ? "Available" : "Batch Created"}
+          {row.original.is_sold == 0 ? "Not Added to Batch" : "Added to Batch"}
         </span>
       ),
     },
+    {
+      id:"itemstatus",
+   
+          header: "Item Status",
+
+    cell: ({ row }) => (
+        <span
+          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+            row.original.is_sold == 0
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
+          }`}
+        >
+{row.original.itemsStatus === 2
+                          ? "With Retail Seller"
+                          : row.original.itemsStatus === 3
+                          ? "Sold To Customer"
+                          : row.original.itemsStatus === 4
+                          ? "With Customer"
+                          : row.original.itemsStatus === 5
+                          ? "Raised Warranty Request"
+                          : row.original.itemsStatus === 1
+                          ? "In Company Stocks"
+                          : row.original.itemsStatus}
+
+        </span>
+      ),
+ },
   ];
 
   const table = useReactTable({

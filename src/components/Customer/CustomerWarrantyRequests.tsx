@@ -20,14 +20,13 @@ const CustomerWarrantyRequests = () => {
   const [searchModelNo, setSearchModelNo] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [previewImages, setPreviewImages] = useState<string | null>(null);
-  const [modelNoo,setmodelNoo]=useState<string>("");
+  const [modelNoo, setmodelNoo] = useState<string>("");
 
   const [modelData, setModelData] = useState<any>(null);
   const [images, setImages] = useState<File[]>([]);
 
-
- // const [pendingPayload, setPendingPayload] = useState<any>(null);
- // const [showConfirmModal, setShowConfirmModal] = useState(false);
+  // const [pendingPayload, setPendingPayload] = useState<any>(null);
+  // const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -66,20 +65,21 @@ const CustomerWarrantyRequests = () => {
   }, [customerId]);
 
   const handleDelete = async (purchaseId: number) => {
-  try {
-    const res = await customerService.deleteRegisteredWarranty(purchaseId);
+    try {
+      const res = await customerService.deleteRegisteredWarranty(purchaseId);
 
-    if (res.data?.message === "Cant Delete") {
-      toast.error("Cannot delete this warranty.");
-    } else {
-      toast.success("Deleted Successfully");
-      fetchRequests();
+      if (res.data?.message === "Cant Delete") {
+        toast.error("Cannot delete this warranty.");
+      } else {
+        toast.success("Deleted Successfully");
+        fetchRequests();
+      }
+    } catch (err: any) {
+      toast.error(
+        err.response?.data?.message || "Something went wrong while deleting."
+      );
     }
-  } catch (err: any) {
-    toast.error(err.response?.data?.message || "Something went wrong while deleting.");
-  }
-};
-
+  };
 
   // const handleRegisterSubmit = async (data: any) => {
   //   const payload = { ...data, customerId };
@@ -111,52 +111,58 @@ const CustomerWarrantyRequests = () => {
   //   }
   // };
 
-const handleRegisterSubmit = async (data: any) => {
-  const payload = { ...data, customerId };
+  const handleRegisterSubmit = async (data: any) => {
+    const payload = { ...data, customerId };
 
-  try {
-    const eligible = await customerService.checkEligibility(data.model_no, 4);
+    try {
+      const eligible = await customerService.checkEligibility(data.model_no, 4);
 
-    // If not eligible (and not editing), block immediately
-    if (!eligible && !editItem) {
-      toast.success("You are not eligible to register this product. Please contact support.");
-      return;
+      // If not eligible (and not editing), block immediately
+      if (!eligible && !editItem) {
+        toast.success(
+          "You are not eligible to register this product. Please contact support."
+        );
+        return;
+      }
+
+      // Store the payload for later and show confirmation dialog
+      // setPendingPayload({ payload, modelNo: data.model_no, isEdit: !!editItem, purchase_Id: editItem?.purchase_Id });
+      //setShowConfirmModal(true);
+      confirmAndSave(payload, data.model_no, !!editItem, editItem?.purchase_Id);
+    } catch (err: any) {
+      toast.success(err.response?.data?.message || err.message);
     }
+  };
 
-    // Store the payload for later and show confirmation dialog
-   // setPendingPayload({ payload, modelNo: data.model_no, isEdit: !!editItem, purchase_Id: editItem?.purchase_Id });
-    //setShowConfirmModal(true);
-confirmAndSave(payload, data.model_no,!!editItem,editItem?.purchase_Id)
-  } catch (err: any) {
-    toast.success(err.response?.data?.message || err.message);
-  }
-};
+  const confirmAndSave = async (
+    payload: any,
+    modelNo: any,
+    isEdit: any,
+    purchase_Id: any
+  ) => {
+    try {
+      // const { payload, modelNo, isEdit, purchase_Id } = pendingPayload;
 
-const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:any) => {
-  try {
-   // const { payload, modelNo, isEdit, purchase_Id } = pendingPayload;
+      if (isEdit) {
+        await customerService.editRegisteredWarranty(purchase_Id, payload);
+        toast.success("Updated Successfully");
+      } else {
+        await customerService.registerWarranty(payload);
+        await customerService.updateHolderStatus(modelNo, 4);
+      }
 
-    if (isEdit) {
-      await customerService.editRegisteredWarranty(purchase_Id, payload);
-      toast.success("Updated Successfully")
-    } else {
-      await customerService.registerWarranty(payload);
-      await customerService.updateHolderStatus(modelNo, 4);
+      // Success cleanup
+      setShowRegisterForm(false);
+      setEditItem(null);
+      registerForm.reset();
+      fetchRequests();
+    } catch (err: any) {
+      toast.success(err.response?.data?.message || err.message);
+    } finally {
+      //setShowConfirmModal(false);
+      // setPendingPayload(null);
     }
-
-    // Success cleanup
-    setShowRegisterForm(false);
-    setEditItem(null);
-    registerForm.reset();
-    fetchRequests();
-
-  } catch (err: any) {
-    toast.success(err.response?.data?.message || err.message);
-  } finally {
-    //setShowConfirmModal(false);
-   // setPendingPayload(null);
-  }
-};
+  };
 
   const convertToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -199,7 +205,7 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
       setModelValid(false);
       fetchRequests();
       setImages([]);
-      toast.success("Request Submitted Successfully")
+      toast.success("Request Submitted Successfully");
     } catch (err: any) {
       toast.success(err.response?.data?.message || err.message);
     }
@@ -210,7 +216,7 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
       setImages(Array.from(e.target.files));
     }
   };
-  
+
   return (
     <div className="p-4 max-w-screen bg-stone-200 min-h-screen text-gray-900">
       <Toaster />
@@ -240,17 +246,16 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
             value={searchModelNo}
             onChange={(e) => setSearchModelNo(e.target.value)}
             onKeyDown={(e) => {
-      if (e.key === 'Enter') {
-        fetchRequests();
-      }
-    }}
+              if (e.key === "Enter") {
+                fetchRequests();
+              }
+            }}
             className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 w-full"
           />
           <button
             onClick={() => {
               fetchRequests();
             }}
-             
             className="bg-teal-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-teal-700 transition"
           >
             Search
@@ -273,36 +278,38 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
           </button>
         ) : null}
       </div>
-{showDeleteConfirm && (
-  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-    <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-      <p className="text-gray-800 mb-4">Are you sure you want to delete this item?</p>
-      <div className="flex justify-end gap-3">
-        <button
-          onClick={() => {
-            if (deleteId !== null) {
-              handleDelete(deleteId); // Call your delete logic
-            }
-            setShowDeleteConfirm(false);
-            setDeleteId(null);
-          }}
-          className="bg-teal-500 text-white px-4 py-2 rounded hover:bg-red-700"
-        >
-          Yes
-        </button>
-        <button
-          onClick={() => {
-            setShowDeleteConfirm(false);
-            setDeleteId(null);
-          }}
-          className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-        >
-          No
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+            <p className="text-gray-800 mb-4">
+              Are you sure you want to delete this item?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  if (deleteId !== null) {
+                    handleDelete(deleteId); // Call your delete logic
+                  }
+                  setShowDeleteConfirm(false);
+                  setDeleteId(null);
+                }}
+                className="bg-teal-500 text-white px-4 py-2 rounded hover:bg-red-700"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setDeleteId(null);
+                }}
+                className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Warranty Requests */}
       {activeTab === "requests" && (
@@ -311,102 +318,106 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
             requests.map((req) => {
               const product = productDetailsMap[req.model_no] || {};
               return (
-               <div
-  key={req.warranty_request_id}
-  className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300"
->
-  {/* Header */}
-  <div className="flex items-center justify-between mb-3">
-<div className="flex flex-col">
-  {product.productImages && (
-                    <div className="p-1">
-                      <img
-                        className="h-28 w-auto object-contain rounded-md"
-                        src={product.productImages[0]}
-                      />
+                <div
+                  key={req.warranty_request_id}
+                  className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300"
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex flex-col">
+                      {product.productImages && (
+                        <div className="p-1">
+                          <img
+                            className="h-28 w-auto object-contain rounded-md"
+                            src={product.productImages[0]}
+                          />
+                        </div>
+                      )}
+
+                      <p className="text-sm font-semibold text-gray-800">
+                        Model: {req.model_no}
+                      </p>
                     </div>
+                    {product.productImages && (
+                      <button
+                        onClick={() => {
+                          setPreviewImage(product.productImages[0]);
+                          setmodelNoo(product.model_no);
+                        }}
+                        className="text-xs text-blue-600 hover:underline bg-white"
+                      >
+                        View More
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Customer Info */}
+                  <p className="text-sm text-gray-700 mb-1">
+                    <span className="font-medium">Customer:</span>{" "}
+                    {req.customer_name}
+                  </p>
+
+                  {/* Warranty Status */}
+                  <p className="text-sm text-gray-600 mb-1">
+                    <span className="font-medium">Status:</span>
+                    <span
+                      className={`ml-1 font-semibold ${
+                        req.warranty_status === 1
+                          ? "text-yellow-600"
+                          : req.warranty_status === 2
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {req.warranty_status === 1
+                        ? "Pending"
+                        : req.warranty_status === 2
+                        ? "Approved"
+                        : "Rejected"}
+                    </span>
+                  </p>
+
+                  {/* Company Remarks */}
+                  <p className="text-sm text-gray-500 mb-1">
+                    <span className="font-medium">Remarks:</span>{" "}
+                    {req.rejection_remark && req.rejection_remark}{" "}
+                    {!req.rejection_remark && "No Remarks"}
+                  </p>
+
+                  <p className="text-sm text-gray-500">
+                    <span className="font-medium">Reason:</span>{" "}
+                    {req.reason || "No reason provided"}
+                  </p>
+
+                  {/* Uploaded Image Button */}
+                  <button
+                    onClick={() => {
+                      setPreviewImages(req.productImages[0]);
+                      setmodelNoo(req.model_no);
+                    }}
+                    className="text-xs text-blue-600 hover:underline mb-3 bg-white"
+                  >
+                    View Uploaded Image
+                  </button>
+
+                  {/* Product Info */}
+                  {product.product_name && (
+                    <>
+                      <hr className="my-3 border-gray-200" />
+
+                      <div className="space-y-1 text-sm text-gray-700">
+                        <p>
+                          <span className="font-medium">Product Name:</span>{" "}
+                          {product.product_name}
+                        </p>
+                        <p>
+                          <span className="font-medium">Price:</span> ₹
+                          {product.product_price}
+                        </p>
+                      </div>
+                    </>
                   )}
-
-
-    <p className="text-sm font-semibold text-gray-800">Model: {req.model_no}</p>
-</div>
-    {product.productImages && (
-      <button
-        onClick={() => {
-          setPreviewImage(product.productImages[0]);
-          setmodelNoo(product.model_no);
-        }}
-        className="text-xs text-blue-600 hover:underline bg-white"
-      >
-        View More
-      </button>
-    )}
-  </div>
-
-  {/* Customer Info */}
-  <p className="text-sm text-gray-700 mb-1">
-    <span className="font-medium">Customer:</span> {req.customer_name}
-  </p>
-
-  {/* Warranty Status */}
-  <p className="text-sm text-gray-600 mb-1">
-    <span className="font-medium">Status:</span>
-    <span
-      className={`ml-1 font-semibold ${
-        req.warranty_status === 1
-          ? "text-yellow-600"
-          : req.warranty_status === 2
-          ? "text-green-600"
-          : "text-red-600"
-      }`}
-    >
-      {req.warranty_status === 1
-        ? "Pending"
-        : req.warranty_status === 2
-        ? "Approved"
-        : "Rejected"}
-    </span>
-  </p>
-
-  {/* Company Remarks */}
-    <p className="text-sm text-gray-500 mb-1">
-      <span className="font-medium">Remarks:</span> {req.rejection_remark && req.rejection_remark} {!req.rejection_remark && "No Remarks"}
-    </p>
-
-    <p className="text-sm text-gray-500">
-      <span className="font-medium">Reason:</span> {req.reason || "No reason provided"}
-    </p>
-
-
-  {/* Uploaded Image Button */}
-  <button
-    onClick={() => {
-      setPreviewImages(req.productImages[0]);
-      setmodelNoo(req.model_no);
-    }}
-    className="text-xs text-blue-600 hover:underline mb-3 bg-white"
-  >
-    View Uploaded Image
-  </button>
-
-  {/* Product Info */}
-  {product.product_name && (
-    <>
-      <hr className="my-3 border-gray-200" />
-
-      <div className="space-y-1 text-sm text-gray-700">
-        <p>
-          <span className="font-medium">Product Name:</span>{" "}
-          {product.product_name}
-        </p>
-        <p>
-          <span className="font-medium">Price:</span> ₹{product.product_price}
-        </p>
-      </div>
-    </>
-  )}
-</div>
-
+                </div>
               );
             })
           ) : (
@@ -599,7 +610,6 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
   </div>
 )} */}
 
-
       {/* Warranty Request Form Modal */}
       {showRequestForm && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -607,7 +617,10 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
             <div className="flex justify-between items-center mb-3">
               <h3 className="text-lg font-medium">Raise Warranty Request</h3>
               <button
-                onClick={() => {setShowRequestForm(false);requestForm.reset();}}
+                onClick={() => {
+                  setShowRequestForm(false);
+                  requestForm.reset();
+                }}
                 className="text-gray-400 hover:text-gray-600 bg-white"
               >
                 <svg
@@ -686,7 +699,6 @@ const confirmAndSave = async (payload:any, modelNo:any, isEdit:any, purchase_Id:
                     onChange={handleImageChange}
                     className="w-full border px-4 py-2 rounded-lg"
                   />
-                  
                 </div>
               </div>
               <div>

@@ -104,6 +104,13 @@ class SellerService {
     return res.data;
   }
 
+    async getProductByModelNoNoImage(modelNo: string) {
+    const res = await axios.get(`${PRODUCT_URL}/getProductDetailsByModelNoNoimage`, {
+      params: { Model_no: modelNo },
+    });
+    return res.data;
+  }
+
   async checkEligibility(modelNo: string, checkValue: number) {
     const res = await axios.get(`${PRODUCT_URL}/checkeligibility`, {
       params: { Model_no: modelNo, checkvalue: checkValue },
@@ -134,6 +141,11 @@ async saveInventory(payload: any): Promise<PostResponse> {
     await axios.post(`${BASE_URL}/editinventory`, payload, {
       params: { purchaseId },
     });
+  }
+
+  async postItemStatus(payload: any) {
+    const response =await axios.post(`${PRODUCT_URL}/changeitemstatus`, payload);
+    return response?.data;
   }
 
   async deleteInventory(purchaseId: number) {

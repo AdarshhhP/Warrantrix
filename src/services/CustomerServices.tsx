@@ -13,6 +13,13 @@ class CustomerService {
     return res.data || [];
   }
 
+    async getRegisteredWarrantiesCompany(customerId: number, modelNo = "") {
+    const res = await axios.get(`${this.baseUrl}/warranty-requests-company`, {
+      params: { customerId, modelNo },
+    });
+    return res.data || [];
+  }
+
   async getWarrantyRequests(customerId: number, modelNo = "") {
     const res = await axios.get(
       `${this.baseUrl}/raised-warranty-requests-customer`,
@@ -22,10 +29,15 @@ class CustomerService {
     );
     return res.data || [];
   }
+  
 
   async getProductDetailsByModels(modelNos: string[]) {
     const res = await axios.post(`${this.productUrl}/products/by-models`, modelNos);
     return res.data || [];
+  }
+
+   async changeApprovalStatus(payload: any) {
+    return axios.post(`${this.baseUrl}/change_approval_status`, payload);
   }
 
   async deleteRegisteredWarranty(purchaseId: number) {

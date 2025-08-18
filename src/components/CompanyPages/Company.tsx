@@ -1462,7 +1462,7 @@ const Company = () => {
                         min="0"
                         required
                         className="w-full border h-8 border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
-                        placeholder="Ex:12"
+                        placeholder="Example:12"
                       />
                     </div>
                     <div>
@@ -1475,7 +1475,7 @@ const Company = () => {
                         min="0"
                         required
                         className="w-full border h-8 border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
-                        placeholder="Ex:12"
+                        placeholder="Enter item name"
                       />
                     </div>
                   </div>

@@ -15,6 +15,7 @@ import SellerSoldItems from "./components/Seller/SellerSoldItems";
 import CustomerWarrantyRequests from "./components/Customer/CustomerWarrantyRequests";
 import UserList from "./components/Customer/UserListPage";
 import SerialNoTable from "./components/CompanyPages/SerialNoTable";
+import BatchListPage from "./components/CompanyPages/BatchList";
 import SellerAcknowledge from "./components/Seller/SellerAcknowledge";
 import WarrantyReqApproval from "./components/CompanyPages/WarrantyReqApproval";
 
@@ -52,6 +53,7 @@ const App = () => {
                 <Route path="/seller" element={<Seller />} />
                 <Route path="/customer" element={<Customer />} />
                 <Route path="/customer/warrantyrequests" element={<CustomerWarrantyRequests />} />
+                <Route path="/Batch" element={<BatchListPage/>} />
                 <Route path="/reports/companyreport" element={<CompanyReport />} />
                 <Route path="/reports/companyrequests" element={<CompanyRequests />} />
                 <Route path="/reports/sellerreports" element={<SellerReport />} />

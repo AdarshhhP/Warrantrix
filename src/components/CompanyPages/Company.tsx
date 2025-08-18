@@ -21,6 +21,8 @@ const categories = [
 ];
 
 type Product = {
+  item: string;
+  prod_id: number;
   productSerials: SerialNumber[];
   productImages: string[];
   holderStatus: number;
@@ -58,15 +60,12 @@ export interface BulkUploadResponse {
   successRecords: string[]; // list of successful entries (e.g., product names)
   failedRecords: string[]; // list of failed rows or error messages
 }
-export interface SerialNumber 
-{
-  is_sold: number,
-  model_No: string,
-  prod_id: number,
-  serialNo: string
+export interface SerialNumber {
+  is_sold: number;
+  model_No: string;
+  prod_id: number;
+  serialNo: string;
 }
-
-
 
 const Company = () => {
   const [activeTab, setActiveTab] = useState<"products" | "requests">(
@@ -106,7 +105,7 @@ const Company = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-const navigate=useNavigate();
+  const navigate = useNavigate();
   const companyId = Number(localStorage.getItem("company_id"));
 
   useEffect(() => {
@@ -183,8 +182,9 @@ const navigate=useNavigate();
         model_no: data.model_no,
         company_id: companyId,
         quantity: data.quantity,
+        item: data.item,
       };
-      console.log("Payload to be sent:", payload);
+      console.log(payload,"payload")
       await companyService.postProduct(payload);
       toast("Added Product successfully");
       reset();
@@ -706,7 +706,6 @@ const navigate=useNavigate();
               const foundProduct = products.find((p) =>
                 p.model_no?.includes(previewImageModelNo)
               );
-              console.log(foundProduct, "foundProduct");
 
               return foundProduct &&
                 foundProduct.productImages &&
@@ -982,7 +981,10 @@ const navigate=useNavigate();
 
                   {/* Manufacture Date */}
                   <p className="text-[11px] text-gray-500 flex items-center gap-1">
-                    🗓 Mfg Date: {product.man_date}
+                    🗓 Mfg Date: {product?.man_date}
+                  </p>
+                  <p className="text-[11px] text-gray-500 flex items-center gap-1">
+                    Item : {product?.item}
                   </p>
 
                   {/* View Image Button */}
@@ -1001,12 +1003,15 @@ const navigate=useNavigate();
                     <button
                       className="bg-white text-black h-5 flex justify-between items-center"
                       onClick={() => {
-                       // setserialNumbers(product.productSerials);
-navigate("/serialNo")
-                        localStorage.setItem("serialNumbers", JSON.stringify(product.productSerials));
+                        // setserialNumbers(product.productSerials);
+                        navigate(`/serialNo/${product?.prod_id}`);
+                        localStorage.setItem(
+                          "serialNumbers",
+                          JSON.stringify(product.productSerials)
+                        );
                       }}
                     >
-                      view details
+                      Manage Batches
                     </button>
                   }
                 </div>
@@ -1447,6 +1452,19 @@ navigate("/serialNo")
                         required
                         className="w-full border h-8 border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
                         placeholder="Example:12"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Item
+                      </label>
+                      <input
+                        {...register("item")}
+                        type="text"
+                        min="0"
+                        required
+                        className="w-full border h-8 border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+                        placeholder="Enter item name"
                       />
                     </div>
                   </div>

@@ -22,9 +22,25 @@ class CompanyService {
     return res.data.content || [];
   }
 
+  async fetchSerialData(product_id:number){
+   return axios.get(`${this.baseProductUrl}/getProductDetailsByProductId?productId=${product_id}`)
+  }
+ async changeSerialNoStatuses(payload: any) {
+    return axios.post(`${this.baseProductUrl}/changeserialStatus`, payload);
+  }
+
   async postProduct(payload: any) {
     return axios.post(`${this.baseProductUrl}/postproduct`, payload);
   }
+
+   async postBatch(payload: any) {
+    return axios.post(`${this.baseProductUrl}/api/batch/create`, payload);
+  }
+ async fetchSerialByBatch(BatchNo:string){
+   return axios.get(`${this.baseProductUrl}/api/batch/getSerialByModelNo?BatchNo=${BatchNo}`)
+  }
+  
+
 
   async BulkUploadProduct( file: File,companyId:number) {
   const formData = new FormData();

@@ -21,10 +21,22 @@ class CompanyService {
     });
     return res.data.content || [];
   }
+  async fetchSerialData(productId: number, is_sold: number, page: number, size: number) {
+  const response= axios.get(`${this.baseProductUrl}/not-sold`, {
+    params: {
+      is_sold,
+      page,
+      size,
+      productId
+    }
+  });
+  return response;
+}
 
-  async fetchSerialData(product_id:number){
-   return axios.get(`${this.baseProductUrl}/getProductDetailsByProductId?productId=${product_id}`)
-  }
+
+  // async fetchSerialData(product_id:number){
+  //  return axios.get(`${this.baseProductUrl}/getProductDetailsByProductId?productId=${product_id}`)
+  // }
  async changeSerialNoStatuses(payload: any) {
     return axios.post(`${this.baseProductUrl}/changeserialStatus`, payload);
   }
@@ -41,7 +53,6 @@ class CompanyService {
  async fetchSerialByBatch(BatchNo:string){
    return axios.get(`${this.baseProductUrl}/api/batch/getSerialByModelNo?BatchNo=${BatchNo}`)
   }
-  
 
 
   async BulkUploadProduct( file: File,companyId:number) {

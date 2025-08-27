@@ -38,11 +38,12 @@ const CustomerWarrantyPage = () => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [previewImages, setPreviewImages] = useState<string | null>(null);
   const [modelNoo, setmodelNoo] = useState<string>("");
-
+const [change,setchange]=useState("");
+const [purchase_id,setpurchase_id]=useState<number|null>(null);
   const [modelData, setModelData] = useState<any>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [images, setImages] = useState<File[]>([]);
-
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [loader, setloader] = useState(false);
 
   // const [pendingPayload, setPendingPayload] = useState<any>(null);
@@ -116,17 +117,9 @@ const CustomerWarrantyPage = () => {
   };
 
   useEffect(() => {
-      fetchRegistered();
-      fetchRequests();
-    
+    fetchRegistered();
+    fetchRequests();
   }, []);
-
-  const handleEdit = (item: any) => {
-    setEditItem(item);
-    registerForm.setValue("model_no", item.model_no);
-    registerForm.setValue("purchase_date", item.purchase_date);
-    setShowRegisterForm(true);
-  };
 
   const handleDelete = async (purchaseId: number) => {
     try {
@@ -145,52 +138,10 @@ const CustomerWarrantyPage = () => {
     }
   };
 
-  // const handleRegisterSubmit = async (data: any) => {
-  //   const payload = { ...data, customerId };
-  //   try {
-  //     const eligible = await customerService.checkEligibility(data.model_no, 4);
-  //     if (!eligible&&!editItem) {
-  //       toast.success(
-  //         "You are not eligible to register this product. Please contact support."
-  //       );
-  //       return;
-  //     }
-
-  //     if (editItem) {
-  //       await customerService.editRegisteredWarranty(
-  //         editItem.purchase_Id,
-  //         payload
-  //       );
-  //     } else {
-  //       await customerService.registerWarranty(payload);
-  //       await customerService.updateHolderStatus(data.model_no, 4);
-  //     }
-
-  //     setShowRegisterForm(false);
-  //     setEditItem(null);
-  //     registerForm.reset();
-  //     fetchRegistered();
-  //   } catch (err: any) {
-  //     toast.success(err.response?.data?.message || err.message);
-  //   }
-  // };
-
   const handleRegisterSubmit = async (data: any) => {
     const payload = { ...data, customerId };
 
     try {
-      // const eligible = await customerService.checkEligibility(data.model_no, 4);
-
-      // // If not eligible (and not editing), block immediately
-      // if (!eligible && !editItem) {
-      //   toast.success("You are not eligible to register this product. Please contact support.");
-      //   return;
-      // }
-
-      // Store the payload for later and show confirmation dialog
-      // setPendingPayload({ payload, modelNo: data.model_no, isEdit: !!editItem, purchase_Id: editItem?.purchase_Id });
-      //setShowConfirmModal(true);
-      console.log(data, "aaaaaaaaaaaaaaaaaaaaaa");
       confirmAndSave(
         payload,
         data.model_no,
@@ -269,14 +220,6 @@ const CustomerWarrantyPage = () => {
         product_images: base64Images,
       };
 
-      // const eligible = await customerService.checkEligibility(data.model_no, 5);
-      // if (!eligible) {
-      //   toast.success(
-      //     "You are not eligible to raise a warranty request for this product."
-      //   );
-      //   return;
-      // }
-
       await customerService.raiseWarrantyRequest(payload);
       await customerService.updateHolderStatus(data.model_no, 5);
 
@@ -292,31 +235,33 @@ const CustomerWarrantyPage = () => {
     }
   };
 
-  const handleRaiseRequest = (
-    purchaseId: number,
-    modelNo: string,
-    company_id: string
-  ) => {
-    setModelData(company_id);
-    setShowRequestForm(true);
-    requestForm.setValue("model_no", modelNo);
-  };
-
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setImages(Array.from(e.target.files));
     }
   };
 
-  const handleApprovalChange=(e:any,purchase_id:number)=>{
-    const approvalvalue=e.target.value;
+  const handleApprovalChange = () => {
     const payload = {
-           purchase_id: purchase_id,
-          approval_status: approvalvalue
+      purchase_id: purchase_id,
+      approval_status: change,
+    };
+    if (change) {
+      customerService.changeApprovalStatus(payload).then((response)=>{
+        if(response?.data?.statusCode==200){
+          toast("Warranty Request Responded");
+          setShowConfirmModal(false);
+        }
+      })
     }
-if(approvalvalue){
-    customerService.changeApprovalStatus(payload);
-}
+  };
+
+
+  const changehandleApprovalChange=(e: any, purchase_id: number)=>{
+        const approvalvalue = e.target.value;
+setpurchase_id(purchase_id);
+setchange(approvalvalue);
+    setShowConfirmModal(true);
 
   }
 
@@ -326,6 +271,32 @@ if(approvalvalue){
       <h1 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-6">
         Registered Products
       </h1>
+
+       {showConfirmModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
+            <p className="mb-4 text-gray-800">
+              Are you sure you want to save the changes?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={handleApprovalChange}
+                className="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => {
+                  setShowConfirmModal(false);
+                }}
+                className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
@@ -390,7 +361,6 @@ if(approvalvalue){
           {registered.length > 0 ? (
             registered.map((item) => {
               const product = productDetailsMap[item.model_no] || {};
-              console.log(product, item, "aaaaaaaaa");
               return (
                 <div
                   key={item.purchase_Id}
@@ -423,15 +393,6 @@ if(approvalvalue){
                       <p className="text-sm">
                         Warranty: {product.warrany_tenure} months
                       </p>
-                      <p>
-                        <select className="bg-stone-200" onChange={(e)=>handleApprovalChange(e,item.purchase_Id)}
-                          defaultValue={item?.companyapprovalstatus}
-                          >
-                            <option value="">Change Status</option>
-                              <option value="1">Approve</option>
-                              <option value="2">Reject</option>
-                        </select>
-                      </p>
 
                       {product.productImages &&
                       product.productImages.length > 0 ? (
@@ -453,26 +414,6 @@ if(approvalvalue){
                             title="view more"
                             className="text-gray-600 hover:text-gray-800 bg-white text-sm p-2 flex items-center justify-center transition duration-200 ease-in-out"
                           >
-                            {/* <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                              />
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                              />
-                            </svg> */}
                             <span className="text-sm font-medium text-blue-700 ">
                               View More
                             </span>
@@ -483,69 +424,21 @@ if(approvalvalue){
                           No images
                         </span>
                       )}
+                      <p>
+                        <select
+                          className="bg-stone-200 rounded-md p-1"
+                          onChange={(e) =>
+                            changehandleApprovalChange(e, item.purchase_Id)
+                          }
+                          defaultValue={item?.companyapprovalstatus || ""}
+                        >
+                          <option value="">Pending</option>
+                          <option value="1">Approve</option>
+                          <option value="2">Reject</option>
+                        </select>
+                      </p>
                     </>
                   )}
-
-                  <div className="flex space-x-2 mt-3">
-                    <button
-                      onClick={() => handleEdit(item)}
-                      className="text-white hover:text-gray-900 p-1 rounded hover:bg-blue-100"
-                      title="Edit"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                        />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setDeleteId(item.purchase_Id);
-                        setShowDeleteConfirm(true);
-                      }}
-                      className="text-white hover:text-red-600 p-1 rounded hover:bg-blue-100"
-                      title="Delete"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                    </button>
-                    {item.companyapprovalstatus == 1 && (
-                      <button
-                        disabled={item.companyapprovalstatus == 0}
-                        onClick={() =>
-                          handleRaiseRequest(
-                            item.purchase_Id,
-                            item.model_no,
-                            product.company_id
-                          )
-                        }
-                        className="text-xs bg-teal-500 hover:bg-teal-700 text-white px-2 py-1 rounded"
-                      >
-                        Request
-                      </button>
-                    )}
-                  </div>
                 </div>
               );
             })

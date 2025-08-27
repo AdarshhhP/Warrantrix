@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import companyService from "../../services/CompanyServices";
-
+ 
 const SerialNumbersPage = () => {
   const navigate = useNavigate();
   const [unsoldSerials, setUnsoldSerials] = useState<SerialNumber[]>([]);
@@ -28,12 +28,12 @@ const SerialNumbersPage = () => {
   const [activeTab, setActiveTab] = useState<"unsold" | "sold">("unsold");
   const [isLoading, setIsLoading] = useState(true);
   const params = useParams();
-
+ 
   useEffect(() => {
     if (params.prod_id !== undefined) {
       const productId = parseInt(params.prod_id);
       setIsLoading(true);
-      
+     
       // Fetch unsold serials (is_sold = 0)
       companyService.fetchSerialData(productId, 0, 0, 100)
         .then((response) => {
@@ -41,7 +41,7 @@ const SerialNumbersPage = () => {
           setProductid(productId);
           setModelNo(response.data.content[0]?.model_No || "");
         });
-
+ 
       // Fetch sold serials (is_sold = 1)
       companyService.fetchSerialData(productId, 1, 0, 100)
         .then((response) => {
@@ -52,7 +52,7 @@ const SerialNumbersPage = () => {
         });
     }
   }, [params, refetch]);
-
+ 
   const toggleSelectSerial = (id: string) => {
     setSelectedSerials((prev) => {
       const newSet = new Set(prev);
@@ -64,31 +64,31 @@ const SerialNumbersPage = () => {
       return newSet;
     });
   };
-
+ 
   const handleCreateBatch = () => {
     const array = Array.from(selectedSerials);
-
+ 
     // Update serial statuses to sold
     const payload2 = {
       prod_id: productid,
       sold_status: 1,
       serialNos: array,
     };
-
+ 
     companyService.changeSerialNoStatuses(payload2).then(() => {
       // Create the batch
       const payload = {
         modelNo: modelNo,
         serialNumbers: array,
       };
-
+ 
       companyService.postBatch(payload).then(() => {
         setRefetch(!refetch);
         setSelectedSerials(new Set());
       });
     });
   };
-
+ 
   const columns: ColumnDef<SerialNumber>[] = [
     {
       id: "select",
@@ -163,14 +163,14 @@ const SerialNumbersPage = () => {
       ),
     },
   ];
-
+ 
   const currentData = activeTab === "unsold" ? unsoldSerials : soldSerials;
   const table = useReactTable({
     data: currentData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
-
+ 
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -178,19 +178,19 @@ const SerialNumbersPage = () => {
       </div>
     );
   }
-
+ 
   return (
     <div className="container mx-auto px-4 py-8 bg-stone-200 h-full">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Manage Batches</h1>
         <button
           onClick={() => navigate(-1)}
-          className="px-4 py-2 hover:bg-gray-300 rounded-md transition-colors bg-stone-600 h-8 flex justify-center items-center"
+          className="text-black bg-transparent text-lg"
         >
-          Back
+          ←
         </button>
       </div>
-
+ 
       {/* Tabs */}
       <div className="flex mb-4 border-b border-gray-200 gap-2">
         <button
@@ -214,7 +214,7 @@ const SerialNumbersPage = () => {
           Sold Items
         </button>
       </div>
-
+ 
       {currentData.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500 text-lg">
@@ -240,7 +240,7 @@ const SerialNumbersPage = () => {
               )}
             </div>
           )}
-
+ 
           <div className="rounded-md border bg-white text-black">
             <Table>
               <TableHeader className="bg-stone-300 rounded-md p-1">
@@ -294,5 +294,6 @@ const SerialNumbersPage = () => {
     </div>
   );
 };
-
+ 
 export default SerialNumbersPage;
+ 

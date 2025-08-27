@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import { Toaster } from "../../components/ui/sonner";
 import Loader from "../Loader/Loader";
 import companyService from "../../services/CompanyServices";
-import { useNavigate } from "react-router-dom";
 
 export interface ProductDetails {
   productSerials: ProductSerial[];
@@ -52,10 +51,8 @@ export interface SerialData {
   serialNo: string;
 }
 
-const Seller = () => {
-  const [activeTab, setActiveTab] = useState<"inventory" | "purchases">(
-    "inventory"
-  );
+const SellerDetailedPage = () => {
+  const [activeTab] = useState<"inventory" | "purchases">("inventory");
   const [inventory, setInventory] = useState<any[]>([]);
   const [selecteddataModelNo, setselecteddataModelNo] = useState<any[]>([]);
   const [purchases, setPurchases] = useState<any[]>([]);
@@ -70,10 +67,10 @@ const Seller = () => {
   const [inventoryModelValid, setInventoryModelValid] = useState(false);
   const [purchaseModelValid, setPurchaseModelValid] = useState(false);
   const sellerId = Number(localStorage.getItem("seller_id"));
-  const [categoryIds, setCategoryIds] = useState<number | "">("");
-  const [modelNoss, setModelNos] = useState<string>("");
-  const [warrantys, setWarrantys] = useState<number | "">("");
-  const [modelnopurchase, setModelNoPurchase] = useState<string>("");
+  const [categoryIds] = useState<number | "">("");
+  const [modelNoss] = useState<string>("");
+  const [warrantys] = useState<number | "">("");
+  const [modelnopurchase] = useState<string>("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [bulkuploadb, setbulkUploadb] = useState(false);
   const [bulkFileb, setBulkFileb] = useState<File | null>(null);
@@ -94,11 +91,11 @@ const Seller = () => {
     statusCode?: number;
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const navigate = useNavigate();
+
   const inventoryForm = useForm();
   const purchaseForm = useForm();
 
-  const fetchInventory = async (x?: any) => {
+  const fetchInventory = async () => {
     setloader(true);
     const data = await SellerService.fetchInventory(
       sellerId,
@@ -106,19 +103,15 @@ const Seller = () => {
       modelNoss,
       warrantys
     );
-
-    if (x) {
-      console.log(x,"leoooooooooooooooooooo")
-      localStorage.setItem("model_noforfetch",x)
-      const filteredData = data.filter((item: any) => item.model_no === x);
+    const reqmodelno = localStorage.getItem("model_noforfetch");
+    console.log(reqmodelno, "adarskkksss");
+    if (reqmodelno) {
+      const filteredData = data.filter(
+        (item: any) => item.model_no === reqmodelno
+      );
       setselecteddataModelNo(filteredData);
-      navigate("/sellerdetailedpage");
+      setInventory(filteredData);
     }
-    const uniqueModels = data.filter(
-      (item: any, index: any, self: any) =>
-        index === self.findIndex((t: any) => t.model_no === item.model_no)
-    );
-    setInventory(uniqueModels);
     enrichWithProductDetails(data.map((i: any) => i.model_no));
   };
 
@@ -133,7 +126,8 @@ const Seller = () => {
     setProductDetailsMap((prev) => ({ ...prev, ...details }));
     setloader(false);
   };
-
+  const reqmodelno = localStorage.getItem("model_noforfetch");
+  console.log(reqmodelno, "adarskkksss yoooooooooooooooo");
   useEffect(() => {
     if (sellerId) {
       fetchInventory();
@@ -194,12 +188,60 @@ const Seller = () => {
     }
   };
 
+  const fetchModelDetailsByModelNo = async (
+    model_no: string,
+    formType: "inventory" | "purchase"
+  ) => {
+    try {
+      const prod = await SellerService.getProductByModelNo(model_no);
+      if (!prod || !prod.model_no) {
+        // toast("Invalid model number");
+        toast("Invalid model number");
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        formType === "inventory"
+          ? setInventoryModelValid(false)
+          : setPurchaseModelValid(false);
+        return;
+      }
+
+      console.log(prod, "aaaaaaaaaaaaaaaaaaeeeeeeeeeeeeee");
+
+      if (formType === "inventory") {
+        inventoryForm.setValue("price", prod.product_price);
+        inventoryForm.setValue("warranty", prod.warrany_tenure);
+        inventoryForm.setValue("batch_no,prod", prod.addedbatch_no);
+        inventoryForm.setValue("company_id", prod.company_id);
+        inventoryForm.setValue("model_no", prod.model_no);
+        inventoryForm.setValue("category_id", prod.product_category);
+        inventoryForm.setValue("holderStatus", prod.holderStatus);
+        setInventoryModelValid(true);
+      } else {
+        purchaseForm.setValue("price", prod.product_price);
+        purchaseForm.setValue("warranty", prod.warrany_tenure);
+        purchaseForm.setValue("modelNo", prod.model_no);
+
+        //adarsh here
+        //purchaseForm.setValue("batch_number",AddBAtch);
+        purchaseForm.setValue("company_id", prod.company_id);
+        purchaseForm.setValue("category_id", prod.product_category);
+        inventoryForm.setValue("holderStatus", prod.holderStatus);
+        setPurchaseModelValid(true);
+      }
+    } catch (err) {
+      console.error(err);
+      toast("Error fetching model details");
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      formType === "inventory"
+        ? setInventoryModelValid(false)
+        : setPurchaseModelValid(false);
+    }
+  };
+
   const handleInventorySubmit = async (data: any) => {
     if (!inventoryModelValid) {
       toast("Please fetch & validate model number first.");
       return;
     }
-    console.log(data,"faf du")
     const serial_noToPayload = serialData.map((item) => item.serialNo);
     const Payload = {
       modelNo: data.model_no,
@@ -222,7 +264,6 @@ const Seller = () => {
       model_no: data.model_no,
       category_id: data.category_id,
       serial_no: serialData.map((item) => item.serialNo),
-      addedbatch_no:data.batch_no
     };
 
     try {
@@ -230,13 +271,13 @@ const Seller = () => {
         await SellerService.editInventory(editingItem.purchase_id, payload);
         setEditingItem(null);
       } else {
-        // const eligible = await SellerService.checkEligibility(data.model_no, 2);
-        // if (!eligible) {
-        //   toast(
-        //     "Model number is not eligible for inventory. Please check the model number or contact support."
-        //   );
-        //   return;
-        // }
+        const eligible = await SellerService.checkEligibility(data.model_no, 2);
+        if (!eligible) {
+          toast(
+            "Model number is not eligible for inventory. Please check the model number or contact support."
+          );
+          return;
+        }
 
         await SellerService.changeHolderStatus(data.model_no, 2).then(
           (response: PostResponse) => {
@@ -279,6 +320,7 @@ const Seller = () => {
       phono: data.phono,
       email: data.email,
       serialNo: data.serial_no,
+      batchNo:data.batch_number
     };
 
     try {
@@ -337,9 +379,21 @@ const Seller = () => {
     }
   };
 
+  const deleteInventory = async (id: number) => {
+    await SellerService.deleteInventory(id);
+    fetchInventory();
+  };
+
   const deletePurchase = async (id: number) => {
     await SellerService.deletePurchase(id);
     fetchPurchases();
+  };
+
+  const showEditOption = (item: any) => {
+    setShowPurchaseForm(true);
+    purchaseForm.setValue("model_no", item.model_no);
+    purchaseForm.setValue("serial_no", item.serial_no);
+    fetchModelDetailsByModelNo(item.model_no, "purchase");
   };
 
   const handleBulkUploadb = () => {
@@ -498,16 +552,17 @@ const Seller = () => {
         toast("Please check the console for details.");
       });
   };
+
   return (
     <div className="p-4 md:p-6 mx-auto space-y-6 bg-stone-200 min-h-screen text-gray-900 max-w-7xl">
-      <h1 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-6">
-        Inventory
+      <h1 className="text-xl md:text-3xl font-bold text-center text-gray-900 mb-6">
+        Items({reqmodelno})
       </h1>
       <Toaster />
 
       {/* Tabs */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-        <div className="flex space-x-2">
+        {/* <div className="flex space-x-2">
           <button
             onClick={() => setActiveTab("inventory")}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
@@ -518,17 +573,7 @@ const Seller = () => {
           >
             Inventory
           </button>
-          <button
-            onClick={() => setActiveTab("purchases")}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
-              activeTab === "purchases"
-                ? "bg-teal-500 text-white shadow"
-                : "bg-white border border-gray-200 text-gray-700 hover:bg-teal-50"
-            }`}
-          >
-            Sold Items
-          </button>
-        </div>
+        </div> */}
 
         {bulkuploadmode && (
           <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex justify-center items-center z-50">
@@ -665,110 +710,6 @@ const Seller = () => {
             </div>
           </div>
         )}
-
-        {/* Filters and Add Buttons */}
-        <div className="w-full md:w-auto">
-          {activeTab === "inventory" ? (
-            <div className="flex flex-col md:flex-row md:items-center gap-2 w-full">
-              <div className="flex flex-wrap gap-2">
-                <button
-                  className=" text-white flex text-center items-center bg-teal-500 h-8"
-                  onClick={() => setBulkUpload(true)}
-                >
-                  Sell in Bulk
-                </button>
-                <input
-                  type="text"
-                  placeholder="Model No"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      fetchInventory();
-                    }
-                  }}
-                  className="p-2 border border-gray-200 h-8 rounded-md text-sm w-32 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
-                  value={modelNoss}
-                  onChange={(e) => setModelNos(e.target.value)}
-                />
-                <input
-                  type="number"
-                  min={0}
-                  placeholder="Warranty"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      fetchInventory();
-                    }
-                  }}
-                  className="p-2 border h-8 border-gray-200 rounded-md text-sm w-28 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
-                  value={warrantys || ""}
-                  onChange={(e) =>
-                    setWarrantys(
-                      e.target.value === "" ? "" : Number(e.target.value)
-                    )
-                  }
-                />
-                <select
-                  onChange={(e) =>
-                    setCategoryIds(
-                      e.target.value === "" ? "" : Number(e.target.value)
-                    )
-                  }
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      fetchInventory();
-                    }
-                  }}
-                  value={categoryIds || ""}
-                  className="px-2 border border-gray-200 rounded-md h-8 text-sm w-36 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
-                >
-                  <option value="">Select Category</option>
-                  <option value="1">Electronics</option>
-                  <option value="2">Plastic</option>
-                  <option value="3">Wood</option>
-                  <option value="4">Metal</option>
-                </select>
-                <button
-                  onClick={fetchInventory}
-                  className="bg-teal-500 hover:bg-teal-700 h-8 flex items-center justify-center text-white px-3 py-2 rounded-md shadow-sm text-sm whitespace-nowrap"
-                >
-                  Search
-                </button>
-              </div>
-
-              <button
-                onClick={() => {
-                  setEditingItem(null);
-                  inventoryForm.reset();
-                  setInventoryModelValid(false);
-                  setShowInventoryForm(true);
-                }}
-                className="bg-teal-500 hover:bg-teal-700 h-8 flex items-center justify-center text-white px-4 py-2 rounded-md shadow text-sm whitespace-nowrap"
-              >
-                + Add Item
-              </button>
-            </div>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              <input
-                type="text"
-                placeholder="Model No"
-                className="px-2 border border-gray-200 rounded-md text-sm w-40 focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black h-8"
-                value={modelnopurchase}
-                onChange={(e) => setModelNoPurchase(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    fetchPurchases();
-                  }
-                }}
-              />
-              <button
-                onClick={fetchPurchases}
-                className="bg-teal-500 hover:bg-teal-700 text-white px-3 py-2 rounded-md shadow-sm text-sm h-8 flex items-center justify-center"
-              >
-                Search
-              </button>
-            </div>
-          )}
-        </div>
       </div>
 
       {previewImage && (
@@ -843,24 +784,29 @@ const Seller = () => {
           {inventory?.length > 0 ? (
             inventory?.map((item) => {
               const prod = productDetailsMap[item.model_no] || {};
+              console.log(inventory, "prod");
+              const findSerialStatus = (serialNo: string) => {
+                // Check if productSerials exists and is an array before using find()
+                return prod.productSerials?.find(
+                  (item) => item.serialNo === serialNo
+                )?.itemsStatus;
+              };
 
+              const itemStatus = findSerialStatus(item.serial_no);
               return (
                 <div
                   key={item.purchase_id}
-                  className="bg-white border cursor-pointer hover:shadow-lg border-gray-200 rounded-lg p-2 shadow-sm hover:bg-stone-50 transition-shadow"
-                  onClick={() => {
-                    fetchInventory(prod.model_no);
-                  }}
+                  className="bg-white border border-gray-200 rounded-lg p-2 shadow-sm hover:shadow-md transition-shadow"
                 >
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="font-semibold text-gray-900 flex flex-row ">
                       <p className="flex text-sm text-gray-600 items-center justify-center">
                         Product :{" "}
                       </p>{" "}
-                      {prod.product_name || "Unknown Product"}
+                      {prod?.product_name || "Unknown Product"}
                     </h3>
                     <span className="text-xs bg-teal-100 text-gray-700 px-2 py-1 rounded">
-                      {prod.model_no}
+                      {item?.serial_no}
                     </span>
                   </div>
 
@@ -881,6 +827,10 @@ const Seller = () => {
                       <span>Purchase Date:</span>
                       <span>{item.purchase_date}</span>
                     </div>
+                    <div className="flex justify-between">
+                      <span>Added From Batch</span>
+                      <span>{item.addedbatch_no}</span>
+                    </div>
                   </div>
 
                   <div className="flex flex-row">
@@ -895,19 +845,110 @@ const Seller = () => {
                     <div className="flex flex-col">
                       {prod.productImages && (
                         <button
-                          type="button"
-                          onClick={(e) => {
-                            setPreviewImage(prod.productImages[0]);
-                            e.preventDefault();
-                            e.stopPropagation();
-                          }}
+                          onClick={() => setPreviewImage(prod.productImages[0])}
                           className="mt-2 text-xs text-blue-600 bg-white h-8"
                         >
-                          More Images
+                          View Image
                         </button>
                       )}
                     </div>
-                  </div>               
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
+                    <span
+                      className={`text-xs px-2 py-1 rounded ${
+                        itemStatus === 2
+                          ? "bg-green-100 text-green-800"
+                          : itemStatus === 3
+                          ? "bg-red-100 text-red-800"
+                          : "bg-teal-100 text-gray-800"
+                      }`}
+                    >
+                      {itemStatus === 2
+                        ? "Available"
+                        : itemStatus === 3
+                        ? "Sold"
+                        : itemStatus === 4
+                        ? "Customer Registered"
+                        : itemStatus === 5
+                        ? "Raised Warranty Request"
+                        : "Unknown Status"}
+                    </span>
+
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => {
+                          setEditingItem(item);
+                          inventoryForm.reset(item);
+                          setInventoryModelValid(true);
+                          setShowInventoryForm(true);
+                        }}
+                        className="text-white hover:text-gray-900 p-1 rounded bg-teal-700"
+                        title="Edit"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => deleteInventory(item.purchase_id)}
+                        className="text-white hover:text-red-600 p-1 rounded bg-teal-700"
+                        title="Delete"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => {
+                          showEditOption(item);
+                          purchaseForm.setValue(
+                            "batch_number",
+                            item.addedbatch_no
+                          );
+                        }}
+                        className="text-white hover:text-green-600 p-1 rounded bg-teal-700"
+                        title="Mark Sold"
+                        disabled={itemStatus !== 2}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               );
             })
@@ -1390,20 +1431,32 @@ const Seller = () => {
                   />
                 </div>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Selling Date
-                </label>
-                <input
-                  {...purchaseForm.register("purchase_date")}
-                  type="date"
-                  required
-                  max={new Date().toISOString().split("T")[0]}
-                  className="w-full px-2 h-8 border bg-teal-200 text-black border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
-                />
+              <div className="flex flex-row justify-between">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Batch No
+                  </label>
+                  <input
+                    {...purchaseForm.register("batch_number")}
+                    placeholder="Model No"
+                    required
+                    disabled
+                    className="w-full px-2 h-8 border border-gray-300 rounded-md bg-white text-black"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Selling Date
+                  </label>
+                  <input
+                    {...purchaseForm.register("purchase_date")}
+                    type="date"
+                    required
+                    max={new Date().toISOString().split("T")[0]}
+                    className="w-full px-2 h-8 border bg-teal-200 text-black border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  />
+                </div>
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Customer Name
@@ -1462,4 +1515,4 @@ const Seller = () => {
   );
 };
 
-export default Seller;
+export default SellerDetailedPage;

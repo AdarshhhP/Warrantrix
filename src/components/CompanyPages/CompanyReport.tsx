@@ -4,6 +4,8 @@
 import React, { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import companyService from "../../services/CompanyServices";
+import { toast } from "sonner";
+import { Toaster } from "../../components/ui/sonner";
 
 type Product = {
   holderStatus: number;
@@ -55,6 +57,11 @@ const CompanyReport = () => {
   const [requestPage, setRequestPage] = useState(0);
   const [requestSize, setrequestSize] = useState(5);
   const [totalRequestPages, setTotalRequestPages] = useState(1);
+  const [remarksmode, setremarksmode] = useState(false);
+  const [statuss, setstatuss] = useState("");
+  const [requestId, setRequestId] = useState(0);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [remarks, setRemarks] = useState("");
 
   const loadProducts = async () => {
     try {
@@ -153,17 +160,77 @@ const CompanyReport = () => {
     loadRequests();
   }, [size]);
 
-  console.log(size, "hahahha");
+  const handleStatusChange = async (status: any, requestId: number) => {
+    setstatuss(status);
+    setRequestId(requestId);
+    //setShowConfirmModal(true);
+  };
 
+  const confirmAndSave = async () => {
+    try {
+      await companyService
+        .updateWarrantyStatus(requestId, statuss, remarks)
+        .then((response) => {
+          if (response.data.statusCode === 200) {
+            // toast({
+            //   type: "success",
+            //   title: "Status updated successfully",
+            // });
+            toast("Status updated successfully");
+            setShowConfirmModal(false);
+            setstatuss(""); // Clear status after successful update
+            setRequestId(0); // Reset requestId
+            setRemarks(""); // Clear remarks after successful update
+            setremarksmode(false);
+          }
+        });
+      loadRequests();
+    } catch (err: any) {
+      //  alert("Failed to update status: " + err.message);
+      // toast({
+      //       type: "success",
+      //       title: "Failed to update status: " + err.message,
+      //     });
+      toast("Failed to update status:  " + err.message);
+      setShowConfirmModal(false);
+    }
+  };
   return (
     <div className="p-6 bg-stone-200 h-full text-black space-y-8">
+      <Toaster />
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
+            <p className="mb-4 text-gray-800">
+              Are you sure you want to save the changes?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={confirmAndSave}
+                className="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => {
+                  setShowConfirmModal(false);
+                }}
+                className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
         <button
           onClick={handleDownload}
           className="flex items-center bg-teal-600 h-8 text-white text-sm px-4 py-2 rounded-md hover:bg-gray-800 transition"
         >
-          Download Excel
+          Download as Excel
         </button>
       </div>
 
@@ -197,10 +264,10 @@ const CompanyReport = () => {
               type="text"
               onChange={(e) => setAmodelNo(e.target.value)}
               onKeyDown={(e) => {
-      if (e.key === 'Enter') {
-        loadRequests();
-      }
-    }}
+                if (e.key === "Enter") {
+                  loadRequests();
+                }
+              }}
               placeholder="Model No"
               className="text-gray-900 placeholder-gray-900 border border-gray-700 rounded px-3 py-1 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
             />
@@ -248,11 +315,11 @@ const CompanyReport = () => {
               type="text"
               onChange={(e) => setModelNo(e.target.value)}
               placeholder="Model No"
-               onKeyDown={(e) => {
-      if (e.key === 'Enter') {
-        loadProducts();
-      }
-    }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  loadProducts();
+                }
+              }}
               className="text-gray-900 placeholder-gray-900 border border-gray-700 rounded px-3 py-1 w-48 focus:outline-none focus:ring-1 focus:ring-gray-500 bg-white"
             />
 
@@ -411,60 +478,157 @@ const CompanyReport = () => {
 
       {activeTab === "requests" && (
         <div>
-        <div className="border border-gray-300 shadow-sm flex flex-col justify-between min-h-[215px] overflow-x-auto max-h-[300px]">
-          <table className="min-w-full table-auto text-sm text-left text-gray-800 max-h-[215px] bg-white">
-            <thead className="bg-gray-100 sticky top-0 z-10 text-gray-900">
-              <tr>
-                <th className="px-4 py-1 border">Sl.No</th>
-                <th className="px-4 py-1 border">Model No</th>
-                <th className="px-4 py-1 border">Customer Name</th>
-                <th className="px-4 py-1 border">Email</th>
-                <th className="px-4 py-1 border">Phone</th>
-                <th className="px-4 py-1 border">Request Reason</th>
-                <th className="px-4 py-1 border">Respone Message</th>
-                <th className="px-4 py-1 border">Request Date</th>
-                <th className="px-4 py-1 border">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {requests.length === 0 ? (
+          <div className="border border-gray-300 shadow-sm flex flex-col justify-between min-h-[215px] overflow-x-auto max-h-[300px]">
+            <table className="min-w-full table-auto text-sm text-left text-gray-800 max-h-[215px] bg-white">
+              <thead className="bg-gray-100 sticky top-0 z-10 text-gray-900">
                 <tr>
-                  <td colSpan={7} className="text-center py-4 text-gray-500">
-                    No warranty requests found.
-                  </td>
+                  <th className="px-4 py-1 border">Sl.No</th>
+                  <th className="px-4 py-1 border">Model No</th>
+                  <th className="px-4 py-1 border">Customer Name</th>
+                  <th className="px-4 py-1 border">Email</th>
+                  <th className="px-4 py-1 border">Phone</th>
+                  <th className="px-4 py-1 border">Request Reason</th>
+                  <th className="px-4 py-1 border">Respone Message</th>
+                  <th className="px-4 py-1 border">Request Date</th>
+                  <th className="px-4 py-1 border">Status</th>
                 </tr>
-              ) : (
-                requests.map((req, index) => (
-                  <tr
-                    key={req.warranty_request_id}
-                    className="hover:bg-gray-50 border-t"
-                  >
-                    <td className="px-4 py-2 border">
-                      {requestPage * requestSize + index + 1}
-                    </td>
-                    <td className="px-4 py-2 border">{req.model_no}</td>
-                    <td className="px-4 py-2 border">{req.customer_name}</td>
-                    <td className="px-4 py-2 border">{req.customer_email}</td>
-                    <td className="px-4 py-2 border">{req.phone_number}</td>
-                    <td className="px-4 py-2 border">{req.reason}</td>
-                    <td className="px-4 py-2 border">{req.rejection_remark||"Not Responded"}</td>
-                    <td className="px-4 py-2 border">{req.request_date}</td>
-                    <td className="px-4 py-2 border font-medium text-gray-700">
-                      {
-                        ["", "Pending", "Approved", "Rejected"][
-                          req.warranty_status
-                        ]
-                      }
+              </thead>
+              <tbody>
+                {requests.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-4 text-gray-500">
+                      No warranty requests found.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  requests.map((req, index) => (
+                    <tr
+                      key={req.warranty_request_id}
+                      className="hover:bg-gray-50 border-t"
+                    >
+                      <td className="px-4 py-2 border">
+                        {requestPage * requestSize + index + 1}
+                      </td>
+                      <td className="px-4 py-2 border">{req.model_no}</td>
+                      <td className="px-4 py-2 border">{req.customer_name}</td>
+                      <td className="px-4 py-2 border">{req.customer_email}</td>
+                      <td className="px-4 py-2 border">{req.phone_number}</td>
+                      <td className="px-4 py-2 border">{req.reason}</td>
+                      <td className="px-4 py-2 border">
+                        {req.rejection_remark || "Not Responded"}
+                      </td>
+                      <td className="px-4 py-2 border">{req.request_date}</td>
+                      <td
+                        className="px-4 py-2 border font-medium text-gray-700 cursor-pointer"
+                        title="Change status"
+                        onClick={() => setremarksmode(true)}
+                      >
+                        {
+                          ["", "Pending", "Approved", "Rejected"][
+                            req.warranty_status
+                          ]
+                        }
+                      </td>
+                      {remarksmode && (
+                        <div className="fixed inset-0 bg-black/10 flex justify-center items-center z-40">
+                          <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+                            <button
+                              onClick={() => setremarksmode(false)}
+                              className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 transition-colors bg-white"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-6 w-6 text-gray-500"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
+                              </svg>
+                            </button>
 
-          
-        </div>
-         <div className="flex justify-center items-center gap-2 pb-2 bg-white pt-2">
+                            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                              Warranty Request Action
+                            </h3>
+
+                            <div className="space-y-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Remarks{" "}
+                                  {!remarks.trim() && (
+                                    <span className="text-red-500">*</span>
+                                  )}
+                                </label>
+                                <textarea
+                                  value={remarks}
+                                  onChange={(e) => setRemarks(e.target.value)}
+                                  placeholder="Enter your remarks..."
+                                  className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 h-24 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                                  autoFocus
+                                />
+                                {!remarks.trim() && (
+                                  <p className="mt-1 text-sm text-red-500">
+                                    Remarks are required before changing status
+                                  </p>
+                                )}
+                              </div>
+
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Status
+                                </label>
+                                <select
+                                disabled={remarks==""}
+                                  defaultValue={req.warranty_status}
+                                  onChange={(e) => {
+                                    if (remarks.trim() === "") {
+                                      toast("Please enter remarks first");
+                                      return;
+                                    }
+                                    handleStatusChange(
+                                      Number(e.target.value),
+                                      req.warranty_request_id
+                                    );
+                                    //setremarksmode(false);
+                                  }}
+                                  className={`w-full border px-3 py-2 border-amber-200 bg-amber-50 rounded-lg font-medium focus:ring-2 focus:ring-blue-500 outline-none transition  ${
+                                    !remarks.trim()
+                                      ? "opacity-70 cursor-not-allowed"
+                                      : "cursor-pointer"
+                                  }`}
+                                >
+                                  <option value="1" disabled>
+                                    Pending
+                                  </option>
+                                  <option value="2">Approved</option>
+                                  <option value="3">Rejected</option>
+                                </select>
+                                <div className="flex w-full justify-end text-white">
+                                <button onClick={()=>{
+                                  setShowConfirmModal(true);
+                                }}
+                                className="bg-stone-600 mt-2"
+                                >
+                                  submit
+                                </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex justify-center items-center gap-2 pb-2 bg-white pt-2">
             <button
               onClick={() => setRequestPage((prev) => Math.max(prev - 1, 0))}
               disabled={requestPage === 0}
@@ -486,7 +650,7 @@ const CompanyReport = () => {
             >
               Next
             </button>
-             <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
               <select
                 className="bg-white border border-gray-300 rounded text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500"
                 onChange={(e) => PageSizeChange(e.target.value)}

@@ -34,7 +34,7 @@ const SerialNumbersPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
   const params = useParams();
-  
+
   useEffect(() => {
     if (params.prod_id !== undefined) {
       const productId = parseInt(params.prod_id);
@@ -74,39 +74,39 @@ const SerialNumbersPage = () => {
   const handleCreateBatch = () => {
     setShowConfirm(true);
   };
-const confirmCreateBatch = async () => {
-  try {
-    const array = Array.from(selectedSerials);
+  const confirmCreateBatch = async () => {
+    try {
+      const array = Array.from(selectedSerials);
 
-    // Update serial statuses to sold
-    const payload2 = {
-      prod_id: productid,
-      sold_status: 1,
-      serialNos: array,
-    };
+      // Update serial statuses to sold
+      const payload2 = {
+        prod_id: productid,
+        sold_status: 1,
+        serialNos: array,
+      };
 
-    await companyService.changeSerialNoStatuses(payload2);
-    
-    // Create the batch
-    const payload = {
-      modelNo: modelNo,
-      serialNumbers: array,
-    };
+      await companyService.changeSerialNoStatuses(payload2);
 
-    await companyService.postBatch(payload).then(async ()=>{
-       setRefetch(!refetch);
-    })
-    
- setTimeout(() => {
-      toast.success("Batch created successfully!");
-    }, 300);
-        setSelectedSerials(new Set());
-    setShowConfirm(false);
-  } catch (error) {
-    console.error("Error creating batch:", error);
-    toast.error("Failed to create batch");
-  }
-};
+      // Create the batch
+      const payload = {
+        modelNo: modelNo,
+        serialNumbers: array,
+      };
+
+      await companyService.postBatch(payload).then(async () => {
+        setRefetch(!refetch);
+      });
+
+      setTimeout(() => {
+        toast.success("Batch created successfully!");
+      }, 300);
+      setSelectedSerials(new Set());
+      setShowConfirm(false);
+    } catch (error) {
+      console.error("Error creating batch:", error);
+      toast.error("Failed to create batch");
+    }
+  };
 
   const columns: ColumnDef<SerialNumber>[] = [
     {
@@ -135,10 +135,10 @@ const confirmCreateBatch = async () => {
       accessorKey: "serialNo",
       header: "Serial Number",
     },
-    {
-      accessorKey: "model_No",
-      header: "Model",
-    },
+    // {
+    //   accessorKey: "model_No",
+    //   header: "Model",
+    // },
     // {
     //   id: "status",
     //   header: "Batch Status",
@@ -194,7 +194,6 @@ const confirmCreateBatch = async () => {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500">
-
           g
         </div>
       </div>
@@ -203,7 +202,7 @@ const confirmCreateBatch = async () => {
 
   return (
     <div className="container mx-auto px-4 py-8 bg-stone-200 h-full">
-                        <Toaster />
+      <Toaster />
       <div className="flex items-center mb-6 gap-2">
         <button
           onClick={() => navigate(-1)}
@@ -215,7 +214,8 @@ const confirmCreateBatch = async () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex mb-4 border-b border-gray-200 gap-2">
+      <div className="flex mb-4 border-b border-gray-200 gap-2 justify-between">
+        <div className=" flex mb-4 border-b border-gray-200 gap-2 ">
         <button
           onClick={() => setActiveTab("unsold")}
           className={`px-4 py-2 font-medium ${
@@ -236,6 +236,15 @@ const confirmCreateBatch = async () => {
         >
           Batched Items
         </button>
+        </div>
+         {selectedSerials.size > 0 && (
+                <button
+                  onClick={handleCreateBatch}
+                  className="h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors flex justify-center items-center"
+                >
+                  Create Batch
+                </button>
+              )}
       </div>
 
       {currentData.length === 0 ? (
@@ -253,17 +262,14 @@ const confirmCreateBatch = async () => {
                   ? `${selectedSerials.size} selected`
                   : `${currentData.length} items`}
               </p>
-              {selectedSerials.size > 0 && (
-                <button
-                  onClick={handleCreateBatch}
-                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors"
-                >
-                  Create Batch
-                </button>
-              )}
+             
             </div>
           )}
-
+          <div className="bg-white rounded shadow p-4 mb-6 text-black">
+            <p>
+              <strong>Model No:</strong> {modelNo || "N/A"}
+            </p>
+          </div>
           <div className="rounded-md border bg-white text-black">
             <Table>
               <TableHeader className="bg-stone-300 rounded-md p-1">

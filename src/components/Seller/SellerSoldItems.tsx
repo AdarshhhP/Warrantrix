@@ -178,6 +178,7 @@ const SellerSoldItems = () => {
           <tr>
             <th className="p-2 border">Sl.No</th>
             <th className="p-2 border">Model No</th>
+            <th className="p-2 border">Batch No</th>
             <th className="p-2 border">Customer Name</th>
             <th className="p-2 border">Price</th>
             <th className="p-2 border">Purchase Date</th>
@@ -194,6 +195,8 @@ const SellerSoldItems = () => {
               <tr key={purchase.sale_id} className="text-center hover:bg-teal-50">
                 <td className="p-2 border">{purchasePage * purchaseSize + index + 1}</td>
                 <td className="p-2 border">{purchase.modelNo}</td>
+                                <td className="p-2 border">{purchase.batchNo}</td>
+
                 <td className="p-2 border">{purchase.name}</td>
                 <td className="p-2 border">₹{purchase.price}</td>
                 <td className="p-2 border">{purchase.purchase_date}</td>

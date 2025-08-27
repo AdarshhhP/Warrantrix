@@ -275,6 +275,7 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
         purchase_date: "2025-07-03",
         reason: data.reason || "No reason provided",
         product_images: base64Images,
+        raisedon_date: new Date().toISOString().split("T")[0],
       };
 
       // const eligible = await customerService.checkEligibility(data.model_no, 5);
@@ -663,7 +664,10 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
                     {req.rejection_remark && req.rejection_remark}{" "}
                     {!req.rejection_remark && "No Remarks"}
                   </p>
-
+<p className="text-sm text-gray-500">
+                    <span className="font-medium">Requested date:</span>{" "}
+                    {req.raisedon_date || "No Date provided"}
+                  </p>
                   <p className="text-sm text-gray-500">
                     <span className="font-medium">Reason:</span>{" "}
                     {req.reason || "No reason provided"}

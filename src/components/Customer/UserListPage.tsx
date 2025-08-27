@@ -101,7 +101,7 @@ const UserList = () => {
           onClick={handleDownload}
           className="flex items-center bg-teal-600 h-8 text-white text-sm px-4 py-2 rounded-md hover:bg-gray-800 transition"
         >
-          Download Excel
+          Download as Excel
         </button>
       </div>
 

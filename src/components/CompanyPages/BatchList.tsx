@@ -1,21 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import * as Popover from "@radix-ui/react-popover";
+import * as Dialog from "@radix-ui/react-dialog";
+import { Plus, X, Eye } from "lucide-react";
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
 } from "@tanstack/react-table";
-import * as Dialog from "@radix-ui/react-dialog";
-import { Plus, X } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
 import { Toaster } from "../../components/ui/sonner";
 import axios from "axios";
 
 type BatchResponse = {
+  batch_id: number;
+  batchId: number;
   modelNo: string;
   batchNo: string;
+  createdDate: string; // ✅ assuming backend sends it as string (ISO/local format)
   serialNo: string[];
 };
 
@@ -23,12 +25,9 @@ const BatchListPage = () => {
   const [batches, setBatches] = useState<BatchResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [serialInputs, setSerialInputs] = useState<{ [key: string]: string }>(
-    {}
-  );
   const navigate = useNavigate();
 
-  // Fetch batches from backend
+  // Fetch batches
   const fetchBatches = async () => {
     try {
       const response = await axios.get<BatchResponse[]>(
@@ -47,26 +46,17 @@ const BatchListPage = () => {
     fetchBatches();
   }, []);
 
-  // Update input value for specific batch
-  const handleInputChange = (batchNo: string, value: string) => {
-    setSerialInputs((prev) => ({ ...prev, [batchNo]: value }));
-  };
-
   // API call to add serial number
   const handleAddSerial = async (batchNo: string, serial: string) => {
     if (!serial.trim()) return;
     try {
-      await axios
-        .post("http://localhost:1089/api/batch/add-serials", {
-          batchNo: batchNo,
-          serialNumbers: [serial], // ✅ send as array to match backend
-        })
-        .then(() => {
-          toast("Serial number added successfully"); // Show toast success message
-          console.log("hello");
-        });
+      await axios.post("http://localhost:1089/api/batch/add-serials", {
+        batchNo: batchNo,
+        serialNumbers: [serial],
+      });
 
-      // Update UI immediately
+      toast.success("Serial number added successfully");
+
       setBatches((prev) =>
         prev.map((batch) =>
           batch.batchNo === batchNo
@@ -74,41 +64,63 @@ const BatchListPage = () => {
             : batch
         )
       );
-      // Clear input field
-      handleInputChange(batchNo, "");
     } catch (err) {
       console.error("Error adding serial number", err);
-      alert("Failed to add serial number");
+      toast.error("Failed to add serial number");
     }
   };
 
   // Table columns
   const columns: ColumnDef<BatchResponse>[] = [
     {
-      accessorKey: "modelNo",
-      header: "Model Number",
+      id: "slno",
+      header: "Sl. No",
+      cell: ({ row }) => row.index + 1,
     },
     {
       accessorKey: "batchNo",
       header: "Batch Number",
+    },
+    {
+      accessorKey: "createdDate",
+      header: "Created Date",
       cell: ({ row }) => {
-        const batchNo = row.original.batchNo;
+        const date = new Date(row.original.createdDate);
+        return date.toLocaleString(); // ✅ formatted
+      },
+    },
+    {
+      accessorKey: "modelNo",
+      header: "Model Number",
+    },
+    {
+      id: "actions",
+      header: "Action",
+      cell: ({ row }) => {
+        const batch = row.original;
         const [serialInput, setSerialInput] = useState("");
 
         const handleSubmit = () => {
-          handleAddSerial(batchNo, serialInput);
+          handleAddSerial(batch.batchNo, serialInput);
           setSerialInput("");
         };
-
         return (
-          <div className="flex items-center gap-2">
-            <span>{batchNo}</span>
+          <div className="flex gap-3 items-center">
+            {/* 👁️ View button */}
+            <button
+              onClick={() => navigate(`/manage-batches/${batch.batch_id}`)}
+              className="bg-white text-white-600 hover:text-blue-600"
+              title="View Batch Items"
+            >
+              <Eye className="w-4 h-4" />
+            </button>
 
+            {/* ➕ Add serial */}
             <Dialog.Root>
               <Dialog.Trigger asChild>
                 <button
-                  className="bg-blue-500 hover:bg-blue-600 text-white p-1 rounded"
-                  title="Add Serial Number"
+                  className="text-green-600 hover:text-green-800"
+                  title="Add Item"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -119,7 +131,7 @@ const BatchListPage = () => {
                 <Dialog.Content className="fixed top-1/2 left-1/2 w-[400px] -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg z-50">
                   <div className="flex justify-between items-center mb-4">
                     <Dialog.Title className="text-black font-bold">
-                      Add Serial Numbers
+                      Add Item
                     </Dialog.Title>
                     <Dialog.Close>
                       <X className="w-5 h-5 text-gray-500 hover:text-gray-700" />
@@ -138,41 +150,12 @@ const BatchListPage = () => {
                     onClick={handleSubmit}
                     className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
                   >
-                    Submit
+                    Add
                   </button>
                 </Dialog.Content>
               </Dialog.Portal>
             </Dialog.Root>
           </div>
-        );
-      },
-    },
-    {
-      id: "serialNoList",
-      header: "Serial Numbers",
-      cell: ({ row }) => {
-        const serials = row.original.serialNo;
-        return (
-          <Popover.Root>
-            <Popover.Trigger asChild>
-              <button className="text-blue-600 underline text-sm hover:text-blue-800">
-                View
-              </button>
-            </Popover.Trigger>
-            <Popover.Portal>
-              <Popover.Content
-                className="rounded p-4 w-64 bg-white border shadow-lg z-50"
-                side="top"
-                align="start"
-              >
-                <h3 className="text-lg font-semibold mb-2">Serial Numbers</h3>
-                <div className="text-lg whitespace-pre-wrap break-words text-gray-700">
-                  {serials.length > 0 ? serials.join(", ") : "No serials yet"}
-                </div>
-                <Popover.Arrow className="fill-white" />
-              </Popover.Content>
-            </Popover.Portal>
-          </Popover.Root>
         );
       },
     },
@@ -184,15 +167,14 @@ const BatchListPage = () => {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  if (isLoading) {
+  if (isLoading)
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
-  }
 
-  if (error) {
+  if (error)
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
@@ -200,11 +182,10 @@ const BatchListPage = () => {
         </div>
       </div>
     );
-  }
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-screen bg-gray-100">
-                  <Toaster />
+      <Toaster />
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Batch List</h1>
       </div>

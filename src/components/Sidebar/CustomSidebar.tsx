@@ -41,31 +41,7 @@ const Sidebar: React.FC = () => {
                 className={isActive("company")}
                 onClick={() => handleTabClick("company", "/company")}
               >
-                Company
-              </button>
-              <button
-                className={isActive("rcompany")}
-                onClick={() =>
-                  handleTabClick("rcompany", "/reports/companyreport")
-                }
-              >
-                Company Report
-              </button>
-              <button
-                className={isActive("wrcompany")}
-                onClick={() =>
-                  handleTabClick("wrcompany", "/warrantyreqapproval")
-                }
-              >
-                Warranty Requests Register
-              </button>
-              <button
-                className={isActive("wcompany")}
-                onClick={() =>
-                  handleTabClick("wcompany", "/reports/companyrequests")
-                }
-              >
-                Raised Warranty Requests
+                Products
               </button>
               <button
               className={isActive("bcompany")}
@@ -75,6 +51,31 @@ const Sidebar: React.FC = () => {
               >
                 Batch List
               </button>
+              <button
+                className={isActive("rcompany")}
+                onClick={() =>
+                  handleTabClick("rcompany", "/reports/companyreport")
+                }
+              >
+                 Reports
+              </button>
+              <button
+                className={isActive("wrcompany")}
+                onClick={() =>
+                  handleTabClick("wrcompany", "/warrantyreqapproval")
+                }
+              >
+                Warranty Requests
+              </button>
+              <button
+                className={isActive("wcompany")}
+                onClick={() =>
+                  handleTabClick("wcompany", "/reports/companyrequests")
+                }
+              >
+                Raised Warranty Requests
+              </button>
+              
             </>
           )}
 

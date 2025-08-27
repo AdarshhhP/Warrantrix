@@ -39,6 +39,7 @@ type Product = {
 };
 
 type WarrantyRequest = {
+  raisedon_date: string;
   reason: string;
   warranty_request_id: number;
   customer_id: number;
@@ -84,6 +85,7 @@ const Company = () => {
   const [previewImageREquest, setpreviewImageREquest] = useState<string | null>(
     null
   );
+  const [reson,setreson]=useState("");
   // const [serialNumbers, setserialNumbers] = useState<SerialNumber[]>([]);
   const [holderStatus, setHolderStatus] = useState("");
   const [productCategory, setProductCategory] = useState("");
@@ -187,7 +189,6 @@ const Company = () => {
         quantity: data.quantity,
         item: data.item,
       };
-      console.log(payload, "payload");
       await companyService.postProduct(payload);
       toast("Added Product successfully");
       reset();
@@ -203,7 +204,7 @@ const Company = () => {
   const handleStatusChange = async (status: any, requestId: number) => {
     setstatuss(status);
     setRequestId(requestId);
-    setShowConfirmModal(true);
+    //setShowConfirmModal(true);
   };
   const confirmAndSave = async () => {
     try {
@@ -737,10 +738,10 @@ const Company = () => {
           </div>
         </div>
       )}
-
       {previewImageREquest && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white p-6 rounded-xl shadow-xl relative max-w-xl w-full">
+            <p className="text-gray-600 font-semibold">Reason : {reson}</p>
             <button
               onClick={() => setpreviewImageREquest(null)}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100"
@@ -857,7 +858,7 @@ const Company = () => {
             products.map((product, index) => (
               <div
                 key={index}
-                className="bg-white shadow-lg rounded-xl p-2 space-y-2  border-gray-300 hover:shadow-md transition-shadow duration-200 cursor-pointer"
+                className="bg-white hover:shadow-2xl shadow-lg rounded-xl p-2 space-y-2  border-gray-300 transition-shadow duration-200 cursor-pointer"
                 onClick={() => {
                   // setserialNumbers(product.productSerials);
                   navigate(`/serialNo/${product?.prod_id}`);
@@ -1060,7 +1061,12 @@ const Company = () => {
             requests.map((req) => (
               <div
                 key={req.warranty_request_id}
-                className="bg-white shadow-sm rounded-lg p-3 space-y-2 border border-gray-100 hover:shadow-md transition-shadow duration-200"
+                className="bg-white shadow-sm rounded-lg p-3 space-y-2 border border-gray-100 hover:shadow-md transition-shadow duration-200 cursor-pointer"
+                onClick={(e) => {
+                  setremarksmode(true);
+
+                  e.stopPropagation();
+                }}
               >
                 <h2 className="text-base font-medium text-gray-800">
                   {req.customer_name}
@@ -1138,7 +1144,24 @@ const Company = () => {
                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                       />
                     </svg>
-                    Request Date: {req.request_date}
+                    Registered Date: {req.request_date}
+                  </p>
+                  <p className="text-sm text-gray-600 flex items-center gap-1.5">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    Raised On Date: {req.raisedon_date}
                   </p>
 
                   <p className="text-sm flex items-center gap-1.5">
@@ -1164,7 +1187,6 @@ const Company = () => {
                           ? "text-green-600"
                           : "text-red-500"
                       }`}
-                      onClick={() => setremarksmode(true)}
                     >
                       {req.warranty_status === 1
                         ? "Pending"
@@ -1176,12 +1198,14 @@ const Company = () => {
 
                   {req.productImages && (
                     <button
-                      onClick={() =>
-                        setpreviewImageREquest(req.productImages[0])
-                      }
+                      onClick={(e) => {
+                        setpreviewImageREquest(req.productImages[0]);
+                        e.stopPropagation();
+setreson(req.reason);
+                      }}
                       className="text-blue-600 text-xs font-medium hover:underline bg-white"
                     >
-                      View Image
+                      View Images yoooo
                     </button>
                   )}
 
@@ -1211,7 +1235,11 @@ const Company = () => {
                   <div className="fixed inset-0 bg-black/10 flex justify-center items-center z-40">
                     <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
                       <button
-                        onClick={() => setremarksmode(false)}
+                        onClick={(e) => {
+                          setremarksmode(false);
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
                         className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 transition-colors bg-white"
                       >
                         <svg
@@ -1261,7 +1289,8 @@ const Company = () => {
                             Status
                           </label>
                           <select
-                            value={req.warranty_status}
+                            disabled={remarks == ""}
+                            defaultValue={req.warranty_status}
                             onChange={(e) => {
                               if (remarks.trim() === "") {
                                 toast("Please enter remarks first");
@@ -1273,13 +1302,7 @@ const Company = () => {
                               );
                               //setremarksmode(false);
                             }}
-                            className={`w-full border px-3 py-2 rounded-lg font-medium focus:ring-2 focus:ring-blue-500 outline-none transition ${
-                              req.warranty_status === 1
-                                ? "border-amber-200 bg-amber-50"
-                                : req.warranty_status === 2
-                                ? "border-green-200 bg-green-50"
-                                : "border-red-200 bg-red-50"
-                            } ${
+                            className={`w-full border px-3 py-2 border-amber-200 bg-amber-50 rounded-lg font-medium focus:ring-2 focus:ring-blue-500 outline-none transition ${
                               !remarks.trim()
                                 ? "opacity-70 cursor-not-allowed"
                                 : "cursor-pointer"
@@ -1291,6 +1314,17 @@ const Company = () => {
                             <option value="2">Approved</option>
                             <option value="3">Rejected</option>
                           </select>
+
+                          <div className="flex w-full justify-end text-white">
+                            <button
+                              onClick={() => {
+                                setShowConfirmModal(true);
+                              }}
+                              className="bg-stone-600 mt-2"
+                            >
+                              submit
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>

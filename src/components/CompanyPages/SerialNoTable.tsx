@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import type { SerialNumber } from "./Company";
 import {
   type ColumnDef,
@@ -58,7 +58,7 @@ const SerialNumbersPage = () => {
         });
     }
   }, [params, refetch]);
-
+ 
   const toggleSelectSerial = (id: string) => {
     setSelectedSerials((prev) => {
       const newSet = new Set(prev);
@@ -70,14 +70,14 @@ const SerialNumbersPage = () => {
       return newSet;
     });
   };
-
+ 
   const handleCreateBatch = () => {
     setShowConfirm(true);
   };
 const confirmCreateBatch = async () => {
   try {
     const array = Array.from(selectedSerials);
-
+ 
     // Update serial statuses to sold
     const payload2 = {
       prod_id: productid,
@@ -182,14 +182,14 @@ const confirmCreateBatch = async () => {
     //   ),
     // },
   ];
-
+ 
   const currentData = activeTab === "unsold" ? unsoldSerials : soldSerials;
   const table = useReactTable({
     data: currentData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
-
+ 
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -200,20 +200,20 @@ const confirmCreateBatch = async () => {
       </div>
     );
   }
-
+ 
   return (
     <div className="container mx-auto px-4 py-8 bg-stone-200 h-full">
                         <Toaster />
       <div className="flex items-center mb-6 gap-2">
         <button
           onClick={() => navigate(-1)}
-          className="p-2 rounded-full hover:bg-stone-400 bg-stone-600 text-white transition-colors flex items-center justify-center"
+          className=" text-black bg-transparent text-lg p-2 rounded-full hover:bg-stone-400 bg-stone-600 transition-colors flex items-center justify-center"
         >
           <ArrowLeft size={15} />
         </button>
         <h1 className="text-2xl font-bold text-gray-800">Manage Batches</h1>
       </div>
-
+ 
       {/* Tabs */}
       <div className="flex mb-4 border-b border-gray-200 gap-2">
         <button
@@ -237,7 +237,7 @@ const confirmCreateBatch = async () => {
           Batched Items
         </button>
       </div>
-
+ 
       {currentData.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500 text-lg">
@@ -263,7 +263,7 @@ const confirmCreateBatch = async () => {
               )}
             </div>
           )}
-
+ 
           <div className="rounded-md border bg-white text-black">
             <Table>
               <TableHeader className="bg-stone-300 rounded-md p-1">
@@ -342,5 +342,5 @@ const confirmCreateBatch = async () => {
     </div>
   );
 };
-
+ 
 export default SerialNumbersPage;

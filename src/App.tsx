@@ -19,6 +19,7 @@ import BatchListPage from "./components/CompanyPages/BatchList";
 import SellerAcknowledge from "./components/Seller/SellerAcknowledge";
 import WarrantyReqApproval from "./components/CompanyPages/WarrantyReqApproval";
 import BatchDetailsPage from "./components/CompanyPages/BatchDetailsPage";
+import SellerDetailedPage from "./components/Seller/SellerDetailedPage";
 
 const App = () => {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -66,6 +67,8 @@ const App = () => {
                 <Route path="/serialacknowledge" element={<SellerAcknowledge />} />
                 <Route path="/warrantyreqapproval" element={<WarrantyReqApproval/>}/>
                 <Route path="/manage-batches/:batchId" element={<BatchDetailsPage />}/>
+                <Route path="/sellerdetailedpage" element={<SellerDetailedPage/>}/>
+
               </Routes>
             </main>
           </div>

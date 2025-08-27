@@ -18,6 +18,7 @@ import SerialNoTable from "./components/CompanyPages/SerialNoTable";
 import BatchListPage from "./components/CompanyPages/BatchList";
 import SellerAcknowledge from "./components/Seller/SellerAcknowledge";
 import WarrantyReqApproval from "./components/CompanyPages/WarrantyReqApproval";
+import BatchDetailsPage from "./components/CompanyPages/BatchDetailsPage";
 
 const App = () => {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -64,6 +65,7 @@ const App = () => {
                 <Route path="/serialNo/:prod_id" element={<SerialNoTable />} />
                 <Route path="/serialacknowledge" element={<SellerAcknowledge />} />
                 <Route path="/warrantyreqapproval" element={<WarrantyReqApproval/>}/>
+                <Route path="/manage-batches/:batchId" element={<BatchDetailsPage />}/>
               </Routes>
             </main>
           </div>

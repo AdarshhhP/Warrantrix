@@ -106,6 +106,7 @@ const Company = () => {
     message?: string;
     statusCode?: number;
   } | null>(null);
+
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -1011,7 +1012,7 @@ const Company = () => {
                       🔍 View Images
                     </button>
                   )}
-                  {/* {
+                {/* {
                     <button
                       className="bg-white text-black h-5 flex justify-between items-center"
                       onClick={() => {
@@ -1026,8 +1027,8 @@ const Company = () => {
                       Manage Batches
                     </button>
                   } */}
-                </div>
               </div>
+             </div>
             ))
           )}
         </div>

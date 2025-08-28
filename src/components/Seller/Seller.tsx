@@ -51,11 +51,17 @@ export interface SerialData {
   id: number;
   serialNo: string;
 }
+// interface QuantityDetails{
+//   modelNo:string;
+//   availableQuantity:number;
+// }
+
 
 const Seller = () => {
   const [activeTab, setActiveTab] = useState<"inventory" | "purchases">(
     "inventory"
   );
+ // const [QuantityDetails, setQuantityDetails] = useState<QuantityDetails[]>([]);
   const [inventory, setInventory] = useState<any[]>([]);
   const [selecteddataModelNo, setselecteddataModelNo] = useState<any[]>([]);
   const [purchases, setPurchases] = useState<any[]>([]);
@@ -98,8 +104,10 @@ const Seller = () => {
   const inventoryForm = useForm();
   const purchaseForm = useForm();
 
-  const fetchInventory = async (x?: any) => {
+const fetchInventory = async (x?: string) => {
+  try {
     setloader(true);
+
     const data = await SellerService.fetchInventory(
       sellerId,
       categoryIds,
@@ -108,19 +116,41 @@ const Seller = () => {
     );
 
     if (x) {
-      console.log(x,"leoooooooooooooooooooo")
-      localStorage.setItem("model_noforfetch",x)
+      localStorage.setItem("model_noforfetch", x);
       const filteredData = data.filter((item: any) => item.model_no === x);
       setselecteddataModelNo(filteredData);
       navigate("/sellerdetailedpage");
     }
+
+    // Build a count map first
+    const countMap: Record<string, number> = {};
+    data.forEach((i: any) => {
+      countMap[i.model_no] = (countMap[i.model_no] || 0) + 1;
+    });
+
+    // Get unique models by model_no
     const uniqueModels = data.filter(
-      (item: any, index: any, self: any) =>
+      (item: any, index: number, self: any[]) =>
         index === self.findIndex((t: any) => t.model_no === item.model_no)
     );
-    setInventory(uniqueModels);
+
+    // Merge QuantityDetails into each model
+    const inventoryWithQuantity = uniqueModels.map((item: any) => ({
+      ...item,
+      QuantityDetails: countMap[item.model_no] || 0,
+    }));
+
+    setInventory(inventoryWithQuantity);
+
     enrichWithProductDetails(data.map((i: any) => i.model_no));
-  };
+  } catch (error) {
+    console.error("Error fetching inventory:", error);
+  } finally {
+    setloader(false);
+  }
+};
+
+
 
   const fetchPurchases = async () => {
     const data = await SellerService.fetchPurchases(sellerId, modelnopurchase);
@@ -133,6 +163,7 @@ const Seller = () => {
     setProductDetailsMap((prev) => ({ ...prev, ...details }));
     setloader(false);
   };
+
 
   useEffect(() => {
     if (sellerId) {
@@ -727,7 +758,7 @@ const Seller = () => {
                   <option value="4">Metal</option>
                 </select>
                 <button
-                  onClick={fetchInventory}
+                  onClick={()=>fetchInventory()}
                   className="bg-teal-500 hover:bg-teal-700 h-8 flex items-center justify-center text-white px-3 py-2 rounded-md shadow-sm text-sm whitespace-nowrap"
                 >
                   Search
@@ -843,7 +874,7 @@ const Seller = () => {
           {inventory?.length > 0 ? (
             inventory?.map((item) => {
               const prod = productDetailsMap[item.model_no] || {};
-
+              console.log(item,"itemitmeitemitem");
               return (
                 <div
                   key={item.purchase_id}
@@ -878,9 +909,15 @@ const Seller = () => {
                       <span>{item.warranty} months</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Purchase Date:</span>
+                      <span>Purchase Date</span>
                       <span>{item.purchase_date}</span>
                     </div>
+                    
+                       <div className="flex justify-between">
+                      <span>Quantity</span>
+                      <span>{item.QuantityDetails}</span>
+                    </div>
+                    
                   </div>
 
                   <div className="flex flex-row">
@@ -1208,7 +1245,7 @@ const Seller = () => {
                   <div className="flex gap-2">
                     <div className="flex-1">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Batch No
+                        Batch No<span className="text-red-500">*</span>
                       </label>
                       <input
                         {...inventoryForm.register("batch_no")}

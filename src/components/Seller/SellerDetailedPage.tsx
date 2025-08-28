@@ -1446,7 +1446,7 @@ const SellerDetailedPage = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Selling Date
+                    Selling Date<span className="text-red-500">*</span>
                   </label>
                   <input
                     {...purchaseForm.register("purchase_date")}
@@ -1459,7 +1459,7 @@ const SellerDetailedPage = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Customer Name
+                  Customer Name<span className="text-red-500">*</span>
                 </label>
                 <input
                   {...purchaseForm.register("name")}
@@ -1472,7 +1472,7 @@ const SellerDetailedPage = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email
+                    Email<span className="text-red-500">*</span>
                   </label>
                   <input
                     {...purchaseForm.register("email")}
@@ -1484,7 +1484,7 @@ const SellerDetailedPage = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Phone
+                    Phone<span className="text-red-500">*</span>
                   </label>
                   <input
                     {...purchaseForm.register("phono")}

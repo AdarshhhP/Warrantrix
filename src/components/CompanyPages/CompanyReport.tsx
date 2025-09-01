@@ -73,6 +73,7 @@ const CompanyReport = () => {
         productCategory,
         modelNo,
       });
+      console.log(res,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
       setProducts(res.content || []);
       setTotalPages(res.totalPages || 1);
     } catch (err: any) {

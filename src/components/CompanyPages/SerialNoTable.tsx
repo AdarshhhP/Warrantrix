@@ -27,6 +27,7 @@ const SerialNumbersPage = () => {
   const [selectedSerials, setSelectedSerials] = useState<Set<string>>(
     new Set()
   );
+  
   const [modelNo, setModelNo] = useState<string>("");
   const [productid, setProductid] = useState<number | null>(null);
   const [refetch, setRefetch] = useState(false);
@@ -35,29 +36,38 @@ const SerialNumbersPage = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const params = useParams();
 
+  // Pagination states
+  const [unsoldPage, setUnsoldPage] = useState(0);
+  const [soldPage, setSoldPage] = useState(0);
+  const [pageSize, setPageSize] = useState(5);
+  const [unsoldTotalPages, setUnsoldTotalPages] = useState(1);
+  const [soldTotalPages, setSoldTotalPages] = useState(1);
+
   useEffect(() => {
     if (params.prod_id !== undefined) {
       const productId = parseInt(params.prod_id);
       setIsLoading(true);
 
       // Fetch unsold serials (is_sold = 0)
-      companyService.fetchSerialData(productId, 0, 0, 100).then((response) => {
+      companyService.fetchSerialData(productId, 0, unsoldPage, pageSize).then((response) => {
         setUnsoldSerials(response.data.content);
+        setUnsoldTotalPages(response.data.totalPages || 1);
         setProductid(productId);
         setModelNo(response.data.content[0]?.model_No || "");
       });
 
       // Fetch sold serials (is_sold = 1)
       companyService
-        .fetchSerialData(productId, 1, 0, 100)
+        .fetchSerialData(productId, 1, soldPage, pageSize)
         .then((response) => {
           setSoldSerials(response.data.content);
+          setSoldTotalPages(response.data.totalPages || 1);
         })
         .finally(() => {
           setIsLoading(false);
         });
     }
-  }, [params, refetch]);
+  }, [params, refetch, unsoldPage, soldPage, pageSize]);
  
   const toggleSelectSerial = (id: string) => {
     setSelectedSerials((prev) => {
@@ -74,6 +84,7 @@ const SerialNumbersPage = () => {
   const handleCreateBatch = () => {
     setShowConfirm(true);
   };
+  
   const confirmCreateBatch = async () => {
     try {
       const array = Array.from(selectedSerials);
@@ -129,66 +140,47 @@ const SerialNumbersPage = () => {
     {
       accessorKey: "index",
       header: "#",
-      cell: ({ row }) => row.index + 1,
+      cell: ({ row }) => (activeTab === "unsold" 
+        ? unsoldPage * pageSize + row.index + 1 
+        : soldPage * pageSize + row.index + 1),
     },
     {
       accessorKey: "serialNo",
       header: "Serial Number",
     },
-    // {
-    //   accessorKey: "model_No",
-    //   header: "Model",
-    // },
-    // {
-    //   id: "status",
-    //   header: "Batch Status",
-    //   cell: ({ row }) => (
-    //     <span
-    //       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-    //         row.original.is_sold == 0
-    //           ? "bg-green-100 text-green-800"
-    //           : "bg-red-100 text-red-800"
-    //       }`}
-    //     >
-    //       {row.original.is_sold == 0 ? "Not Added to Batch" : "Added to Batch"}
-    //     </span>
-    //   ),
-    // },
-    // {
-    //   id: "itemstatus",
-
-    //   header: "Item Status",
-
-    //   cell: ({ row }) => (
-    //     <span
-    //       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-    //         row.original.is_sold == 0
-    //           ? "bg-green-100 text-green-800"
-    //           : "bg-red-100 text-red-800"
-    //       }`}
-    //     >
-    //       {row.original.itemsStatus === 2
-    //         ? "With Retail Seller"
-    //         : row.original.itemsStatus === 3
-    //         ? "Sold To Customer"
-    //         : row.original.itemsStatus === 4
-    //         ? "With Customer"
-    //         : row.original.itemsStatus === 5
-    //         ? "Raised Warranty Request"
-    //         : row.original.itemsStatus === 1
-    //         ? "In Company Stocks"
-    //         : row.original.itemsStatus}
-    //     </span>
-    //   ),
-    // },
+    {
+      accessorKey: "man_date",
+      header: "Manufacture Date"
+    }
   ];
  
   const currentData = activeTab === "unsold" ? unsoldSerials : soldSerials;
+  const currentPage = activeTab === "unsold" ? unsoldPage : soldPage;
+  const totalPages = activeTab === "unsold" ? unsoldTotalPages : soldTotalPages;
+  
   const table = useReactTable({
     data: currentData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+
+  const handlePageChange = (newPage: number) => {
+    if (activeTab === "unsold") {
+      setUnsoldPage(newPage);
+    } else {
+      setSoldPage(newPage);
+    }
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    // Reset to first page when changing page size
+    if (activeTab === "unsold") {
+      setUnsoldPage(0);
+    } else {
+      setSoldPage(0);
+    }
+  };
  
   if (isLoading) {
     return (
@@ -201,7 +193,7 @@ const SerialNumbersPage = () => {
   }
  
   return (
-    <div className="container mx-auto px-4 py-8 bg-stone-200 h-full">
+    <div className="container mx-auto px-4 py-8 bg-stone-200 min-h-full max-h-fit">
       <Toaster />
       <div className="flex items-center mb-6 gap-2">
         <button
@@ -215,36 +207,36 @@ const SerialNumbersPage = () => {
  
       {/* Tabs */}
       <div className="flex mb-4 border-b border-gray-200 gap-2 justify-between">
-        <div className=" flex mb-4 border-b border-gray-200 gap-2 ">
-        <button
-          onClick={() => setActiveTab("unsold")}
-          className={`px-4 py-2 font-medium ${
-            activeTab === "unsold"
-              ? "border-b-2 border-gray-500 text-white bg-stone-600"
-              : "hover:text-white bg-stone-900 text-white"
-          }`}
-        >
-          Unbatched Items
-        </button>
-        <button
-          onClick={() => setActiveTab("sold")}
-          className={`px-4 py-2 font-medium ${
-            activeTab === "sold"
-              ? "border-b-2 border-gray-500 text-white bg-stone-600"
-              : "hover:text-white bg-stone-900 text-white"
-          }`}
-        >
-          Batched Items
-        </button>
+        <div className="flex mb-4 border-b border-gray-200 gap-2">
+          <button
+            onClick={() => setActiveTab("unsold")}
+            className={`px-4 py-2 font-medium ${
+              activeTab === "unsold"
+                ? "border-b-2 border-gray-500 text-white bg-stone-600"
+                : "hover:text-white bg-stone-900 text-white"
+            }`}
+          >
+            Unbatched Items
+          </button>
+          <button
+            onClick={() => setActiveTab("sold")}
+            className={`px-4 py-2 font-medium ${
+              activeTab === "sold"
+                ? "border-b-2 border-gray-500 text-white bg-stone-600"
+                : "hover:text-white bg-stone-900 text-white"
+            }`}
+          >
+            Batched Items
+          </button>
         </div>
-         {selectedSerials.size > 0 && (
-                <button
-                  onClick={handleCreateBatch}
-                  className="h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors flex justify-center items-center"
-                >
-                  Create Batch
-                </button>
-              )}
+        {selectedSerials.size > 0 && (
+          <button
+            onClick={handleCreateBatch}
+            className="h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors flex justify-center items-center"
+          >
+            Create Batch
+          </button>
+        )}
       </div>
  
       {currentData.length === 0 ? (
@@ -257,12 +249,11 @@ const SerialNumbersPage = () => {
         <>
           {activeTab === "unsold" && (
             <div className="mb-4 flex justify-between items-center">
-              <p className="text-gray-600">
+              {/* <p className="text-gray-600">
                 {selectedSerials.size > 0
                   ? `${selectedSerials.size} selected`
                   : `${currentData.length} items`}
-              </p>
-             
+              </p> */}
             </div>
           )}
           <div className="bg-white rounded shadow p-4 mb-6 text-black">
@@ -317,6 +308,40 @@ const SerialNumbersPage = () => {
                 )}
               </TableBody>
             </Table>
+          </div>
+
+          {/* Pagination Controls */}
+          <div className="flex justify-center items-center gap-2 pb-2 pt-2 bg-white mt-4">
+            <button
+              onClick={() => handlePageChange(Math.max(currentPage - 1, 0))}
+              disabled={currentPage === 0}
+              className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+            >
+              Prev
+            </button>
+            <span className="px-4 py-1.5 text-black">{`Page ${
+              currentPage + 1
+            } of ${totalPages}`}</span>
+            <button
+              onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages - 1))}
+              disabled={currentPage >= totalPages - 1}
+              className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+            >
+              Next
+            </button>
+            <div className="flex items-center gap-2">
+              <select
+                className="bg-white border border-gray-300 rounded text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                value={pageSize.toString()}
+              >
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+              <span className="ml-1 text-black">per page</span>
+            </div>
           </div>
         </>
       )}

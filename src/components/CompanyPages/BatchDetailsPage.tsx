@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import * as XLSX from "xlsx";
 import axios from "axios";
 import { ArrowLeft } from "lucide-react";
 
@@ -66,19 +67,49 @@ const BatchDetailsPage = () => {
 
   if (!batch) return <p>No data found</p>;
 console.log(batch,"huhuhuhuhuh")
+
+const handleDownload = () => {
+  if (!batch) return;
+
+  // Prepare only serial mappings for Excel
+  const excelData = batch.serialMappings.map((s, index) => ({
+    "Sl. No": index + 1,
+    "Serial Number": s.serialNo,
+    "Batch Status": s.is_sold === 1 ? "With Customer" : "With Seller",
+  }));
+
+  // Convert data to worksheet
+  const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+  // Create workbook and append worksheet
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "SerialMappings");
+
+  // Download Excel file
+  XLSX.writeFile(workbook, `Batch_${batch.batch_no}_Serials.xlsx`);
+};
+
   return (
     <div className="container mx-auto px-5 py-7 min-h-screen bg-gray-100">
       {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center text-white mb-4 hover:underline"
+        className="flex items-center bg-stone-500 text-black mb-3 hover:underline"
       >
         <ArrowLeft className="w-3 h-3 mr-2" /> Back
       </button>
-
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">
-        Batch Number - {batch.batch_no}
-      </h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">
+           Batch Number - {batch.batch_no}
+        </h1>
+        <button
+          onClick={handleDownload}
+          className="flex items-center bg-teal-600 h-8 text-white text-sm rounded-md hover:bg-gray-800 transition"
+        >
+          Download as Excel
+        </button>
+      </div>
+      
 
       <div className="bg-white rounded shadow p-4 mb-6 text-black">
         <p>

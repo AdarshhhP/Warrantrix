@@ -855,7 +855,12 @@ const Company = () => {
               )}
             </div>
           ) : (
-            products.map((product, index) => (
+            products.map((product, index) =>{
+              console.log(product.productSerials,"product pppppppppppppp")
+              const totalSerials = product.productSerials.length;
+              const soldSerials = product.productSerials.filter((item)=>item.itemsStatus!=1).length;
+const percentageSold = totalSerials > 0 ? ((soldSerials / totalSerials) * 100) : "N/A";
+              return(
               <div
                 key={index}
                 className="bg-white hover:shadow-2xl shadow-lg rounded-xl p-2 space-y-2  border-gray-300 transition-shadow duration-200 cursor-pointer"
@@ -951,6 +956,10 @@ const Company = () => {
                     🛡 Warranty: {product.warrany_tenure} months
                   </p>
 
+                  <p className="text-xs flex items-center gap-1 text-gray-600">
+                     🛡 Percentage Sold:{percentageSold}%
+                  </p>
+
                   {/* Category */}
                   <p className="text-xs flex items-center gap-1 text-gray-600">
                     🏷 Category:{" "}
@@ -960,7 +969,7 @@ const Company = () => {
                   </p>
 
                   {/* Holder Status */}
-                  <p className="text-xs flex items-center gap-1 whitespace-nowrap">
+                  {/* <p className="text-xs flex items-center gap-1 whitespace-nowrap">
                     📘 <span className="text-gray-600">Status:</span>{" "}
                     <span
                       className={`font-medium whitespace-nowrap ${
@@ -989,12 +998,12 @@ const Company = () => {
                         ? "Warranty Requested"
                         : "No Data"}
                     </span>
-                  </p>
+                  </p> */}
 
                   {/* Manufacture Date */}
-                  <p className="text-[11px] text-gray-500 flex items-center gap-1">
+                  {/* <p className="text-[11px] text-gray-500 flex items-center gap-1">
                     🗓 Mfg Date: {product?.man_date}
-                  </p>
+                  </p> */}
                   <p className="text-[11px] text-gray-500 flex items-center gap-1">
                     Item : {product?.item}
                   </p>
@@ -1029,7 +1038,9 @@ const Company = () => {
                   } */}
               </div>
              </div>
-            ))
+            )
+          
+})
           )}
         </div>
       )}

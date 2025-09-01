@@ -14,37 +14,66 @@ import axios from "axios";
 
 type BatchResponse = {
   batch_id: number;
-  batchId: number;
   modelNo: string;
   batchNo: string;
-  createdDate: string; // ✅ assuming backend sends it as string (ISO/local format)
+  createdDate: string | null;
   serialNo: string[];
+  message?: string | null;
+  statusCode?: string | null;
 };
+
+type PagedResponse<T> = {
+  content: T[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  pageable: any; // can refine later if needed
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
+};
+
 
 const BatchListPage = () => {
   const [batches, setBatches] = useState<BatchResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [requestPage, setRequestPage] = useState(0);
+  const [requestSize,setrequestSize] = useState(5);
+    const [totalRequestPages,setTotalRequestPages] = useState(1);
+    
+  
   const navigate = useNavigate();
 
   // Fetch batches
-  const fetchBatches = async () => {
-    try {
-      const response = await axios.get<BatchResponse[]>(
-        "http://localhost:1089/api/batch/list"
-      );
-      setBatches(response.data);
-    } catch (err) {
-      console.error("Failed to fetch batches", err);
-      setError("Failed to load batches");
-    } finally {
-      setIsLoading(false);
-    }
+ const fetchBatches = async () => {
+  try {
+    const response = await axios.get<PagedResponse<BatchResponse>>(
+      `http://localhost:1089/api/batch/list?page=${requestPage}&size=${requestSize}`
+    );
+
+    setBatches(response.data.content); // ✅ actual list
+    setTotalRequestPages(response.data.totalPages); // ✅ pagination info
+
+    console.log(response.data, "adarsh");
+  } catch (err) {
+    console.error("Failed to fetch batches", err);
+    setError("Failed to load batches");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+
+    const PageSizeChange = (e: string) => {
+    setrequestSize(Number(e));
   };
 
   useEffect(() => {
     fetchBatches();
-  }, []);
+  }, [requestPage]);
 
   // API call to add serial number
   const handleAddSerial = async (batchNo: string, serial: string) => {
@@ -75,7 +104,8 @@ const BatchListPage = () => {
     {
       id: "slno",
       header: "Sl. No",
-      cell: ({ row }) => row.index + 1,
+      cell: ({ row }) => requestPage * requestSize + row.index + 1,
+
     },
     {
       accessorKey: "batchNo",
@@ -85,7 +115,9 @@ const BatchListPage = () => {
       accessorKey: "createdDate",
       header: "Created Date",
       cell: ({ row }) => {
-        const date = new Date(row.original.createdDate);
+        const { createdDate } = row.original;
+        if (!createdDate) return "N/A";
+        const date = new Date(createdDate);
         return date.toLocaleString(); // ✅ formatted
       },
     },
@@ -98,6 +130,7 @@ const BatchListPage = () => {
       header: "Action",
       cell: ({ row }) => {
         const batch = row.original;
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         const [serialInput, setSerialInput] = useState("");
 
         const handleSubmit = () => {
@@ -190,7 +223,8 @@ const BatchListPage = () => {
         <h1 className="text-2xl font-bold text-gray-800">Batch List</h1>
       </div>
 
-      <div className="overflow-x-auto rounded-md border border-gray-300 bg-white shadow">
+      <div className="overflow-x-auto rounded-md border border-gray-300 bg-white shadow h-[355px] flex justify-between flex-col">
+        <div>
         <table className="min-w-full table-auto border-collapse">
           <thead className="bg-gray-200 text-gray-700 text-left">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -240,7 +274,47 @@ const BatchListPage = () => {
               </tr>
             )}
           </tbody>
-        </table>
+          </table>
+        </div>
+
+          <div className="flex justify-center items-center gap-2 pb-2 bg-white pt-2">
+            <button
+              onClick={() => setRequestPage((prev) => Math.max(prev - 1, 0))}
+              disabled={requestPage === 0}
+              className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+            >
+              Prev
+            </button>
+            <span className="px-4 py-1.5 text-black">{`Page ${
+              requestPage + 1
+            } of ${totalRequestPages}`}</span>
+            <button
+              onClick={() =>
+                setRequestPage((prev) =>
+                  Math.min(prev + 1, totalRequestPages - 1)
+                )
+              }
+              disabled={requestPage >= totalRequestPages - 1}
+              className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+            >
+              Next
+            </button>
+            <div className="flex items-center gap-2">
+              <select
+                className="bg-white border border-gray-300 rounded text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                onChange={(e) => PageSizeChange(e.target.value)}
+                value={requestSize.toString()}
+              >
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+              <span className="ml-1">per page</span>
+            </div>
+          </div>
+
+        
       </div>
     </div>
   );

@@ -388,7 +388,7 @@ const Company = () => {
       return newIndices;
     });
   };
-
+  
   return (
     <div className="min-h-screen bg-gray-200 text-gray-900 p-6 md:p-8">
       <Toaster />

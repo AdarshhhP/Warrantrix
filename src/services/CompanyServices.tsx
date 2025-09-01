@@ -139,11 +139,6 @@ class CompanyService {
     });
     return res.data;
   }
-  // async addQuantity(productId: number, quantity: number) {
-  //   return axios.post(`${this.baseProductUrl}/addQuantity`, null, {
-  //     params: { productId, quantity },
-  //   });
-  // }
 }
 
 const companyService= new CompanyService();

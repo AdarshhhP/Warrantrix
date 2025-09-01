@@ -272,31 +272,34 @@ setchange(approvalvalue);
         Registered Products
       </h1>
 
-       {showConfirmModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
-            <p className="mb-4 text-gray-800">
-              Are you sure you want to save the changes?
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={handleApprovalChange}
-                className="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700"
-              >
-                Yes
-              </button>
-              <button
-                onClick={() => {
-                  setShowConfirmModal(false);
-                }}
-                className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-              >
-                No
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {showConfirmModal && (
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
+      <p className="mb-4 text-gray-800">
+        {change === "1"
+          ? "Are you sure you want to approve this warranty request?"
+          : change === "2"
+          ? "Are you sure you want to reject this warranty request?"
+          : "Are you sure you want to save the changes?"}
+      </p>
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={handleApprovalChange}
+          className="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700"
+        >
+          Yes
+        </button>
+        <button
+          onClick={() => setShowConfirmModal(false)}
+          className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+        >
+          No
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
       {/* Tabs */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">

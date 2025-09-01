@@ -532,7 +532,7 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
                         />
                       </svg>
                     </button>
-                    {item.companyapprovalstatus == 1 && (
+                    {item.companyapprovalstatus == 1 ? (
                       <button
                         disabled={item.companyapprovalstatus == 0||item.companyapprovalstatus==2}
                         onClick={() =>
@@ -547,7 +547,11 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
                       >
                         Request
                       </button>
-                    )}
+                    )
+                    :(
+<span className="text-xs bg-teal-500 hover:bg-teal-700 text-white px-2 py-1 rounded cursor-not-allowed">Reg Req Send</span>
+                    ) 
+                    }
                   </div>
                 </div>
               );

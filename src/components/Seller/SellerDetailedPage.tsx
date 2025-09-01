@@ -556,7 +556,7 @@ const SellerDetailedPage = () => {
   return (
     <div className="p-4 md:p-6 mx-auto space-y-6 bg-stone-200 min-h-screen text-gray-900 max-w-7xl">
       <h1 className="text-xl md:text-3xl font-bold text-center text-gray-900 mb-6">
-        Items({reqmodelno})
+        Model No : {reqmodelno}
       </h1>
       <Toaster />
 

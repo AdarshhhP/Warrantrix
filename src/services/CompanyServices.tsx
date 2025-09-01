@@ -41,7 +41,9 @@ class CompanyService {
     return axios.post(`${this.baseProductUrl}/changeserialStatus`, payload);
   }
 
-  
+   async PostQuantity(prodId: number, quantity: number) {
+    return axios.post(`${this.baseProductUrl}/addQuantity?productId=${prodId}&quantity=${quantity}`);
+  }
 
   async postProduct(payload: any) {
     return axios.post(`${this.baseProductUrl}/postproduct`, payload);

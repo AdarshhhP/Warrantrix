@@ -85,7 +85,7 @@ const Company = () => {
   const [previewImageREquest, setpreviewImageREquest] = useState<string | null>(
     null
   );
-  const [reson,setreson]=useState("");
+  const [reson, setreson] = useState("");
   // const [serialNumbers, setserialNumbers] = useState<SerialNumber[]>([]);
   const [holderStatus, setHolderStatus] = useState("");
   const [productCategory, setProductCategory] = useState("");
@@ -100,6 +100,7 @@ const Company = () => {
   const [loaders, setLoaders] = useState(false);
   const [statuss, setstatuss] = useState("");
   const [requestId, setRequestId] = useState(0);
+  const [newquantity, setnewquantity] = useState<number>(1);
   const [bulkUploadResults, setBulkUploadResults] = useState<{
     failedRecords: string[];
     successRecords: string[];
@@ -108,7 +109,8 @@ const Company = () => {
   } | null>(null);
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-
+  const [quantityopen, setquantityopen] = useState(false);
+  const [productId, setproductId] = useState(0);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const navigate = useNavigate();
   const companyId = Number(localStorage.getItem("company_id"));
@@ -119,6 +121,16 @@ const Company = () => {
       fetchRequests();
     }
   }, [companyId]);
+
+  const PostQuantity=()=>{
+    companyService.PostQuantity(productId,newquantity).then((resp)=>{
+      if(resp.data.statusCode==200){
+      toast("Quantity Updated");
+      setquantityopen(false);
+      setnewquantity(1)
+      }
+    })
+  }
 
   const fetchProducts = async () => {
     setloader(true);
@@ -388,7 +400,7 @@ const Company = () => {
       return newIndices;
     });
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-200 text-gray-900 p-6 md:p-8">
       <Toaster />
@@ -855,121 +867,126 @@ const Company = () => {
               )}
             </div>
           ) : (
-            products.map((product, index) =>{
-              console.log(product.productSerials,"product pppppppppppppp")
+            products.map((product, index) => {
+              console.log(product.productSerials, "product pppppppppppppp");
               const totalSerials = product.productSerials.length;
-              const soldSerials = product.productSerials.filter((item)=>item.itemsStatus!=1).length;
-const percentageSold = totalSerials > 0 ? ((soldSerials / totalSerials) * 100) : "N/A";
-              return(
-              <div
-                key={index}
-                className="bg-white hover:shadow-2xl shadow-lg rounded-xl p-2 space-y-2  border-gray-300 transition-shadow duration-200 cursor-pointer"
-                onClick={() => {
-                  // setserialNumbers(product.productSerials);
-                  navigate(`/serialNo/${product?.prod_id}`);
-                  localStorage.setItem(
-                    "serialNumbers",
-                    JSON.stringify(product.productSerials)
-                  );
-                }}
-              >
-                {/* Header */}
-                <div className="flex flex-col items-center justify-between">
-                  <p className="text-sm pb-1 font-semibold text-gray-700 truncate">
-                    {product.product_name}
-                    {/* <span className="font-semibold text-gray-600 pb-1">
+              const soldSerials = product.productSerials.filter(
+                (item) => item.itemsStatus != 1
+              ).length;
+              const percentageSold =
+                totalSerials > 0 ? (soldSerials / totalSerials) * 100 : "N/A";
+              return (
+                <div
+                  key={index}
+                  className="bg-white hover:shadow-2xl shadow-lg rounded-xl p-2 space-y-2  border-gray-300 transition-shadow duration-200 cursor-pointer"
+                  onClick={() => {
+                    // setserialNumbers(product.productSerials);
+                    navigate(`/serialNo/${product?.prod_id}`);
+                    localStorage.setItem(
+                      "serialNumbers",
+                      JSON.stringify(product.productSerials)
+                    );
+                  }}
+                >
+                  {/* Header */}
+                  <div className="flex flex-col items-center justify-between">
+                    <p className="text-sm pb-1 font-semibold text-gray-700 truncate">
+                      {product.product_name}
+                      {/* <span className="font-semibold text-gray-600 pb-1">
                       {product.product_name}
                     </span> */}
-                  </p>
-                  {product.productImages.length > 0 ? (
-                    <div className="flex justify-between">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handlePrevImage(index);
-                        }}
-                        className="bg-transparent h-full flex justify-center items-center rounded-full p-1"
-                      >
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+                    </p>
+                    {product.productImages.length > 0 ? (
+                      <div className="flex justify-between">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePrevImage(index);
+                          }}
+                          className="bg-transparent h-full flex justify-center items-center rounded-full p-1"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 19l-7-7 7-7"
-                          />
-                        </svg>
-                      </button>
-                      <img
-                        className="h-28 w-auto object-contain rounded-md"
-                        src={
-                          product.productImages[currentImageIndices[index] || 0]
-                        }
-                      />
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleNextImage(index);
-                        }}
-                        className="bg-transparent h-full flex justify-center items-center rounded-full p-1"
-                      >
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 19l-7-7 7-7"
+                            />
+                          </svg>
+                        </button>
+                        <img
+                          className="h-28 w-auto object-contain rounded-md"
+                          src={
+                            product.productImages[
+                              currentImageIndices[index] || 0
+                            ]
+                          }
+                        />
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleNextImage(index);
+                          }}
+                          className="bg-transparent h-full flex justify-center items-center rounded-full p-1"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5l7 7-7 7"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="h-28 w-28 bg-gray-200 animate-pulse text-gray-600 rounded-md flex items-center justify-center text-sm whitespace-nowrap">
-                      🧑‍🎨No Image
-                    </div>
-                  )}
-                </div>
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="h-28 w-28 bg-gray-200 animate-pulse text-gray-600 rounded-md flex items-center justify-center text-sm whitespace-nowrap">
+                        🧑‍🎨No Image
+                      </div>
+                    )}
+                  </div>
 
-                {/* Info Section */}
-                <div className="space-y-1">
-                  {/* Model */}
-                  <p className="text-xs text-gray-600 flex items-center gap-1">
-                    📦 Model: {product.model_no}
-                  </p>
+                  {/* Info Section */}
+                  <div className="space-y-1">
+                    {/* Model */}
+                    <p className="text-xs text-gray-600 flex items-center gap-1">
+                      📦 Model: {product.model_no}
+                    </p>
 
-                  {/* Price */}
-                  <p className="text-xs text-gray-700 font-medium flex items-center gap-1">
-                    💰 ₹{product.product_price}
-                  </p>
+                    {/* Price */}
+                    <p className="text-xs text-gray-700 font-medium flex items-center gap-1">
+                      💰 ₹{product.product_price}
+                    </p>
 
-                  {/* Warranty */}
-                  <p className="text-xs flex items-center gap-1 text-gray-600">
-                    🛡 Warranty: {product.warrany_tenure} months
-                  </p>
+                    {/* Warranty */}
+                    <p className="text-xs flex items-center gap-1 text-gray-600">
+                      🛡 Warranty: {product.warrany_tenure} months
+                    </p>
 
-                  <p className="text-xs flex items-center gap-1 text-gray-600">
-                     🛡 Percentage Sold:{percentageSold}%
-                  </p>
+                    <p className="text-xs flex items-center gap-1 text-gray-600">
+                      🛡 Percentage Sold:{percentageSold}%
+                    </p>
 
-                  {/* Category */}
-                  <p className="text-xs flex items-center gap-1 text-gray-600">
-                    🏷 Category:{" "}
-                    {["", "Electronics", "Plastic", "Wood", "Metal"][
-                      product.product_category
-                    ] || "Unknown"}
-                  </p>
+                    {/* Category */}
+                    <p className="text-xs flex items-center gap-1 text-gray-600">
+                      🏷 Category:{" "}
+                      {["", "Electronics", "Plastic", "Wood", "Metal"][
+                        product.product_category
+                      ] || "Unknown"}
+                    </p>
 
-                  {/* Holder Status */}
-                  {/* <p className="text-xs flex items-center gap-1 whitespace-nowrap">
+                    {/* Holder Status */}
+                    {/* <p className="text-xs flex items-center gap-1 whitespace-nowrap">
                     📘 <span className="text-gray-600">Status:</span>{" "}
                     <span
                       className={`font-medium whitespace-nowrap ${
@@ -1000,28 +1017,41 @@ const percentageSold = totalSerials > 0 ? ((soldSerials / totalSerials) * 100) :
                     </span>
                   </p> */}
 
-                  {/* Manufacture Date */}
-                  {/* <p className="text-[11px] text-gray-500 flex items-center gap-1">
+                    {/* Manufacture Date */}
+                    {/* <p className="text-[11px] text-gray-500 flex items-center gap-1">
                     🗓 Mfg Date: {product?.man_date}
                   </p> */}
-                  <p className="text-[11px] text-gray-500 flex items-center gap-1">
-                    Item : {product?.item}
-                  </p>
+                    <p className="text-[11px] text-gray-500 flex items-center gap-1">
+                      Item : {product?.item}
+                    </p>
 
-                  {/* View Image Button */}
-                  {product.productImages && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation(); // This stops the event from bubbling up to the parent div
-                        setPreviewImage(product.productImages[0]);
-                        setpreviewImageModelNo(product.model_no);
-                      }}
-                      className="text-xs text-gray-600 hover:underline mt-1 bg-white"
-                    >
-                      🔍 View Images
-                    </button>
-                  )}
-                {/* {
+                    {/* View Image Button */}
+                    <div className="flex flex-row justify-between">
+                      {product.productImages && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation(); // This stops the event from bubbling up to the parent div
+                            setPreviewImage(product.productImages[0]);
+                            setpreviewImageModelNo(product.model_no);
+                          }}
+                          className="text-xs text-gray-600 hover:underline mt-1 bg-white"
+                        >
+                          🔍 View Images
+                        </button>
+                      )}
+                      <p
+                        className="flex justify-center items-center bg-blue-300 px-2 rounded-sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setquantityopen(true);
+                          setproductId(product.prod_id);
+                        }}
+                        title="Add Quantity"
+                      >
+                        +
+                      </p>
+                    </div>
+                    {/* {
                     <button
                       className="bg-white text-black h-5 flex justify-between items-center"
                       onClick={() => {
@@ -1036,12 +1066,41 @@ const percentageSold = totalSerials > 0 ? ((soldSerials / totalSerials) * 100) :
                       Manage Batches
                     </button>
                   } */}
-              </div>
-             </div>
-            )
-          
-})
+                  </div>
+                </div>
+              );
+            })
           )}
+        </div>
+      )}
+
+      {quantityopen && (
+        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative">
+            <div
+              className="absolute top-0 right-1 cursor-pointer p-1 rounded-full bg-white"
+              onClick={() => {setquantityopen(false);setnewquantity(1)}}
+            >
+              X
+            </div>
+            <div className="bg-white-100">
+              <div className="flex justify-between w-full font-semibold text-gray-900 pl-10 pt-2">
+                Add More Quantity
+              </div>
+              <div className="p-8 flex flex-row justify-between ">
+                <input
+                  type="text"
+                  className="bg-white text-black h-8 rounded-md px-2 border-black border-[1px]"
+                  placeholder="Enter Quantity"
+                  value={newquantity}
+                  onChange={(e) => setnewquantity(Number(e.target.value))}
+                />
+                <button className="bg-stone-600 text-white h-8 flex justify-center items-center" onClick={()=>PostQuantity()}>
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -1212,7 +1271,7 @@ const percentageSold = totalSerials > 0 ? ((soldSerials / totalSerials) * 100) :
                       onClick={(e) => {
                         setpreviewImageREquest(req.productImages[0]);
                         e.stopPropagation();
-setreson(req.reason);
+                        setreson(req.reason);
                       }}
                       className="text-blue-600 text-xs font-medium hover:underline bg-white"
                     >

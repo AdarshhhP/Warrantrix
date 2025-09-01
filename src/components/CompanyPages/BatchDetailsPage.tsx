@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import axios from "axios";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Trash2 } from "lucide-react";
 
 type SerialMapping = {
   map_id: number;
@@ -48,6 +48,31 @@ const BatchDetailsPage = () => {
 
   fetchBatchDetails();
 }, [batchId]);
+
+const handleDeleteSerial = async (serialNo: string) => {
+    if (!batch) return;
+    try {
+      await axios.post("http://localhost:1089/api/batch/remove-serial", {
+        batchNo: batch.batch_no,
+        serialNumber: serialNo,
+      });
+
+      // Update state after delete
+      setBatch((prev) =>
+        prev
+          ? {
+              ...prev,
+              serialMappings: prev.serialMappings.filter(
+                (s) => s.serialNo !== serialNo
+              ),
+            }
+          : prev
+      );
+    } catch (err) {
+      console.error("Error deleting serial number", err);
+      alert("Failed to delete serial number");
+    }
+  };
 
   if (loading)
     return (
@@ -129,6 +154,7 @@ const handleDownload = () => {
               <th className="border border-gray-300 px-4 py-2">Sl. No</th>
               <th className="border border-gray-300 px-4 py-2">Serial No</th>
               <th className="border border-gray-300 px-4 py-2">Batch Status</th>
+              <th className="border border-gray-300 px-4 py-2">Action</th>
             </tr>
           </thead>
           <tbody className="text-black">
@@ -146,6 +172,15 @@ const handleDownload = () => {
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
                     {s.is_sold === 1 ? "With Customer" : "With Seller"}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    <button
+                      onClick={() => handleDeleteSerial(s.serialNo)}
+                      className="text-red-600 bg-white hover:text-red-800"
+                      title="Delete Serial"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
                   </td>
                 </tr>
               ))

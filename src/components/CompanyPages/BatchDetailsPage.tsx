@@ -3,6 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import axios from "axios";
 import { ArrowLeft, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { Toaster } from "../ui/sonner";
+import companyService from "../../services/CompanyServices";
 
 type SerialMapping = {
   map_id: number;
@@ -25,54 +28,54 @@ const BatchDetailsPage = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteSerial, setDeleteSerial] = useState<string | null>(null);
 
-  console.log(batchId,"batchId")
+  console.log(batchId, "batchId");
   useEffect(() => {
-  const fetchBatchDetails = async () => {
-    try {
-    await axios.get<BatchDetails>(
-        `http://localhost:1089/api/batch/batchId`,
-        {
-          params: { batchId }, 
-        }
-      ).then((res)=>{
-      setBatch(res.data);
-      })
-    } catch (err) {
-      console.error("Error fetching batch details", err);
-      setError("Failed to load batch details");
-    } finally {
-      setLoading(false);
-    }
-  };
+    const fetchBatchDetails = async () => {
+      try {
+        await axios
+          .get<BatchDetails>(`http://localhost:1089/api/batch/batchId`, {
+            params: { batchId },
+          })
+          .then((res) => {
+            setBatch(res.data);
+          });
+      } catch (err) {
+        console.error("Error fetching batch details", err);
+        setError("Failed to load batch details");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchBatchDetails();
-}, [batchId]);
+    fetchBatchDetails();
+  }, [batchId]);
 
-const handleDeleteSerial = async (serialNo: string) => {
-    if (!batch) return;
-    try {
-      await axios.post("http://localhost:1089/api/batch/remove-serial", {
-        batchNo: batch.batch_no,
-        serialNumber: serialNo,
-      });
+  const handleDeleteSerial = async (serialNo: string) => {
+  if (!batch) return;
+  try {
+    await companyService.deleteSerialFromBatch(batch.batch_no, serialNo);
 
-      // Update state after delete
-      setBatch((prev) =>
-        prev
-          ? {
-              ...prev,
-              serialMappings: prev.serialMappings.filter(
-                (s) => s.serialNo !== serialNo
-              ),
-            }
-          : prev
-      );
-    } catch (err) {
-      console.error("Error deleting serial number", err);
-      alert("Failed to delete serial number");
-    }
-  };
+    // Update state after delete
+    setBatch((prev) =>
+      prev
+        ? {
+            ...prev,
+            serialMappings: prev.serialMappings.filter(
+              (s) => s.serialNo !== serialNo
+            ),
+          }
+        : prev
+    );
+
+    toast.success(`Serial ${serialNo} deleted successfully`);
+  } catch (err) {
+    console.error("Error deleting serial number", err);
+    toast.error("Failed to delete serial number. Please try again.");
+  }
+};
 
   if (loading)
     return (
@@ -91,31 +94,32 @@ const handleDeleteSerial = async (serialNo: string) => {
     );
 
   if (!batch) return <p>No data found</p>;
-console.log(batch,"huhuhuhuhuh")
+  console.log(batch, "huhuhuhuhuh");
 
-const handleDownload = () => {
-  if (!batch) return;
+  const handleDownload = () => {
+    if (!batch) return;
 
-  // Prepare only serial mappings for Excel
-  const excelData = batch.serialMappings.map((s, index) => ({
-    "Sl. No": index + 1,
-    "Serial Number": s.serialNo,
-    "Batch Status": s.is_sold === 1 ? "With Customer" : "With Seller",
-  }));
+    // Prepare only serial mappings for Excel
+    const excelData = batch.serialMappings.map((s, index) => ({
+      "Sl. No": index + 1,
+      "Serial Number": s.serialNo,
+      "Batch Status": s.is_sold === 1 ? "With Customer" : "With Seller",
+    }));
 
-  // Convert data to worksheet
-  const worksheet = XLSX.utils.json_to_sheet(excelData);
+    // Convert data to worksheet
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
 
-  // Create workbook and append worksheet
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "SerialMappings");
+    // Create workbook and append worksheet
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "SerialMappings");
 
-  // Download Excel file
-  XLSX.writeFile(workbook, `Batch_${batch.batch_no}_Serials.xlsx`);
-};
+    // Download Excel file
+    XLSX.writeFile(workbook, `Batch_${batch.batch_no}_Serials.xlsx`);
+  };
 
   return (
     <div className="container mx-auto px-5 py-7 min-h-screen bg-gray-100">
+      <Toaster />
       {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
@@ -125,7 +129,7 @@ const handleDownload = () => {
       </button>
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800 mb-6">
-           Batch Number - {batch.batch_no}
+          Batch Number - {batch.batch_no}
         </h1>
         <button
           onClick={handleDownload}
@@ -134,7 +138,6 @@ const handleDownload = () => {
           Download as Excel
         </button>
       </div>
-      
 
       <div className="bg-white rounded shadow p-4 mb-6 text-black">
         <p>
@@ -164,32 +167,32 @@ const handleDownload = () => {
                   key={s.map_id}
                   className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
                 >
-                  <td className="border border-gray-300 px-4 py-2">
+                  <td className="border border-gray-300 px-3 py-1">
                     {index + 1}
                   </td>
-                  <td className="border border-gray-300 px-4 py-2">
+                  <td className="border border-gray-300 px-3 py-1">
                     {s.serialNo}
                   </td>
-                  <td className="border border-gray-300 px-4 py-2">
+                  <td className="border border-gray-300 px-3 py-1">
                     {s.is_sold === 1 ? "With Customer" : "With Seller"}
                   </td>
-                  <td className="border border-gray-300 px-4 py-2">
+                  <td className="border border-gray-300 px-3 py-1">
                     <button
-                      onClick={() => handleDeleteSerial(s.serialNo)}
+                      onClick={() => {
+                        setDeleteSerial(s.serialNo);
+                        setShowDeleteConfirm(true);
+                      }}
                       className="text-red-600 bg-white hover:text-red-800"
                       title="Delete Serial"
                     >
-                      <Trash2 className="w-5 h-5" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td
-                  colSpan={3}
-                  className="text-center px-4 py-6 text-gray-600"
-                >
+                <td colSpan={3} className="text-center px-4 py-6 text-gray-600">
                   No serial numbers found.
                 </td>
               </tr>
@@ -197,6 +200,39 @@ const handleDownload = () => {
           </tbody>
         </table>
       </div>
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+            <p className="text-gray-800 mb-4">
+              Are you sure you want to delete Serial No:{" "}
+              <span className="font-semibold">{deleteSerial}</span>?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={async () => {
+                  if (deleteSerial) {
+                    await handleDeleteSerial(deleteSerial);
+                  }
+                  setShowDeleteConfirm(false);
+                  setDeleteSerial(null);
+                }}
+                className="bg-teal-500 text-white px-4 py-2 rounded hover:bg-red-700"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setDeleteSerial(null);
+                }}
+                className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

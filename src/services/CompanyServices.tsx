@@ -52,6 +52,11 @@ class CompanyService {
    async postBatch(payload: any) {
     return axios.post(`${this.baseProductUrl}/api/batch/create`, payload);
   }
+  
+  async getDataBySerial(payload: any) {
+    return axios.post(`${this.baseProductUrl}/getDataBySerial`, payload);
+  }
+
  async fetchSerialByBatch(BatchNo:string){
    return axios.get(`${this.baseProductUrl}/api/batch/getSerialByModelNo?BatchNo=${BatchNo}`)
   }

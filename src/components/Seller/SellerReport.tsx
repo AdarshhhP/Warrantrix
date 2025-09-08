@@ -291,17 +291,17 @@ const enrichWithProductDetails = async (modelNos: string[]) => {
       <table className="min-w-full table-auto text-sm text-left text-gray-800 bg-white">
         <thead className="bg-teal-100 text-gray-900 sticky top-0">
           <tr>
-            <th className="p-2 border">Sl No</th>
-            <th className="p-2 border">Model No</th>
-            <th className="p-2 border">Batch No</th>
-            <th className="p-2 border">Price</th>
-            <th className="p-2 border">Warranty (months)</th>
-            <th className="p-2 border">Purchase Date</th>
-            <th className="p-2 border">Product Name</th>
-            <th className="p-2 border">Tenure (years)</th>
-            <th className="p-2 border">Mfg Date</th>
-            <th className="p-2 border">Company Name</th>
-            <th className="p-2 border">Item Status</th>
+            <th className="px-2 border whitespace-nowrap">Sl No</th>
+            <th className="px-2 border whitespace-nowrap">Model No</th>
+            <th className="px-2 border whitespace-nowrap">Batch No</th>
+            <th className="px-2 border">Price</th>
+            <th className="px-2 border">Warranty (months)</th>
+            <th className="px-2 border whitespace-nowrap">Purchase Date</th>
+            <th className="px-2 border whitespace-nowrap">Product Name</th>
+            <th className="px-2 border whitespace-nowrap">Tenure (years)</th>
+            <th className="px-2 border whitespace-nowrap">Mfg Date</th>
+            <th className="px-2 border whitespace-nowrap">Company Name</th>
+            <th className="px-2 border ">Item Status</th>
           </tr>
         </thead>
         <tbody>
@@ -309,17 +309,17 @@ const enrichWithProductDetails = async (modelNos: string[]) => {
             const prod = productDetailsMap[item.model_no] || {};
             return (
               <tr key={index + 1} className="text-center hover:bg-teal-50">
-                <td className="p-2 border">{inventoryPage * inventorySize + index + 1}</td>
-                <td className="p-2 border">{item.model_no}</td>
-                <td className="p-2 border">{item.addedbatch_no}</td>
-                <td className="p-2 border">₹{item.price}</td>
-                <td className="p-2 border">{item.warranty}</td>
-                <td className="p-2 border">{item.purchase_date}</td>
-                <td className="p-2 border">{prod.product_name || "-"}</td>
-                <td className="p-2 border">{prod.warrany_tenure || "-"}</td>
-                <td className="p-2 border">{prod.man_date || "-"}</td>
-                <td className="p-2 border">{prod.company_name || "-"}</td>
-                <td className="p-2 border">
+                <td className="px-2 border">{inventoryPage * inventorySize + index + 1}</td>
+                <td className="px-2 border">{item.model_no}</td>
+                <td className="px-2 border">{item.addedbatch_no}</td>
+                <td className="px-2 border">₹{item.price}</td>
+                <td className="px-2 border">{item.warranty}</td>
+                <td className="px-2 border">{item.purchase_date}</td>
+                <td className="px-2 border">{prod.product_name || "-"}</td>
+                <td className="px-2 border">{prod.warrany_tenure || "-"}</td>
+                <td className="px-2 border">{prod.man_date || "-"}</td>
+                <td className="px-2 border">{prod.company_name || "-"}</td>
+                <td className="px-2 border">
                   {prod.holderStatus === 2
                     ? "Item Available"
                     : prod.holderStatus === 3

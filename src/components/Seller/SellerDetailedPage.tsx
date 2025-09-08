@@ -320,7 +320,7 @@ const SellerDetailedPage = () => {
       phono: data.phono,
       email: data.email,
       serialNo: data.serial_no,
-      batchNo:data.batch_number
+      batchNo: data.batch_number,
     };
 
     try {
@@ -558,10 +558,27 @@ const SellerDetailedPage = () => {
       <h1 className="text-xl md:text-3xl font-bold text-center text-gray-900 mb-6">
         Model No : {reqmodelno}
       </h1>
+      <div className="px-6 py-2 bg-white rounded-2xl shadow-md border border-gray-200">
+  {inventory[0] && (
+    <div className="grid grid-cols-2 gap-6">
+      {/* Left section */}
+      <div>
+        <p className="text-xl font-semibold text-gray-900">₹{inventory[0].price}</p>
+        <p className="text-sm text-gray-500">{inventory[0].warranty} months warranty</p>
+      </div>
+
+      {/* Right section */}
+      <div>
+        <p className="text-sm text-gray-600">Purchased: <span className="font-medium text-gray-800">{inventory[0].purchase_date}</span></p>
+        <p className="text-sm text-gray-600">Batch: <span className="font-medium text-gray-800">{inventory[0].addedbatch_no}</span></p>
+      </div>
+    </div>
+  )}
+</div>
       <Toaster />
 
       {/* Tabs */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
         {/* <div className="flex space-x-2">
           <button
             onClick={() => setActiveTab("inventory")}
@@ -780,186 +797,217 @@ const SellerDetailedPage = () => {
 
       {/* Inventory List */}
       {activeTab === "inventory" && (
-        <div className="grid grid-cols-4 gap-2">
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
           {inventory?.length > 0 ? (
-            inventory?.map((item) => {
-              const prod = productDetailsMap[item.model_no] || {};
-              console.log(inventory, "prod");
-              const findSerialStatus = (serialNo: string) => {
-                // Check if productSerials exists and is an array before using find()
-                return prod.productSerials?.find(
-                  (item) => item.serialNo === serialNo
-                )?.itemsStatus;
-              };
-
-              const itemStatus = findSerialStatus(item.serial_no);
-              return (
-                <div
-                  key={item.purchase_id}
-                  className="bg-white border border-gray-200 rounded-lg p-2 shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-gray-900 flex flex-row ">
-                      <p className="flex text-sm text-gray-600 items-center justify-center">
-                        Product :{" "}
-                      </p>{" "}
-                      {prod?.product_name || "Unknown Product"}
-                    </h3>
-                    <span className="text-xs bg-teal-100 text-gray-700 px-2 py-1 rounded">
-                      {item?.serial_no}
-                    </span>
-                  </div>
-
-                  <div className="space-y-2 text-sm text-gray-700">
-                    {/* <div className="flex justify-between">
-                      <span>Serial No:</span>
-                      <span className="font-medium">{item.serial_no}</span>
-                    </div> */}
-                    <div className="flex justify-between">
-                      <span>Price:</span>
-                      <span className="font-medium">₹{item.price}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Warranty:</span>
-                      <span>{item.warranty} months</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Purchase Date:</span>
-                      <span>{item.purchase_date}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Added From Batch</span>
-                      <span>{item.addedbatch_no}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-row">
-                    {prod.productImages && (
-                      <div className="p-1">
-                        <img
-                          className="h-28 w-auto object-contain rounded-md"
-                          src={prod.productImages[0]}
-                        />
-                      </div>
-                    )}
-                    <div className="flex flex-col">
-                      {prod.productImages && (
-                        <button
-                          onClick={() => setPreviewImage(prod.productImages[0])}
-                          className="mt-2 text-xs text-blue-600 bg-white h-8"
-                        >
-                          View Image
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
-                    <span
-                      className={`text-xs px-2 py-1 rounded ${
-                        itemStatus === 2
-                          ? "bg-green-100 text-green-800"
-                          : itemStatus === 3
-                          ? "bg-red-100 text-red-800"
-                          : "bg-teal-100 text-gray-800"
-                      }`}
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      {itemStatus === 2
-                        ? "Available"
-                        : itemStatus === 3
-                        ? "Sold"
-                        : itemStatus === 4
-                        ? "Customer Registered"
-                        : itemStatus === 5
-                        ? "Raised Warranty Request"
-                        : "Unknown Status"}
-                    </span>
+                      Product Info
+                    </th>
+                    {/* <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Details
+              </th> */}
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Status
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {inventory?.map((item) => {
+                    const prod = productDetailsMap[item.model_no] || {};
+                    const findSerialStatus = (serialNo: string) => {
+                      return prod.productSerials?.find(
+                        (item) => item.serialNo === serialNo
+                      )?.itemsStatus;
+                    };
 
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => {
-                          setEditingItem(item);
-                          inventoryForm.reset(item);
-                          setInventoryModelValid(true);
-                          setShowInventoryForm(true);
-                        }}
-                        className="text-white hover:text-gray-900 p-1 rounded bg-teal-700"
-                        title="Edit"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                          />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => deleteInventory(item.purchase_id)}
-                        className="text-white hover:text-red-600 p-1 rounded bg-teal-700"
-                        title="Delete"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => {
-                          showEditOption(item);
-                          purchaseForm.setValue(
-                            "batch_number",
-                            item.addedbatch_no
-                          );
-                        }}
-                        className="text-white hover:text-green-600 p-1 rounded bg-teal-700"
-                        title="Mark Sold"
-                        disabled={itemStatus !== 2}
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })
+                    const itemStatus = findSerialStatus(item.serial_no);
+
+                    return (
+                      <tr key={item.purchase_id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            {prod.productImages && (
+                              <div className="flex-shrink-0 h-10 w-10 mr-3">
+                                <img
+                                  className="h-10 w-10 object-contain rounded-md"
+                                  src={prod.productImages[0]}
+                                  alt={prod?.product_name || "Product image"}
+                                />
+                              </div>
+                            )}
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">
+                                {prod?.product_name || "Unknown Product"}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                SN: {item.serial_no}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-1 whitespace-nowrap">
+                          <span
+                            className={`inline-flex text-xs leading-5 font-semibold px-2.5 py-0.5 rounded-full ${
+                              itemStatus === 2
+                                ? "bg-green-100 text-green-800"
+                                : itemStatus === 3
+                                ? "bg-red-100 text-red-800"
+                                : "bg-teal-100 text-gray-800"
+                            }`}
+                          >
+                            {itemStatus === 2
+                              ? "Available"
+                              : itemStatus === 3
+                              ? "Sold"
+                              : itemStatus === 4
+                              ? "Customer Registered"
+                              : itemStatus === 5
+                              ? "Raised Warranty Request"
+                              : "Unknown Status"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex space-x-2">
+                            {/* View Image Button */}
+                            {prod.productImages && (
+                              <button
+                                onClick={() =>
+                                  setPreviewImage(prod.productImages[0])
+                                }
+                                className="text-teal-700 hover:text-blue-800 p-1 rounded bg-teal-100"
+                                title="View Image"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                  />
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                  />
+                                </svg>
+                              </button>
+                            )}
+
+                            {/* Edit Button */}
+                            {/* <button
+                              onClick={() => {
+                                setEditingItem(item);
+                                inventoryForm.reset(item);
+                                setInventoryModelValid(true);
+                                setShowInventoryForm(true);
+                              }}
+                              className="text-teal-700 hover:text-teal-900 p-1 rounded bg-teal-100"
+                              title="Edit"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                />
+                              </svg>
+                            </button> */}
+
+                            {/* Delete Button */}
+                            <button
+                              onClick={() => deleteInventory(item.purchase_id)}
+                              className="text-teal-700 hover:text-red-600 p-1 rounded bg-teal-100"
+                              title="Delete"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                />
+                              </svg>
+                            </button>
+
+                            {/* Mark Sold Button */}
+                            <button
+                              onClick={() => {
+                                showEditOption(item);
+                                purchaseForm.setValue(
+                                  "batch_number",
+                                  item.addedbatch_no
+                                );
+                              }}
+                              className="text-teal-700 hover:text-green-600 p-1 rounded bg-teal-100"
+                              title="Mark Sold"
+                              disabled={itemStatus !== 2}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M5 13l4 4L19 7"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           ) : (
-            <div className="text-gray-500 col-span-full text-center py-8 flex items-center justify-center h-96">
+            <div className="text-gray-500 text-center py-8 flex items-center justify-center h-96">
               {loader ? <Loader /> : <div>No items available in inventory</div>}
             </div>
           )}
         </div>
       )}
-
       {/* Purchases List */}
       {activeTab === "purchases" && (
         <div className="grid grid-cols-4 gap-2">

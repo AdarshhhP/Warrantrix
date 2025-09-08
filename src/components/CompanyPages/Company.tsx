@@ -1275,7 +1275,7 @@ const Company = () => {
                       }}
                       className="text-blue-600 text-xs font-medium hover:underline bg-white"
                     >
-                      View Images yoooo
+                      View Images
                     </button>
                   )}
 

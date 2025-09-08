@@ -224,19 +224,19 @@ const CompanyRequests = () => {
                 requests.map((req, index) => (
                   <tr
                     key={req.warranty_request_id}
-                    className="hover:bg-gray-50 border-t"
+                    className="hover:bg-gray-50 border-t py-2"
                   >
-                    <td className="px-4 border">
+                    <td className="px-4 border py-2">
                       {requestPage * requestSize + index + 1}
                     </td>
-                    <td className="px-4 border">{req.model_no}</td>
-                    <td className="px-4 border">{req.customer_name}</td>
-                    <td className="px-4 border">{req.customer_email}</td>
-                    <td className="px-4 border">{req.phone_number}</td>
-                    <td className="px-4 border">{req.reason}</td>
-                    <td className="px-4 border">{req.rejection_remark||"Not Responded"}</td>
-                    <td className="px-4 border">{req.request_date}</td>
-                    <td className="px-4 border font-medium text-gray-700">
+                    <td className="px-4 border py-2">{req.model_no}</td>
+                    <td className="px-4 border py-2">{req.customer_name}</td>
+                    <td className="px-4 border py-2">{req.customer_email}</td>
+                    <td className="px-4 border py-2">{req.phone_number}</td>
+                    <td className="px-4 border py-2">{req.reason}</td>
+                    <td className="px-4 border py-2">{req.rejection_remark||"Not Responded"}</td>
+                    <td className="px-4 border py-2">{req.request_date}</td>
+                    <td className="px-4 border font-medium text-gray-700 py-2">
                       {
                         ["", "Pending", "Approved", "Rejected"][
                           req.warranty_status

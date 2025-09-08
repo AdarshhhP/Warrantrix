@@ -146,6 +146,13 @@ class CompanyService {
     });
     return res.data;
   }
+  async deleteSerialFromBatch(batchNo: string, serialNumber: string) {
+  return axios.post(`${this.baseProductUrl}/api/batch/remove-serial`, {
+    batchNo,
+    serialNumber,
+  });
+}
+
 }
 
 const companyService= new CompanyService();

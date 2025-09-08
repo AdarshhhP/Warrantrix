@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { Toaster } from "../../components/ui/sonner";
 import Loader from "../Loader/Loader";
 import companyService from "../../services/CompanyServices";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export interface ProductDetails {
   productSerials: ProductSerial[];
@@ -91,6 +93,7 @@ const SellerDetailedPage = () => {
     statusCode?: number;
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const navigate=useNavigate();
 
   const inventoryForm = useForm();
   const purchaseForm = useForm();
@@ -555,7 +558,14 @@ const SellerDetailedPage = () => {
 
   return (
     <div className="p-4 md:p-6 mx-auto space-y-6 bg-stone-200 min-h-screen text-gray-900 max-w-7xl">
-      <h1 className="text-xl md:text-3xl font-bold text-center text-gray-900 mb-6">
+      
+      <h1 className="text-xl md:text-3xl font-bold text-center text-gray-900 mb-6 flex flex-row">
+        <button
+                onClick={() => navigate(-1)}
+                className=" text-black bg-transparent text-lg p-2 rounded-full hover:bg-stone-400 bg-stone-600 transition-colors flex items-center justify-center"
+              >
+                <ArrowLeft size={15} />
+              </button>
         Model No : {reqmodelno}
       </h1>
       <div className="px-6 py-2 bg-white rounded-2xl shadow-md border border-gray-200">
@@ -563,14 +573,14 @@ const SellerDetailedPage = () => {
     <div className="grid grid-cols-2 gap-6">
       {/* Left section */}
       <div>
-        <p className="text-xl font-semibold text-gray-900">₹{inventory[0].price}</p>
-        <p className="text-sm text-gray-500">{inventory[0].warranty} months warranty</p>
+        <p className="text-xl font-semibold text-gray-900">Price : ₹{inventory[0].price}</p>
+        <p className="text-sm text-gray-500">Warranty : {inventory[0].warranty} months </p>
       </div>
 
       {/* Right section */}
       <div>
-        <p className="text-sm text-gray-600">Purchased: <span className="font-medium text-gray-800">{inventory[0].purchase_date}</span></p>
-        <p className="text-sm text-gray-600">Batch: <span className="font-medium text-gray-800">{inventory[0].addedbatch_no}</span></p>
+        <p className="text-sm text-gray-600">Purchased Date: <span className="font-medium text-gray-800">{inventory[0].purchase_date}</span></p>
+        <p className="text-sm text-gray-600">Batch No: <span className="font-medium text-gray-800">{inventory[0].addedbatch_no}</span></p>
       </div>
     </div>
   )}
@@ -839,7 +849,7 @@ const SellerDetailedPage = () => {
 
                     return (
                       <tr key={item.purchase_id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-6 whitespace-nowrap">
                           <div className="flex items-center">
                             {prod.productImages && (
                               <div className="flex-shrink-0 h-10 w-10 mr-3">
@@ -974,7 +984,7 @@ const SellerDetailedPage = () => {
                                   item.addedbatch_no
                                 );
                               }}
-                              className="text-teal-700 hover:text-green-600 p-1 rounded bg-teal-100"
+                              className={`text-teal-700 hover:text-green-600 p-1 rounded bg-teal-100 ${itemStatus!== 2 ? "opacity-50 cursor-not-allowed" : ""}`}
                               title="Mark Sold"
                               disabled={itemStatus !== 2}
                             >

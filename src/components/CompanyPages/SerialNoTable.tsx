@@ -195,7 +195,7 @@ const SerialNumbersPage = () => {
   return (
     <div className="container mx-auto px-4 py-8 bg-stone-200 min-h-full max-h-fit">
       <Toaster />
-      <div className="flex items-center mb-6 gap-2">
+      <div className="flex items-center mb-3 gap-2">
         <button
           onClick={() => navigate(-1)}
           className=" text-black bg-transparent text-lg p-2 rounded-full hover:bg-stone-400 bg-stone-600 transition-colors flex items-center justify-center"
@@ -207,10 +207,10 @@ const SerialNumbersPage = () => {
  
       {/* Tabs */}
       <div className="flex mb-4 border-b border-gray-200 gap-2 justify-between">
-        <div className="flex mb-4 border-b border-gray-200 gap-2">
+        <div className="flex border-b border-gray-200 gap-2">
           <button
             onClick={() => setActiveTab("unsold")}
-            className={`px-4 py-2 font-medium ${
+            className={`px-4 py-1 font-medium ${
               activeTab === "unsold"
                 ? "border-b-2 border-gray-500 text-white bg-stone-900"
                 : "hover:text-white bg-stone-500 text-white"
@@ -220,7 +220,7 @@ const SerialNumbersPage = () => {
           </button>
           <button
             onClick={() => setActiveTab("sold")}
-            className={`px-4 py-2 font-medium ${
+            className={`px-4 py-1 font-medium ${
               activeTab === "sold"
                 ? "border-b-2 border-gray-500 text-white bg-stone-900"
                 : "hover:text-white bg-stone-500 text-white"
@@ -248,7 +248,7 @@ const SerialNumbersPage = () => {
       ) : (
         <>
           {activeTab === "unsold" && (
-            <div className="mb-4 flex justify-between items-center">
+            <div className="flex justify-between items-center">
               {/* <p className="text-gray-600">
                 {selectedSerials.size > 0
                   ? `${selectedSerials.size} selected`
@@ -256,7 +256,7 @@ const SerialNumbersPage = () => {
               </p> */}
             </div>
           )}
-          <div className="bg-white rounded shadow p-4 mb-6 text-black">
+          <div className="bg-white rounded shadow p-4 mb-3 text-black">
             <p>
               <strong>Model No:</strong> {modelNo || "N/A"}
             </p>

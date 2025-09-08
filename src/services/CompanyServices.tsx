@@ -41,7 +41,9 @@ class CompanyService {
     return axios.post(`${this.baseProductUrl}/changeserialStatus`, payload);
   }
 
-  
+   async PostQuantity(prodId: number, quantity: number) {
+    return axios.post(`${this.baseProductUrl}/addQuantity?productId=${prodId}&quantity=${quantity}`);
+  }
 
   async postProduct(payload: any) {
     return axios.post(`${this.baseProductUrl}/postproduct`, payload);
@@ -50,6 +52,11 @@ class CompanyService {
    async postBatch(payload: any) {
     return axios.post(`${this.baseProductUrl}/api/batch/create`, payload);
   }
+  
+  async getDataBySerial(payload: any) {
+    return axios.post(`${this.baseProductUrl}/getDataBySerial`, payload);
+  }
+
  async fetchSerialByBatch(BatchNo:string){
    return axios.get(`${this.baseProductUrl}/api/batch/getSerialByModelNo?BatchNo=${BatchNo}`)
   }

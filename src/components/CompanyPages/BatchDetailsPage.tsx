@@ -25,8 +25,6 @@ const BatchDetailsPage = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-
-  console.log(batchId,"batchId")
   useEffect(() => {
   const fetchBatchDetails = async () => {
     try {
@@ -91,7 +89,6 @@ const handleDeleteSerial = async (serialNo: string) => {
     );
 
   if (!batch) return <p>No data found</p>;
-console.log(batch,"huhuhuhuhuh")
 
 const handleDownload = () => {
   if (!batch) return;

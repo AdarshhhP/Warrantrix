@@ -313,14 +313,14 @@ const CustomerWarrantyRequests = () => {
 
       {/* Warranty Requests */}
       {activeTab === "requests" && (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-5 gap-4">
           {requests.length > 0 ? (
             requests.map((req) => {
               const product = productDetailsMap[req.model_no] || {};
               return (
                 <div
                   key={req.warranty_request_id}
-                  className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300"
+                  className="bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm hover:shadow-md transition-shadow duration-300"
                 >
                   {/* Header */}
                   <div className="flex items-center justify-between mb-3">

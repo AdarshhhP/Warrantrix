@@ -223,10 +223,10 @@ const BatchListPage = () => {
         <h1 className="text-2xl font-bold text-gray-800">Batch List</h1>
       </div>
 
-      <div className="overflow-x-auto rounded-md border border-gray-300 bg-white shadow h-[355px] flex justify-between flex-col">
+      <div className="overflow-x-auto rounded-md border border-gray-300 bg-white shadow h-[305px] flex justify-between flex-col">
         <div>
         <table className="min-w-full table-auto border-collapse">
-          <thead className="bg-gray-200 text-gray-700 text-left">
+          <thead className="bg-gray-200 text-gray-700 text-left h-8">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
@@ -248,12 +248,12 @@ const BatchListPage = () => {
               table.getRowModel().rows.map((row, rowIndex) => (
                 <tr
                   key={row.id}
-                  className={rowIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                  className={rowIndex % 2 === 0 ? "bg-white h-8" : "bg-gray-50"}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td
                       key={cell.id}
-                      className="border border-gray-300 px-4 py-2 text-sm text-gray-800 align-top"
+                      className="border border-gray-300 px-4 pt-1 text-sm text-gray-800 align-top"
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -281,7 +281,7 @@ const BatchListPage = () => {
             <button
               onClick={() => setRequestPage((prev) => Math.max(prev - 1, 0))}
               disabled={requestPage === 0}
-              className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+              className="px-2 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
             >
               Prev
             </button>
@@ -295,7 +295,7 @@ const BatchListPage = () => {
                 )
               }
               disabled={requestPage >= totalRequestPages - 1}
-              className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+              className="px-2 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
             >
               Next
             </button>

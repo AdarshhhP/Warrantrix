@@ -122,13 +122,6 @@ const CustomerWarrantyPage = () => {
     }
   }, [customerId]);
 
-  const handleEdit = (item: any) => {
-    setEditItem(item);
-    registerForm.setValue("model_no", item.model_no);
-    registerForm.setValue("purchase_date", item.purchase_date);
-    setShowRegisterForm(true);
-  };
-
   const handleDelete = async (purchaseId: number) => {
     try {
       const res = await customerService.deleteRegisteredWarranty(purchaseId);
@@ -489,7 +482,7 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
                   )}
 
                   <div className="flex space-x-2 mt-3">
-                    <button
+                    {/* <button
                       onClick={() => handleEdit(item)}
                       className="text-white hover:text-gray-900 p-1 rounded hover:bg-blue-100"
                       title="Edit"
@@ -508,7 +501,7 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
                           d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                         />
                       </svg>
-                    </button>
+                    </button> */}
                     <button
                       onClick={() => {
                         setDeleteId(item.purchase_Id);
@@ -532,7 +525,7 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
                         />
                       </svg>
                     </button>
-                    {item.companyapprovalstatus == 1 && (
+                    {item.companyapprovalstatus == 1 ? (
                       <button
                         disabled={item.companyapprovalstatus == 0||item.companyapprovalstatus==2}
                         onClick={() =>
@@ -547,7 +540,11 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
                       >
                         Request
                       </button>
-                    )}
+                    )
+                    :(
+<span className="text-xs bg-teal-500 hover:bg-teal-700 text-white px-2 py-1 rounded cursor-not-allowed">Reg Req Send</span>
+                    ) 
+                    }
                   </div>
                 </div>
               );
@@ -594,14 +591,14 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
 
       {/* Warranty Requests */}
       {activeTab === "requests" && (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-5 gap-4">
           {requests.length > 0 ? (
             requests.map((req) => {
               const product = productDetailsMap[req.model_no] || {};
               return (
                 <div
                   key={req.warranty_request_id}
-                  className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300"
+                  className="bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm hover:shadow-md transition-shadow duration-300"
                 >
                   {/* Header */}
                   <div className="flex items-center justify-between mb-3">

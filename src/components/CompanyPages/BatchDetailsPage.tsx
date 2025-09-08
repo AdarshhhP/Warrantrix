@@ -94,7 +94,7 @@ const BatchDetailsPage = () => {
     );
 
   if (!batch) return <p>No data found</p>;
-  console.log(batch, "huhuhuhuhuh");
+console.log(batch,"huhuhuhuhuh")
 
   const handleDownload = () => {
     if (!batch) return;

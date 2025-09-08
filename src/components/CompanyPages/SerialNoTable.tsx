@@ -212,8 +212,8 @@ const SerialNumbersPage = () => {
             onClick={() => setActiveTab("unsold")}
             className={`px-4 py-2 font-medium ${
               activeTab === "unsold"
-                ? "border-b-2 border-gray-500 text-white bg-stone-600"
-                : "hover:text-white bg-stone-900 text-white"
+                ? "border-b-2 border-gray-500 text-white bg-stone-900"
+                : "hover:text-white bg-stone-500 text-white"
             }`}
           >
             Unbatched Items
@@ -222,8 +222,8 @@ const SerialNumbersPage = () => {
             onClick={() => setActiveTab("sold")}
             className={`px-4 py-2 font-medium ${
               activeTab === "sold"
-                ? "border-b-2 border-gray-500 text-white bg-stone-600"
-                : "hover:text-white bg-stone-900 text-white"
+                ? "border-b-2 border-gray-500 text-white bg-stone-900"
+                : "hover:text-white bg-stone-500 text-white"
             }`}
           >
             Batched Items

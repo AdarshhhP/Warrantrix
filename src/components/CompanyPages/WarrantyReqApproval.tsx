@@ -269,7 +269,7 @@ setchange(approvalvalue);
     <div className="p-4 max-w-screen bg-stone-200 min-h-screen text-gray-900">
       <Toaster />
       <h1 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-6">
-        Registered Products
+        Registration Requests
       </h1>
 
       {showConfirmModal && (
@@ -342,7 +342,7 @@ setchange(approvalvalue);
         </div>
       </div>
 
-      {/* Action Button */}
+      {/* Action Button
       <div className="mb-4 flex justify-end">
         {activeTab === "registered" ? (
           <button
@@ -356,7 +356,7 @@ setchange(approvalvalue);
             + Register Product
           </button>
         ) : null}
-      </div>
+      </div> */}
 
       {/* Registered Products */}
       {activeTab === "registered" && (

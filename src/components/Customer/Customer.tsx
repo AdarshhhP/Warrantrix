@@ -57,7 +57,8 @@ const CustomerWarrantyPage = () => {
   const customerId = Number(localStorage.getItem("user_id"));
   const registerForm = useForm();
   const requestForm = useForm();
-
+  
+  // Fetches all registered warranties for this customer.
   const fetchRegistered = async () => {
     setloader(true);
     try {
@@ -95,6 +96,7 @@ const CustomerWarrantyPage = () => {
     }
   };
 
+  // Fetches warranty requests raised by customer.
   const fetchRequests = async () => {
     const data = await customerService.getWarrantyRequests(
       customerId,
@@ -121,7 +123,8 @@ const CustomerWarrantyPage = () => {
       fetchRequests();
     }
   }, [customerId]);
-
+  
+  // Handles deleting a registered warranty
   const handleDelete = async (purchaseId: number) => {
     try {
       const res = await customerService.deleteRegisteredWarranty(purchaseId);
@@ -169,6 +172,7 @@ const CustomerWarrantyPage = () => {
   //   }
   // };
 
+  // Handles product registration form submission.
   const handleRegisterSubmit = async (data: any) => {
 
     try {
@@ -215,9 +219,11 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
       // const { payload, modelNo, isEdit, purchase_Id } = pendingPayload;
 
       if (isEdit) {
+        // Edit existing registration
         await customerService.editRegisteredWarranty(purchase_Id, payload);
         toast.success("Updated Successfully");
       } else {
+        // Update seller item status and register warranty
         const Payload = {
           modelNo: modelNo,
           serialNos: [serialNo],
@@ -246,6 +252,7 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
     }
   };
 
+  // Converts an uploaded file to Base64
   const convertToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -255,6 +262,8 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
     });
   };
 
+  // Handles warranty request form submission.
+  //Uploads images in base64 format.
   const handleRequestSubmit = async (data: any) => {
     try {
       const base64Images = await Promise.all(
@@ -294,6 +303,7 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
     }
   };
 
+  // Opens the request form with pre-filled values for model and serial.
   const handleRaiseRequest = (
     purchaseId: number,
     modelNo: string,
@@ -306,6 +316,7 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
     requestForm.setValue("model_no", modelNo);
   };
 
+  // Handles image input change for request form.
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setImages(Array.from(e.target.files));

@@ -17,17 +17,18 @@ const CustomerWarrantyRequests = () => {
   const [showRegisterForm, setShowRegisterForm] = useState(false);
   const [showRequestForm, setShowRequestForm] = useState(false);
   const [editItem, setEditItem] = useState<any | null>(null);
+  // Search and image preview states
   const [searchModelNo, setSearchModelNo] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [previewImages, setPreviewImages] = useState<string | null>(null);
+  // Form data and uploads
   const [modelNoo, setmodelNoo] = useState<string>("");
-
   const [modelData, setModelData] = useState<any>(null);
   const [images, setImages] = useState<File[]>([]);
 
   // const [pendingPayload, setPendingPayload] = useState<any>(null);
   // const [showConfirmModal, setShowConfirmModal] = useState(false);
-
+  // Delete confirmation state
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -37,7 +38,8 @@ const CustomerWarrantyRequests = () => {
   const customerId = Number(localStorage.getItem("user_id"));
   const registerForm = useForm();
   const requestForm = useForm();
-
+  
+  // Fetch warranty requests + product details
   const fetchRequests = async () => {
     const data = await customerService.getWarrantyRequests(
       customerId,
@@ -64,6 +66,7 @@ const CustomerWarrantyRequests = () => {
     }
   }, [customerId]);
 
+   // Delete a registered warranty
   const handleDelete = async (purchaseId: number) => {
     try {
       const res = await customerService.deleteRegisteredWarranty(purchaseId);
@@ -111,6 +114,7 @@ const CustomerWarrantyRequests = () => {
   //   }
   // };
 
+  // Register product (with eligibility check)
   const handleRegisterSubmit = async (data: any) => {
     const payload = { ...data, customerId };
 
@@ -164,6 +168,7 @@ const CustomerWarrantyRequests = () => {
     }
   };
 
+  // Convert uploaded images to base64
   const convertToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -173,6 +178,7 @@ const CustomerWarrantyRequests = () => {
     });
   };
 
+  // Raise a warranty request
   const handleRequestSubmit = async (data: any) => {
     try {
       const base64Images = await Promise.all(
@@ -211,6 +217,7 @@ const CustomerWarrantyRequests = () => {
     }
   };
 
+  // Handle image file input
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setImages(Array.from(e.target.files));

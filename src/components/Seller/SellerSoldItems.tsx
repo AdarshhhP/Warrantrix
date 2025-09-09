@@ -27,9 +27,10 @@ const navigate=useNavigate();
         page: purchasePage,
         size: purchaseSize,
       });
-      setPurchases(data.content || []);
       setPurchaseTotalPages(data.totalPages || 1);
-      enrichWithProductDetails(data.content.map((p: any) => p.modelNo));
+      enrichWithProductDetails(data.content.map((p: any) => p.modelNo)).then(()=>{
+      setPurchases(data.content || []);
+      })
     } catch (err) {
       console.error("Purchases fetch error", err);
     }

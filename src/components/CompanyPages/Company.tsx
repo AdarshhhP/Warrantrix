@@ -12,6 +12,7 @@ import TemplateGenerator, {
 import Loader from "../Loader/Loader";
 import SmallLoader from "../Loader/SmallLoader";
 import { useNavigate } from "react-router-dom";
+import { Upload } from "lucide-react";
 
 const categories = [
   { id: 1, name: "Electronics" },
@@ -93,7 +94,7 @@ const Company = () => {
   const [astatus, setAstatus] = useState("");
   const [amodelNo, setAmodelNo] = useState("");
   const [bulkuploadmode, setbulkuploadmode] = useState(true);
-  const [remarksmode, setremarksmode] = useState(false);
+//  const [ setremarksmode] = useState(false);
   const { register, handleSubmit, reset } = useForm<Product>();
   const [bulkFile, setBulkFile] = useState<File | null>(null);
   const [resetDone, setResetDone] = useState(false);
@@ -114,6 +115,7 @@ const Company = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const navigate = useNavigate();
   const companyId = Number(localStorage.getItem("company_id"));
+const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (companyId) {
@@ -213,13 +215,14 @@ const Company = () => {
     }
   };
 
-  const handleStatusChange = async (status: any, requestId: number) => {
+  const handleStatusChange = async (status: any) => {
     setstatuss(status);
-    setRequestId(requestId);
+   // setRequestId(requestId);
     //setShowConfirmModal(true);
   };
   const confirmAndSave = async () => {
     try {
+      console.log(requestId,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
       await companyService
         .updateWarrantyStatus(requestId, statuss, remarks)
         .then((response) => {
@@ -233,7 +236,7 @@ const Company = () => {
             setstatuss(""); // Clear status after successful update
             setRequestId(0); // Reset requestId
             setRemarks(""); // Clear remarks after successful update
-            setremarksmode(false);
+            //setremarksmode(false);
           }
         });
       fetchRequests();
@@ -388,6 +391,7 @@ const Company = () => {
       return newIndices;
     });
   };
+  console.log(requestId,"aaaaaaaaaaaaaaaaaaaa");
 
   const handlePrevImage = (productIndex: number) => {
     setCurrentImageIndices((prev) => {
@@ -400,6 +404,13 @@ const Company = () => {
       return newIndices;
     });
   };
+
+const focusInput = () => {
+  if (inputRef.current) {
+    inputRef.current.click(); // ✅ trigger file input click
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-200 text-gray-900 p-6 md:p-8">
@@ -1132,11 +1143,6 @@ const Company = () => {
               <div
                 key={req.warranty_request_id}
                 className="bg-white shadow-sm rounded-lg p-3 space-y-2 border border-gray-100 hover:shadow-md transition-shadow duration-200 cursor-pointer"
-                onClick={(e) => {
-                  setremarksmode(true);
-
-                  e.stopPropagation();
-                }}
               >
                 <h2 className="text-base font-medium text-gray-800">
                   {req.customer_name}
@@ -1234,7 +1240,13 @@ const Company = () => {
                     Raised On Date: {req.raisedon_date}
                   </p>
 
-                  <p className="text-sm flex items-center gap-1.5">
+                  <p className="text-sm flex items-center gap-1.5 bg-pink-100 rounded-md p-2"
+                  onClick={(e) => {
+                 // setremarksmode(true);
+setRequestId(req.warranty_request_id);
+                  e.stopPropagation();
+                }}
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-4 w-4 text-gray-400"
@@ -1301,12 +1313,13 @@ const Company = () => {
                   </p>
                 </div>
 
-                {remarksmode && (
+                {(requestId !=0) && (
                   <div className="fixed inset-0 bg-black/10 flex justify-center items-center z-40">
                     <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
                       <button
                         onClick={(e) => {
-                          setremarksmode(false);
+                          //setremarksmode(false);
+                          setRequestId(0);
                           e.preventDefault();
                           e.stopPropagation();
                         }}
@@ -1360,17 +1373,15 @@ const Company = () => {
                           </label>
                           <select
                             disabled={remarks == ""}
-                            defaultValue={req.warranty_status}
+                            defaultValue={1}
                             onChange={(e) => {
                               if (remarks.trim() === "") {
                                 toast("Please enter remarks first");
                                 return;
                               }
                               handleStatusChange(
-                                Number(e.target.value),
-                                req.warranty_request_id
+                                Number(e.target.value)
                               );
-                              //setremarksmode(false);
                             }}
                             className={`w-full border px-3 py-2 border-amber-200 bg-amber-50 rounded-lg font-medium focus:ring-2 focus:ring-blue-500 outline-none transition ${
                               !remarks.trim()
@@ -1387,10 +1398,11 @@ const Company = () => {
 
                           <div className="flex w-full justify-end text-white">
                             <button
+                            disabled={statuss==""}
                               onClick={() => {
                                 setShowConfirmModal(true);
                               }}
-                              className="bg-stone-600 mt-2"
+                              className={`bg-stone-600 mt-2 4 ${statuss=="" && "cursor-not-allowed"}`}
                             >
                               submit
                             </button>
@@ -1483,15 +1495,22 @@ const Company = () => {
                         Upload Image
                       </label>
                       <div>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={handleImageChange}
-                          className="w-full border px-4 h-8 py-1 rounded-lg"
-                        />
-                        {/* <span onClick={() => setImages([])}>Clear</span> */}
-                      </div>
+  <input
+    type="file"
+    accept="image/*"
+    multiple
+    onChange={handleImageChange}
+    ref={inputRef}
+    className="w-full border px-4 h-8 py-1 rounded-lg hidden"
+  />
+  <div
+    className="w-full border h-8 border-gray-300 rounded-lg px-4 py-1 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white text-gray-500 flex items-center cursor-pointer gap-2 justify-center"
+    onClick={focusInput}
+  >
+    Upload <Upload size={18} /> {images.length > 0 && `(${images.length}) images selected`}
+  </div>
+</div>
+
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">

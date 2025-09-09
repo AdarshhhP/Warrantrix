@@ -140,13 +140,15 @@ const fetchInventory = async (x?: string) => {
       QuantityDetails: countMap[item.model_no] || 0,
     }));
 
-    setInventory(inventoryWithQuantity);
 
-    enrichWithProductDetails(data.map((i: any) => i.model_no));
+    enrichWithProductDetails(data.map((i: any) => i.model_no)).then(()=>{
+    setInventory(inventoryWithQuantity);
+    setloader(false);
+    })
   } catch (error) {
     console.error("Error fetching inventory:", error);
   } finally {
-    setloader(false);
+    //setloader(false);
   }
 };
 
@@ -154,8 +156,9 @@ const fetchInventory = async (x?: string) => {
 
   const fetchPurchases = async () => {
     const data = await SellerService.fetchPurchases(sellerId, modelnopurchase);
+    enrichWithProductDetails(data.map((p: any) => p.modelNo)).then(()=>{
     setPurchases(data);
-    enrichWithProductDetails(data.map((p: any) => p.modelNo));
+    })
   };
 
   const enrichWithProductDetails = async (modelNos: string[]) => {
@@ -874,7 +877,6 @@ const fetchInventory = async (x?: string) => {
           {inventory?.length > 0 ? (
             inventory?.map((item) => {
               const prod = productDetailsMap[item.model_no] || {};
-              console.log(item,"itemitmeitemitem");
               return (
                 <div
                   key={item.purchase_id}

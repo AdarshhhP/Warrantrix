@@ -55,9 +55,10 @@ const SellerReport = () => {
         page: inventoryPage,
         size: inventorySize,
       });
-      setInventory(data.content || []);
       setInventoryTotalPages(data.totalPages || 1);
-      enrichWithProductDetails(data.content.map((i: any) => i.model_no));
+      enrichWithProductDetails(data.content.map((i: any) => i.model_no)).then(()=>{
+      setInventory(data.content || []);
+      })
     } catch (err) {
       console.error("Inventory fetch error", err);
     }

@@ -113,10 +113,12 @@ const SellerDetailedPage = () => {
         (item: any) => item.model_no === reqmodelno
       );
       setselecteddataModelNo(filteredData);
+       enrichWithProductDetails(data.map((i: any) => i.model_no)).then(()=>{
       setInventory(filteredData);
+    })
     }
-    enrichWithProductDetails(data.map((i: any) => i.model_no));
   };
+
 
   const fetchPurchases = async () => {
     const data = await SellerService.fetchPurchases(sellerId, modelnopurchase);

@@ -57,6 +57,8 @@ const CustomerWarrantyPage = () => {
   const customerId = Number(localStorage.getItem("user_id"));
   const registerForm = useForm();
   const requestForm = useForm();
+const user_name=localStorage.getItem("user_name");
+const user_email=localStorage.getItem("user_email");
 
   const fetchRegistered = async () => {
     setloader(true);
@@ -183,7 +185,6 @@ const CustomerWarrantyPage = () => {
       // Store the payload for later and show confirmation dialog
       // setPendingPayload({ payload, modelNo: data.model_no, isEdit: !!editItem, purchase_Id: editItem?.purchase_Id });
       //setShowConfirmModal(true);
-      console.log(data, "aaaaaaaaaaaaaaaaaaaaaa");
 await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
       const payload = { ...data, customerId,company_id: response?.company_id};
 
@@ -304,6 +305,8 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
     setShowRequestForm(true);
     requestForm.setValue("serial_no",serialNo)
     requestForm.setValue("model_no", modelNo);
+    requestForm.setValue("customer_name",user_name);
+    requestForm.setValue("customer_email",user_email);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -311,8 +314,6 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
       setImages(Array.from(e.target.files));
     }
   };
-
-  console.log(registered,"registered")
 
   return (
     <div className="p-4 max-w-screen bg-stone-200 min-h-screen text-gray-900">
@@ -394,7 +395,6 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
           {registered.length > 0 ? (
             registered.map((item) => {
               const product = productDetailsMap[item.model_no] || {};
-              console.log(product, item, "aaaaaaaaa");
               return (
                 <div
                   key={item.purchase_Id}

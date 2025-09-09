@@ -84,7 +84,7 @@ const BatchListPage = () => {
         serialNumbers: [serial],
       });
 
-      toast.success("Serial number added successfully");
+      toast.success("Item added successfully");
 
       setBatches((prev) =>
         prev.map((batch) =>

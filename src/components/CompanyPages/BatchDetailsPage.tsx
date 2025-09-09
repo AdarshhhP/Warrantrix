@@ -121,14 +121,15 @@ console.log(batch,"huhuhuhuhuh")
     <div className="container mx-auto px-5 py-7 min-h-screen bg-gray-100">
       <Toaster />
       {/* Back Button */}
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center bg-stone-500 text-black mb-3 hover:underline"
-      >
-        <ArrowLeft className="w-3 h-3 mr-2" /> Back
-      </button>
+     
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">
+        <h1 className="text-2xl font-bold text-gray-800 mb-6 flex flex-row">
+           <button
+        onClick={() => navigate(-1)}
+          className=" text-black bg-transparent text-lg p-2 rounded-full hover:bg-stone-400 bg-stone-600 transition-colors flex items-center justify-center"
+      >
+        <ArrowLeft className="w-3 h-3 mr-2" /> 
+      </button>
           Batch Number - {batch.batch_no}
         </h1>
         <button
@@ -156,7 +157,7 @@ console.log(batch,"huhuhuhuhuh")
             <tr>
               <th className="border border-gray-300 px-4 py-2">Sl. No</th>
               <th className="border border-gray-300 px-4 py-2">Serial No</th>
-              <th className="border border-gray-300 px-4 py-2">Batch Status</th>
+              {/* <th className="border border-gray-300 px-4 py-2">Batch Status</th> */}
               <th className="border border-gray-300 px-4 py-2">Action</th>
             </tr>
           </thead>
@@ -173,9 +174,9 @@ console.log(batch,"huhuhuhuhuh")
                   <td className="border border-gray-300 px-3 py-1">
                     {s.serialNo}
                   </td>
-                  <td className="border border-gray-300 px-3 py-1">
+                  {/* <td className="border border-gray-300 px-3 py-1">
                     {s.is_sold === 1 ? "With Customer" : "With Seller"}
-                  </td>
+                  </td> */}
                   <td className="border border-gray-300 px-3 py-1">
                     <button
                       onClick={() => {

@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import SellerService from "../../services/SellerService";
+import { useNavigate } from "react-router-dom";
 
 const SellerSoldItems = () => {
   const [activeTab, setActiveTab] = useState<"inventory" | "purchases">("purchases");
@@ -17,7 +18,7 @@ const SellerSoldItems = () => {
   const [purchasePage, setPurchasePage] = useState(0);
   const [purchaseSize, setPurchaseSize] = useState(5);
   const [purchaseTotalPages, setPurchaseTotalPages] = useState(1);
-
+const navigate=useNavigate();
   const fetchPurchases = async () => {
     try {
       const data = await SellerService.getPurchases({
@@ -26,9 +27,10 @@ const SellerSoldItems = () => {
         page: purchasePage,
         size: purchaseSize,
       });
-      setPurchases(data.content || []);
       setPurchaseTotalPages(data.totalPages || 1);
-      enrichWithProductDetails(data.content.map((p: any) => p.modelNo));
+      enrichWithProductDetails(data.content.map((p: any) => p.modelNo)).then(()=>{
+      setPurchases(data.content || []);
+      })
     } catch (err) {
       console.error("Purchases fetch error", err);
     }
@@ -123,12 +125,20 @@ const SellerSoldItems = () => {
           Sold Items
           
         </h1>
+        <div className="flex flex-row gap-2">
+        <button
+          className="flex h-8 items-center bg-teal-600 text-white text-sm px-4 py-2 rounded-md hover:bg-teal-800 transition"
+          onClick={()=>navigate("/addedbatchlist")}
+        >
+         Acknowledged Batches
+        </button>
          <button
           onClick={handleDownload}
           className="flex h-8 items-center bg-teal-600 text-white text-sm px-4 py-2 rounded-md hover:bg-teal-800 transition"
         >
           Download
         </button>
+        </div>
       </div>
 
       <div className="flex justify-between items-center mb-6">

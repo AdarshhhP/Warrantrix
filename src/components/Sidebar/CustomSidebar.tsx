@@ -65,7 +65,7 @@ const Sidebar: React.FC = () => {
                   handleTabClick("wrcompany", "/warrantyreqapproval")
                 }
               >
-                Warranty Requests
+                Warranty Registration
               </button>
               <button
                 className={isActive("wcompany")}

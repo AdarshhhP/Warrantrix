@@ -11,6 +11,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
 import { Toaster } from "../../components/ui/sonner";
 import axios from "axios";
+import companyService from "../../services/CompanyServices";
 
 type BatchResponse = {
   batch_id: number;
@@ -47,17 +48,13 @@ const BatchListPage = () => {
   
   const navigate = useNavigate();
 
-  // Fetch batches
- const fetchBatches = async () => {
+// Fetch batches
+const fetchBatches = async () => {
   try {
-    const response = await axios.get<PagedResponse<BatchResponse>>(
-      `http://localhost:1089/api/batch/list?page=${requestPage}&size=${requestSize}`
-    );
+    const response = await companyService.fetchBatches(requestPage, requestSize);
 
-    setBatches(response.data.content); // ✅ actual list
-    setTotalRequestPages(response.data.totalPages); // ✅ pagination info
-
-    console.log(response.data, "adarsh");
+    setBatches(response.content); // ✅ actual list
+    setTotalRequestPages(response.totalPages); // ✅ pagination info
   } catch (err) {
     console.error("Failed to fetch batches", err);
     setError("Failed to load batches");
@@ -75,29 +72,26 @@ const BatchListPage = () => {
     fetchBatches();
   }, [requestPage]);
 
-  // API call to add serial number
-  const handleAddSerial = async (batchNo: string, serial: string) => {
-    if (!serial.trim()) return;
-    try {
-      await axios.post("http://localhost:1089/api/batch/add-serials", {
-        batchNo: batchNo,
-        serialNumbers: [serial],
-      });
+// Add serial
+const handleAddSerial = async (batchNo: string, serial: string) => {
+  if (!serial.trim()) return;
+  try {
+    await companyService.addSerialToBatch(batchNo, [serial]);
 
-      toast.success("Serial number added successfully");
+    toast.success("Serial number added successfully");
 
-      setBatches((prev) =>
-        prev.map((batch) =>
-          batch.batchNo === batchNo
-            ? { ...batch, serialNo: [...batch.serialNo, serial] }
-            : batch
-        )
-      );
-    } catch (err) {
-      console.error("Error adding serial number", err);
-      toast.error("Failed to add serial number");
-    }
-  };
+    setBatches((prev) =>
+      prev.map((batch) =>
+        batch.batchNo === batchNo
+          ? { ...batch, serialNo: [...batch.serialNo, serial] }
+          : batch
+      )
+    );
+  } catch (err) {
+    console.error("Error adding serial number", err);
+    toast.error("Failed to add serial number");
+  }
+};
 
   // Table columns
   const columns: ColumnDef<BatchResponse>[] = [

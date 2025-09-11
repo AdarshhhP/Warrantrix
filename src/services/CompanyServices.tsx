@@ -21,13 +21,14 @@ class CompanyService {
     });
     return res.data.content || [];
   }
-  async fetchSerialData(productId: number, is_sold: number, page: number, size: number) {
+  async fetchSerialData(productId: number, is_sold: number, page: number, size: number, serialNo?: string) {
   const response= axios.get(`${this.baseProductUrl}/not-sold`, {
     params: {
       is_sold,
       page,
       size,
-      productId
+      productId,
+      serialNo: serialNo && serialNo.trim() !== "" ? serialNo : undefined,
     }
   });
   return response;
@@ -73,7 +74,6 @@ class CompanyService {
     },
   });
 }
-
 
   async fetchWarrantyRequests(params: {
     company_id: number;
@@ -151,8 +151,22 @@ class CompanyService {
     batchNo,
     serialNumber,
   });
-}
-
+  }
+  // Fetch batches with pagination
+  async fetchBatches(page: number, size: number) {
+  const res = await axios.get(`${this.baseProductUrl}/api/batch/list`, {
+    params: { page, size },
+  });
+  return res.data; // contains content + pagination info
+  }
+  
+ // Add a serial number to a batch
+  async addSerialToBatch(batchNo: string, serialNumbers: string[]) {
+  return axios.post(`${this.baseProductUrl}/api/batch/add-serials`, {
+    batchNo,
+    serialNumbers,
+  });
+  }
 }
 
 const companyService= new CompanyService();

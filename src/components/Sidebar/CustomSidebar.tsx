@@ -85,7 +85,7 @@ const Sidebar: React.FC = () => {
                 className={isActive("seller")}
                 onClick={() => handleTabClick("seller", "/seller")}
               >
-                Seller
+                Inventory
               </button>
               {/* <button
                 className={isActive("aseller")}
@@ -99,8 +99,16 @@ const Sidebar: React.FC = () => {
                   handleTabClick("rseller", "/reports/sellerreports")
                 }
               >
-                Seller Report
+                Inventory Report
               </button>
+              {/* <button
+                className={isActive("ackseller")}
+                onClick={() =>
+                  handleTabClick("ackseller", "/addedbatchlist")
+                }
+              >
+                Acknowledged Batches
+              </button> */}
               <button
                 className={isActive("pseller")}
                 onClick={() =>

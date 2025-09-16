@@ -27,6 +27,9 @@ const SerialNumbersPage = () => {
   const [selectedSerials, setSelectedSerials] = useState<Set<string>>(
     new Set()
   );
+  const [searchTerm, setSearchTerm] = useState("");
+  const [serialNo, setSerialNo] = useState<string>("");
+  const [filteredData, setFilteredData] = useState<SerialNumber[]>([]);
   
   const [modelNo, setModelNo] = useState<string>("");
   const [productid, setProductid] = useState<number | null>(null);
@@ -49,7 +52,8 @@ const SerialNumbersPage = () => {
       setIsLoading(true);
 
       // Fetch unsold serials (is_sold = 0)
-      companyService.fetchSerialData(productId, 0, unsoldPage, pageSize).then((response) => {
+      companyService.fetchSerialData(productId, 0, unsoldPage, pageSize, serialNo)
+      .then((response) => {
         setUnsoldSerials(response.data.content);
         setUnsoldTotalPages(response.data.totalPages || 1);
         setProductid(productId);
@@ -58,7 +62,7 @@ const SerialNumbersPage = () => {
 
       // Fetch sold serials (is_sold = 1)
       companyService
-        .fetchSerialData(productId, 1, soldPage, pageSize)
+        .fetchSerialData(productId, 1, soldPage, pageSize, serialNo)
         .then((response) => {
           setSoldSerials(response.data.content);
           setSoldTotalPages(response.data.totalPages || 1);
@@ -67,7 +71,31 @@ const SerialNumbersPage = () => {
           setIsLoading(false);
         });
     }
-  }, [params, refetch, unsoldPage, soldPage, pageSize]);
+  }, [params, refetch, unsoldPage, soldPage, pageSize, serialNo]);
+
+  // // 🔹 Reset filteredData whenever tab or API data changes
+  // useEffect(() => {
+  //   if (activeTab === "unsold") {
+  //     setFilteredData(unsoldSerials);
+  //   } else {
+  //     setFilteredData(soldSerials);
+  //   }
+  // }, [unsoldSerials, soldSerials, activeTab]);
+
+  // 🔹 Search handler
+  // const handleSearch = () => {
+  //   const data = activeTab === "unsold" ? unsoldSerials : soldSerials;
+  //   const filtered = data.filter(
+  //     (item) =>
+  //       item.serialNo.toLowerCase().includes(searchTerm.toLowerCase())
+  //   );
+  //   setFilteredData(filtered);
+  // };
+  const handleSearch = () => {
+  setSerialNo(searchTerm);   // this triggers useEffect and refetches from API
+  setUnsoldPage(0); // reset page to 0 when searching
+  setSoldPage(0);
+};
  
   const toggleSelectSerial = (id: string) => {
     setSelectedSerials((prev) => {
@@ -151,7 +179,7 @@ const SerialNumbersPage = () => {
     {
       accessorKey: "man_date",
       header: "Manufacture Date"
-    }
+    },
   ];
  
   const currentData = activeTab === "unsold" ? unsoldSerials : soldSerials;
@@ -237,7 +265,32 @@ const SerialNumbersPage = () => {
             Create Batch
           </button>
         )}
+              {/* 🔍 Search bar */}
+      <div className="flex items-center gap-2 w-full sm:w-auto mb-4">
+        <input
+          type="text"
+          placeholder="Search Serial No"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSearch();
+            }
+          }}
+          className="px-3 py-1.5 text-black bg-white border border-gray-300 rounded-md 
+                     focus:outline-none focus:ring-1 focus:ring-gray-500 
+                     focus:border-gray-500 w-full sm:w-64"
+        />
+        <button
+          onClick={handleSearch}
+          className="bg-teal-500 text-white px-3 py-1.5 text-sm rounded-md 
+                     hover:bg-teal-700 transition"
+        >
+          Search
+        </button>
       </div>
+      </div>
+      
  
       {currentData.length === 0 ? (
         <div className="text-center py-12">

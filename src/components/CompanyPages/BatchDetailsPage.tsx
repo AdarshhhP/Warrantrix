@@ -35,13 +35,9 @@ const BatchDetailsPage = () => {
   useEffect(() => {
     const fetchBatchDetails = async () => {
       try {
-        await axios
-          .get<BatchDetails>(`http://localhost:1089/api/batch/batchId`, {
-            params: { batchId },
-          })
-          .then((res) => {
-            setBatch(res.data);
-          });
+        companyService.fetchBatchDetails(batchId).then((res)=> {
+                      setBatch(res.data);
+        })
       } catch (err) {
         console.error("Error fetching batch details", err);
         setError("Failed to load batch details");

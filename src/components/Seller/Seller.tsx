@@ -413,33 +413,40 @@ const fetchInventory = async (x?: string) => {
 
   const baseColumnsConfig: Columns = [
     {
-      Name: "Model_no",
+      Name: "Serial_no",
       columnWidth: 20,
       isRequired: true,
       isList: false,
-      comment: "Enter the model number (must exist in inventory)",
+      comment: "Enter the serial number(must exist in inventory)",
     },
+    // {
+    //   Name: "Model_no",
+    //   columnWidth: 20,
+    //   isRequired: true,
+    //   isList: false,
+    //   comment: "Enter the model number (must exist in inventory)",
+    // },
+    // {
+    //   Name: "Price",
+    //   columnWidth: 15,
+    //   isRequired: true,
+    //   isList: false,
+    //   comment: "Enter the product price (numeric)",
+    // },
     {
-      Name: "Price",
-      columnWidth: 15,
-      isRequired: true,
-      isList: false,
-      comment: "Enter the product price (numeric)",
-    },
-    {
-      Name: "Purchase_date",
+      Name: "Selling_date",
       columnWidth: 20,
       isRequired: true,
       isList: false,
-      comment: "Enter the purchase date (YYYY-MM-DD)",
+      comment: "Enter the selling date (YYYY-MM-DD)",
     },
-    {
-      Name: "Warranty",
-      columnWidth: 15,
-      isRequired: true,
-      isList: false,
-      comment: "Enter warranty period in months",
-    },
+    // {
+    //   Name: "Warranty",
+    //   columnWidth: 15,
+    //   isRequired: true,
+    //   isList: false,
+    //   comment: "Enter warranty period in months",
+    // },
     {
       Name: "Name",
       columnWidth: 25,
@@ -458,7 +465,7 @@ const fetchInventory = async (x?: string) => {
       errorTitle: "Email Error",
     },
     {
-      Name: "Phono",
+      Name: "Phoneno",
       columnWidth: 20,
       isRequired: false,
       isList: false,

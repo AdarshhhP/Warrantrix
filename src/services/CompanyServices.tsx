@@ -15,19 +15,21 @@ class CompanyService {
     ModelNo?: string;
     page?: number;
     size?: number;
+    productName?: string;
   }) {
     const res = await axios.get(`${this.baseProductUrl}/getProducts`, {
       params,
     });
     return res.data.content || [];
   }
-  async fetchSerialData(productId: number, is_sold: number, page: number, size: number) {
+  async fetchSerialData(productId: number, is_sold: number, page: number, size: number, serialNo?: string) {
   const response= axios.get(`${this.baseProductUrl}/not-sold`, {
     params: {
       is_sold,
       page,
       size,
-      productId
+      productId,
+      serialNo: serialNo && serialNo.trim() !== "" ? serialNo : undefined,
     }
   });
   return response;
@@ -61,7 +63,12 @@ class CompanyService {
    return axios.get(`${this.baseProductUrl}/api/batch/getSerialByModelNo?BatchNo=${BatchNo}`)
   }
 
-
+  async fetchBatchDetails(batchId:string|undefined){
+   return axios
+          .get(`http://localhost:1089/api/batch/batchId`, {
+            params: { batchId },
+          })
+  }
   async BulkUploadProduct( file: File,companyId:number) {
   const formData = new FormData();
   formData.append("file", file); // key must match backend (@RequestParam("file"))
@@ -73,7 +80,6 @@ class CompanyService {
     },
   });
 }
-
 
   async fetchWarrantyRequests(params: {
     company_id: number;
@@ -151,8 +157,22 @@ class CompanyService {
     batchNo,
     serialNumber,
   });
-}
-
+  }
+  // Fetch batches with pagination
+  async fetchBatches(page: number, size: number) {
+  const res = await axios.get(`${this.baseProductUrl}/api/batch/list`, {
+    params: { page, size },
+  });
+  return res.data; // contains content + pagination info
+  }
+  
+ // Add a serial number to a batch
+  async addSerialToBatch(batchNo: string, serialNumbers: string[]) {
+  return axios.post(`${this.baseProductUrl}/api/batch/add-serials`, {
+    batchNo,
+    serialNumbers,
+  });
+  }
 }
 
 const companyService= new CompanyService();

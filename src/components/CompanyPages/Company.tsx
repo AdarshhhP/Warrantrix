@@ -92,11 +92,12 @@ const Company = () => {
   // const [serialNumbers, setserialNumbers] = useState<SerialNumber[]>([]);
   const [holderStatus, setHolderStatus] = useState("");
   const [productCategory, setProductCategory] = useState("");
+  const [productName, setProductName] = useState("");
   const [ModelNo, setModelNo] = useState("");
   const [astatus, setAstatus] = useState("");
   const [amodelNo, setAmodelNo] = useState("");
   const [bulkuploadmode, setbulkuploadmode] = useState(true);
-//  const [ setremarksmode] = useState(false);
+  //  const [ setremarksmode] = useState(false);
   const { register, handleSubmit, reset } = useForm<Product>();
   const [bulkFile, setBulkFile] = useState<File | null>(null);
   const [resetDone, setResetDone] = useState(false);
@@ -104,6 +105,7 @@ const Company = () => {
   const [statuss, setstatuss] = useState("");
   const [requestId, setRequestId] = useState(0);
   const [newquantity, setnewquantity] = useState<number>(1);
+  // const [manufactureDate, setManufactureDate] = useState<string>(""); // new state
   const [bulkUploadResults, setBulkUploadResults] = useState<{
     failedRecords: string[];
     successRecords: string[];
@@ -127,15 +129,16 @@ const inputRef = useRef<HTMLInputElement | null>(null);
     }
   }, [companyId]);
 
-  const PostQuantity=()=>{
-    companyService.PostQuantity(productId,newquantity).then((resp)=>{
-      if(resp.data.statusCode==200){
-      toast("Quantity Updated");
-      setquantityopen(false);
-      setnewquantity(1)
+  const PostQuantity = () => {
+    companyService.PostQuantity(productId, newquantity).then((resp) => {
+      if (resp.data.statusCode == 200) {
+        toast("Quantity Updated");
+        setquantityopen(false);
+        setnewquantity(1);
+        // setManufactureDate("");
       }
-    })
-  }
+    });
+  };
 
   const fetchProducts = async () => {
     setloader(true);
@@ -145,6 +148,7 @@ const inputRef = useRef<HTMLInputElement | null>(null);
         holderStatus,
         productCategory,
         ModelNo,
+        productName,
         page: 0,
         size: 1000,
       });
@@ -220,12 +224,12 @@ const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleStatusChange = async (status: any) => {
     setstatuss(status);
-   // setRequestId(requestId);
+    // setRequestId(requestId);
     //setShowConfirmModal(true);
   };
   const confirmAndSave = async () => {
     try {
-      console.log(requestId,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+      console.log(requestId, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
       await companyService
         .updateWarrantyStatus(requestId, statuss, remarks)
         .then((response) => {
@@ -255,6 +259,7 @@ const inputRef = useRef<HTMLInputElement | null>(null);
   };
 
   const handleReset = () => {
+    setProductName("");
     setModelNo("");
     setHolderStatus("");
     setProductCategory("");
@@ -394,7 +399,7 @@ const inputRef = useRef<HTMLInputElement | null>(null);
       return newIndices;
     });
   };
-  console.log(requestId,"aaaaaaaaaaaaaaaaaaaa");
+  console.log(requestId, "aaaaaaaaaaaaaaaaaaaa");
 
   const handlePrevImage = (productIndex: number) => {
     setCurrentImageIndices((prev) => {
@@ -408,12 +413,11 @@ const inputRef = useRef<HTMLInputElement | null>(null);
     });
   };
 
-const focusInput = () => {
-  if (inputRef.current) {
-    inputRef.current.click(); // ✅ trigger file input click
-  }
-};
-
+  const focusInput = () => {
+    if (inputRef.current) {
+      inputRef.current.click(); // ✅ trigger file input click
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-200 text-gray-900 p-6 md:p-8">
@@ -544,6 +548,20 @@ const focusInput = () => {
           {activeTab === "products" && (
             <div className="flex items-center justify-end gap-3 p-1 rounded-lg shadow-xs border border-none w-full">
               <div className="flex gap-1">
+                <input
+                  type="text"
+                  value={productName}
+                  onChange={(e) => setProductName(e.target.value)}
+                  placeholder="Product Name"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      fetchProducts();
+                      fetchRequests();
+                    }
+                  }}
+                  className="text-gray-900 px-2 placeholder-gray-400 border border-gray-200 rounded-lg h-8 items-center justify-center w-full md:w-48 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white"
+                />
+
                 <input
                   type="text"
                   value={ModelNo}
@@ -1093,7 +1111,11 @@ const focusInput = () => {
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative">
             <div
               className="absolute top-0 right-1 cursor-pointer p-1 rounded-full bg-white"
-              onClick={() => {setquantityopen(false);setnewquantity(1)}}
+              onClick={() => {
+                setquantityopen(false);
+                setnewquantity(1);
+                // setManufactureDate("");
+              }}
             >
               X
             </div>
@@ -1109,7 +1131,17 @@ const focusInput = () => {
                   value={newquantity}
                   onChange={(e) => setnewquantity(Number(e.target.value))}
                 />
-                <button className="bg-stone-600 text-white h-8 flex justify-center items-center" onClick={()=>PostQuantity()}>
+                {/* Manufacture Date input */}
+                {/* <input
+                  type="date"
+                  className="bg-white text-black h-10 rounded-md px-2 border border-black"
+                  value={manufactureDate}
+                  onChange={(e) => setManufactureDate(e.target.value)}
+                /> */}
+                <button
+                  className="bg-stone-600 text-white h-8 flex justify-center items-center"
+                  onClick={() => PostQuantity()}
+                >
                   Confirm
                 </button>
               </div>
@@ -1243,12 +1275,13 @@ const focusInput = () => {
                     Raised On Date: {req.raisedon_date}
                   </p>
 
-                  <p className="text-sm flex items-center gap-1.5 bg-pink-100 rounded-md p-2"
-                  onClick={(e) => {
-                 // setremarksmode(true);
-setRequestId(req.warranty_request_id);
-                  e.stopPropagation();
-                }}
+                  <p
+                    className="text-sm flex items-center gap-1.5 bg-pink-100 rounded-md p-2"
+                    onClick={(e) => {
+                      // setremarksmode(true);
+                      setRequestId(req.warranty_request_id);
+                      e.stopPropagation();
+                    }}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -1316,7 +1349,7 @@ setRequestId(req.warranty_request_id);
                   </p>
                 </div>
 
-                {(requestId !=0) && (
+                {requestId != 0 && (
                   <div className="fixed inset-0 bg-black/10 flex justify-center items-center z-40">
                     <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
                       <button
@@ -1382,9 +1415,7 @@ setRequestId(req.warranty_request_id);
                                 toast("Please enter remarks first");
                                 return;
                               }
-                              handleStatusChange(
-                                Number(e.target.value)
-                              );
+                              handleStatusChange(Number(e.target.value));
                             }}
                             className={`w-full border px-3 py-2 border-amber-200 bg-amber-50 rounded-lg font-medium focus:ring-2 focus:ring-blue-500 outline-none transition ${
                               !remarks.trim()
@@ -1401,11 +1432,13 @@ setRequestId(req.warranty_request_id);
 
                           <div className="flex w-full justify-end text-white">
                             <button
-                            disabled={statuss==""}
+                              disabled={statuss == ""}
                               onClick={() => {
                                 setShowConfirmModal(true);
                               }}
-                              className={`bg-stone-600 mt-2 4 ${statuss=="" && "cursor-not-allowed"}`}
+                              className={`bg-stone-600 mt-2 4 ${
+                                statuss == "" && "cursor-not-allowed"
+                              }`}
                             >
                               Confirm
                             </button>
@@ -1498,22 +1531,23 @@ setRequestId(req.warranty_request_id);
                         Upload Image
                       </label>
                       <div>
-  <input
-    type="file"
-    accept="image/*"
-    multiple
-    onChange={handleImageChange}
-    ref={inputRef}
-    className="w-full border px-4 h-8 py-1 rounded-lg hidden"
-  />
-  <div
-    className="w-full border h-8 border-gray-300 rounded-lg px-4 py-1 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white text-gray-500 flex items-center cursor-pointer gap-2 justify-center"
-    onClick={focusInput}
-  >
-    Upload <Upload size={18} /> {images.length > 0 && `(${images.length}) images selected`}
-  </div>
-</div>
-
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={handleImageChange}
+                          ref={inputRef}
+                          className="w-full border px-4 h-8 py-1 rounded-lg hidden"
+                        />
+                        <div
+                          className="w-full border h-8 border-gray-300 rounded-lg px-4 py-1 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition bg-white text-gray-500 flex items-center cursor-pointer gap-2 justify-center"
+                          onClick={focusInput}
+                        >
+                          Upload <Upload size={18} />{" "}
+                          {images.length > 0 &&
+                            `(${images.length}) images selected`}
+                        </div>
+                      </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">

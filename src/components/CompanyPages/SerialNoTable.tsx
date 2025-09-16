@@ -28,6 +28,7 @@ const SerialNumbersPage = () => {
     new Set()
   );
   const [searchTerm, setSearchTerm] = useState("");
+  const [serialNo, setSerialNo] = useState<string>("");
   const [filteredData, setFilteredData] = useState<SerialNumber[]>([]);
   
   const [modelNo, setModelNo] = useState<string>("");
@@ -37,7 +38,6 @@ const SerialNumbersPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
   const params = useParams();
-  const [serialNo, setSerialNo] = useState<string>("");
 
   // Pagination states
   const [unsoldPage, setUnsoldPage] = useState(0);
@@ -71,16 +71,16 @@ const SerialNumbersPage = () => {
           setIsLoading(false);
         });
     }
-  }, [params, refetch, unsoldPage, soldPage, pageSize]);
+  }, [params, refetch, unsoldPage, soldPage, pageSize, serialNo]);
 
-  // 🔹 Reset filteredData whenever tab or API data changes
-  useEffect(() => {
-    if (activeTab === "unsold") {
-      setFilteredData(unsoldSerials);
-    } else {
-      setFilteredData(soldSerials);
-    }
-  }, [unsoldSerials, soldSerials, activeTab]);
+  // // 🔹 Reset filteredData whenever tab or API data changes
+  // useEffect(() => {
+  //   if (activeTab === "unsold") {
+  //     setFilteredData(unsoldSerials);
+  //   } else {
+  //     setFilteredData(soldSerials);
+  //   }
+  // }, [unsoldSerials, soldSerials, activeTab]);
 
   // 🔹 Search handler
   // const handleSearch = () => {
@@ -179,7 +179,7 @@ const SerialNumbersPage = () => {
     {
       accessorKey: "man_date",
       header: "Manufacture Date"
-    }
+    },
   ];
  
   const currentData = activeTab === "unsold" ? unsoldSerials : soldSerials;

@@ -15,6 +15,7 @@ class CompanyService {
     ModelNo?: string;
     page?: number;
     size?: number;
+    productName?: string;
   }) {
     const res = await axios.get(`${this.baseProductUrl}/getProducts`, {
       params,
@@ -62,7 +63,12 @@ class CompanyService {
    return axios.get(`${this.baseProductUrl}/api/batch/getSerialByModelNo?BatchNo=${BatchNo}`)
   }
 
-
+  async fetchBatchDetails(batchId:string|undefined){
+   return axios
+          .get(`http://localhost:1089/api/batch/batchId`, {
+            params: { batchId },
+          })
+  }
   async BulkUploadProduct( file: File,companyId:number) {
   const formData = new FormData();
   formData.append("file", file); // key must match backend (@RequestParam("file"))

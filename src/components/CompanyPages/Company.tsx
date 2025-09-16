@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form";
 import companyService from "../../services/CompanyServices";
 import { toast } from "sonner";
 import { Toaster } from "../../components/ui/sonner";
+import { useParams } from "react-router-dom";
+
 import TemplateGenerator, {
   type Columns,
 } from "../BulkUpload/TemplateGenerator";
@@ -114,7 +116,8 @@ const Company = () => {
   const [productId, setproductId] = useState(0);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const navigate = useNavigate();
-  const companyId = Number(localStorage.getItem("company_id"));
+   const Id = useParams();
+  const companyId = Number(localStorage.getItem("company_id"))|| parseInt(Id.Id ?? "");
 const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -468,7 +471,7 @@ const focusInput = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
             <p className="mb-4 text-gray-800">
-              Are you sure you want to save the changes?
+              Are you sure you want to send this warranty request response?
             </p>
             <div className="flex justify-end gap-3">
               <button
@@ -1369,7 +1372,7 @@ setRequestId(req.warranty_request_id);
 
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Status
+                            Approve / Reject
                           </label>
                           <select
                             disabled={remarks == ""}
@@ -1404,7 +1407,7 @@ setRequestId(req.warranty_request_id);
                               }}
                               className={`bg-stone-600 mt-2 4 ${statuss=="" && "cursor-not-allowed"}`}
                             >
-                              submit
+                              Confirm
                             </button>
                           </div>
                         </div>
@@ -1621,7 +1624,7 @@ setRequestId(req.warranty_request_id);
                           clipRule="evenodd"
                         />
                       </svg>
-                      Save Product
+                      Add Products
                     </button>
                   </div>
                 </form>

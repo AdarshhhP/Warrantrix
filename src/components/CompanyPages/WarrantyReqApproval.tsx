@@ -277,7 +277,7 @@ setchange(approvalvalue);
     <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
       <p className="mb-4 text-gray-800">
         {change === "1"
-          ? "Are you sure you want to approve this warranty request?"
+          ? "Are you sure you want to approve this warranty registration request?"
           : change === "2"
           ? "Are you sure you want to reject this warranty request?"
           : "Are you sure you want to save the changes?"}

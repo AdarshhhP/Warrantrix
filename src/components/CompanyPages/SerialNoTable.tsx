@@ -109,7 +109,7 @@ const SerialNumbersPage = () => {
       });
 
       setTimeout(() => {
-        toast.success("Batch created successfully!");
+        toast.success("Batch dispatched successfully!");
       }, 300);
       setSelectedSerials(new Set());
       setShowConfirm(false);
@@ -349,7 +349,7 @@ const SerialNumbersPage = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
             <p className="mb-4 text-gray-800">
-              Are you sure you want to create this batch?
+              Are you sure you want to create and dispatch this batch?
             </p>
             <div className="flex justify-end gap-3">
               <button

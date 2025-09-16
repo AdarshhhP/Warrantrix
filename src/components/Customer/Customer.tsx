@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Toaster } from "../ui/sonner";
 import Loader from "../Loader/Loader";
 import SellerService from "../../services/SellerService";
+import { useParams } from "react-router-dom";
 
 type Product = {
   productImages: string[];
@@ -53,8 +54,9 @@ const CustomerWarrantyPage = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [modelValid, setModelValid] = useState(false);
+   const Id = useParams();
 
-  const customerId = Number(localStorage.getItem("user_id"));
+  const customerId = Number(localStorage.getItem("user_id"))|| parseInt(Id.Id ?? "");
   const registerForm = useForm();
   const requestForm = useForm();
 const user_name=localStorage.getItem("user_name");
@@ -552,7 +554,7 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
                       </button>
                     )
                     :(
-<span className="text-xs bg-teal-500 hover:bg-teal-700 text-white px-2 py-1 rounded cursor-not-allowed">Reg Req Send</span>
+<span className="text-xs bg-teal-500 hover:bg-teal-700 text-white px-2 py-1 rounded cursor-not-allowed">Request Pending</span>
                     ) 
                     }
                   </div>
@@ -845,7 +847,7 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
             >
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Model No
+                  Model No<span className="text-red-500">*</span>
                 </label>
                 <input
                   {...registerForm.register("model_no")}
@@ -856,7 +858,7 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Serial No
+                  Serial No<span className="text-red-500">*</span>
                 </label>
                 <input
                   {...registerForm.register("serial_no")}
@@ -867,7 +869,7 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Purchase Date
+                  Purchase Date<span className="text-red-500">*</span>
                 </label>
                 <input
                   {...registerForm.register("purchase_date")}
@@ -881,7 +883,7 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
                 type="submit"
                 className="w-full bg-teal-500 hover:bg-teal-700 text-white py-2 rounded text-sm"
               >
-                Submit
+                Send Registration Request
               </button>
             </form>
           </div>
@@ -917,7 +919,7 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white p-4 rounded-lg shadow-lg w-full max-w-md">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="text-lg font-medium">Raise Warranty Request</h3>
+              <h3 className="text-lg font-medium">Warranty Claim</h3>
               <button
                 onClick={() => {
                   setShowRequestForm(false);
@@ -994,7 +996,7 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone
+                  Phone<span className="text-red-500">*</span>
                 </label>
                 <input
                   {...requestForm.register("phone_number")}
@@ -1006,7 +1008,7 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Upload Image
+                  Upload Image<span className="text-red-500">*</span>
                 </label>
                 <div>
                   <input
@@ -1020,7 +1022,7 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Reason
+                  Reason<span className="text-red-500">*</span>
                 </label>
                 <input
                   {...requestForm.register("reason")}
@@ -1033,7 +1035,7 @@ await SellerService.getProductByModelNoNoImage(data.model_no).then((response)=>{
                 type="submit"
                 className="w-full bg-teal-500 hover:bg-teal-700 text-white py-2 rounded text-sm"
               >
-                Submit Request
+               Send Warranty Claim Request
               </button>
             </form>
           </div>

@@ -70,6 +70,9 @@ const App = () => {
                 <Route path="/manage-batches/:batchId" element={<BatchDetailsPage />}/>
                 <Route path="/sellerdetailedpage" element={<SellerDetailedPage/>}/>
                 <Route path="/addedbatchlist" element={<SellerAddedBatchList/>}/>
+                <Route path="/company/:Id" element={<Company />}/>
+                <Route path="/seller/:Id" element={<Seller />}/>
+                <Route path="/customer/:Id" element={<Customer />}/>
               </Routes>
             </main>
           </div>

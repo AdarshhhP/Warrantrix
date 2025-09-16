@@ -4,11 +4,13 @@
 import React, { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import authService from "../../services/AuthServices";
+import { useNavigate } from "react-router-dom";
 
 type User = {
   userName: string;
   email: string;
   userType: number;
+  userId:number;
 };
 
 const UserList = () => {
@@ -23,7 +25,7 @@ const UserList = () => {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(5);
   const [totalPages, setTotalPages] = useState(1);
-
+const navigate=useNavigate();
   const userTypeLabels: Record<number, string> = {
     1: "Customer",
     2: "Seller",
@@ -93,6 +95,18 @@ const UserList = () => {
     loadUsers();
   };
 
+  const handleview=(userId:number,userType:number)=>{
+console.log(userId,userType,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
+if(userType==1){
+navigate(`/customer/${userId}`)
+}else if(userType==2){
+navigate(`/seller/${userId}`)
+}else if(userType==3){
+  navigate(`/company/${userId}`)
+}
+  }
+
   return (
     <div className="p-6 bg-stone-200 h-full text-black space-y-8">
       <div className="flex justify-between items-center">
@@ -161,6 +175,7 @@ const UserList = () => {
                 <th className="px-4 py-1 border">Username</th>
                 <th className="px-4 py-1 border">Email</th>
                 <th className="px-4 py-1 border">User Type</th>
+                <th className="px-4 py-1 border">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -187,6 +202,7 @@ const UserList = () => {
                     <td className="px-4 py-2 border">
                       {userTypeLabels[user.userType] || "Unknown"}
                     </td>
+                    <td className="px-6 py-2 border cursor-pointer"onClick={()=>handleview(user.userId,user.userType)}>👁️</td>
                   </tr>
                 ))
               )}

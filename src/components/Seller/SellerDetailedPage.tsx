@@ -384,10 +384,10 @@ const SellerDetailedPage = () => {
     }
   };
 
-  const deleteInventory = async (id: number) => {
-    await SellerService.deleteInventory(id);
-    fetchInventory();
-  };
+  // const deleteInventory = async (id: number) => {
+  //   await SellerService.deleteInventory(id);
+  //   fetchInventory();
+  // };
 
   const deletePurchase = async (id: number) => {
     await SellerService.deletePurchase(id);
@@ -848,7 +848,7 @@ const SellerDetailedPage = () => {
                     };
 
                     const itemStatus = findSerialStatus(item.serial_no);
-
+console.log(itemStatus,"itemStatusitemStatusitemStatusitemStatus");
                     return (
                       <tr key={item.purchase_id}>
                         <td className="px-6 whitespace-nowrap">
@@ -956,7 +956,7 @@ const SellerDetailedPage = () => {
                             </button> */}
 
                             {/* Delete Button */}
-                            <button
+                            {/* <button
                               onClick={() => deleteInventory(item.purchase_id)}
                               className="text-teal-700 hover:text-red-600 p-1 rounded bg-teal-100"
                               title="Delete"
@@ -975,7 +975,7 @@ const SellerDetailedPage = () => {
                                   d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                                 />
                               </svg>
-                            </button>
+                            </button> */}
 
                             {/* Mark Sold Button */}
                             <button
@@ -1475,7 +1475,7 @@ const SellerDetailedPage = () => {
                     type="number"
                     required
                     disabled
-                    className="w-full px-2 h-8 border border-gray-300 rounded-md bg-teal-100"
+                    className="w-full px-2 h-8 border border-gray-300 rounded-md bg-white"
                   />
                 </div>
                 <div>
@@ -1513,7 +1513,7 @@ const SellerDetailedPage = () => {
                     type="date"
                     required
                     max={new Date().toISOString().split("T")[0]}
-                    className="w-full px-2 h-8 border bg-teal-200 text-black border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                    className="w-full px-2 h-8 border bg-gray-300 text-black border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
                   />
                 </div>
               </div>

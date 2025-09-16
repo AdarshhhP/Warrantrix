@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { Toaster } from "../../components/ui/sonner";
 import Loader from "../Loader/Loader";
 import companyService from "../../services/CompanyServices";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export interface ProductDetails {
   productSerials: ProductSerial[];
@@ -75,7 +75,9 @@ const Seller = () => {
   const [editingPurchase, setEditingPurchase] = useState<any | null>(null);
   const [inventoryModelValid, setInventoryModelValid] = useState(false);
   const [purchaseModelValid, setPurchaseModelValid] = useState(false);
-  const sellerId = Number(localStorage.getItem("seller_id"));
+ const Id = useParams();
+const sellerId = Number(localStorage.getItem("seller_id")) || parseInt(Id.Id ?? "");
+
   const [categoryIds, setCategoryIds] = useState<number | "">("");
   const [modelNoss, setModelNos] = useState<string>("");
   const [warrantys, setWarrantys] = useState<number | "">("");
@@ -475,18 +477,11 @@ const fetchInventory = async (x?: string) => {
 
   const baseColumnsConfigs: Columns = [
     {
-      Name: "Model_no",
+      Name: "Batch_no",
       columnWidth: 20,
       isRequired: true,
       isList: false,
-      comment: "Enter the model number (must exist in inventory)",
-    },
-    {
-      Name: "Warranty",
-      columnWidth: 15,
-      isRequired: true,
-      isList: false,
-      comment: "Enter warranty period in months",
+      comment: "Enter the batch number",
     },
     {
       Name: "Purchase_date",
@@ -494,14 +489,7 @@ const fetchInventory = async (x?: string) => {
       isRequired: true,
       isList: false,
       comment: "Enter the purchase date in format YYYY-MM-DD (months)",
-    },
-    {
-      Name: "Price",
-      columnWidth: 15,
-      isRequired: true,
-      isList: false,
-      comment: "Enter the product price (numeric)",
-    },
+    }
   ];
 
   const handleBulkFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1323,14 +1311,14 @@ const fetchInventory = async (x?: string) => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Purchase Date
+                      Purchase Date<span className="text-red-500">*</span>
                     </label>
                     <input
                       {...inventoryForm.register("purchase_date")}
                       type="date"
                       max={new Date().toISOString().split("T")[0]}
                       required
-                      className="w-full h-8 px-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-teal-200 text-black"
+                      className="w-full h-8 px-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-gray-300 text-black"
                     />
                   </div>
 
@@ -1343,7 +1331,7 @@ const fetchInventory = async (x?: string) => {
                         : "bg-teal-400 cursor-not-allowed"
                     }`}
                   >
-                    {editingItem ? "Update Item" : "Add to Inventory"}
+                    {editingItem ? "Update Item" : "Acknowledge Delivery"}
                   </button>
                 </form>
               )}

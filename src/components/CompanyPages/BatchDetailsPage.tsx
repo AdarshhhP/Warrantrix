@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
-import axios from "axios";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "../ui/sonner";

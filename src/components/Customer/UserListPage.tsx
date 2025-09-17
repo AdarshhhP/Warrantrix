@@ -42,7 +42,8 @@ const navigate=useNavigate();
       setLoading(true);
       const res = await authService.fetchUsers({
         page,
-        size
+        size,
+        userType: userTypeFilter
       });
       setUsers(res.userinfo || []);
       setTotalPages(res.totalPages || 1
@@ -96,8 +97,6 @@ const navigate=useNavigate();
   };
 
   const handleview=(userId:number,userType:number)=>{
-console.log(userId,userType,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-
 if(userType==1){
 navigate(`/customer/${userId}`)
 }else if(userType==2){
@@ -139,8 +138,6 @@ navigate(`/seller/${userId}`)
               <option value="1">Customer</option>
               <option value="2">Seller</option>
               <option value="3">Company</option>
-              <option value="4">Admin</option>
-              <option value="5">Other</option>
             </select>
 
             <button

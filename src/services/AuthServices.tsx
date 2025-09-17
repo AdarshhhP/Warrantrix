@@ -44,6 +44,15 @@ class AuthService {
     }
   }
 
+   async changeUserStatus(userId: number,actionstatus:number): Promise<any> {
+    try {
+      const response = await axios.get(`${BASE_URL}/changeuser_status?user_id=${userId}&actionstatus=${actionstatus}`);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || error.message);
+    }
+  }
+
 async fetchUsers(params: {
   page: number;
   size: number;

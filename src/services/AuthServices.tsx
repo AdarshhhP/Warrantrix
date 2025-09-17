@@ -44,27 +44,37 @@ class AuthService {
     }
   }
 
-  async fetchUsers(params: {
+   async changeUserStatus(userId: number,actionstatus:number): Promise<any> {
+    try {
+      const response = await axios.get(`${BASE_URL}/changeuser_status?user_id=${userId}&actionstatus=${actionstatus}`);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || error.message);
+    }
+  }
+
+async fetchUsers(params: {
   page: number;
   size: number;
-  searchTerm?: string;
-  userType?: string;
+  userType?: string; // allow both string and number if needed
 }): Promise<any> {
   try {
-    const { page, size, searchTerm, userType } = params;
+    const { page, size, userType } = params;
+
     const response = await axios.get(`${BASE_URL}/getallusers`, {
       params: {
         page,
         size,
-        ...(searchTerm && { search: searchTerm }),
-        ...(userType && { userType })
+        ...(userType !== undefined && userType !== null && { userType })
       }
     });
+
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || error.message);
   }
 }
+
 }
 
 const authService = new AuthService();

@@ -29,7 +29,7 @@ const SerialNumbersPage = () => {
   );
   const [searchTerm, setSearchTerm] = useState("");
   const [serialNo, setSerialNo] = useState<string>("");
-  const [filteredData, setFilteredData] = useState<SerialNumber[]>([]);
+  // const [filteredData, setFilteredData] = useState<SerialNumber[]>([]);
   
   const [modelNo, setModelNo] = useState<string>("");
   const [productid, setProductid] = useState<number | null>(null);

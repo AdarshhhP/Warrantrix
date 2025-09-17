@@ -5,12 +5,15 @@ import React, { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import authService from "../../services/AuthServices";
 import { useNavigate } from "react-router-dom";
+import { Toaster } from "../ui/sonner";
+import { toast } from "sonner";
 
 type User = {
   userName: string;
   email: string;
   userType: number;
   userId:number;
+  active_status:number;
 };
 
 const UserList = () => {
@@ -42,7 +45,8 @@ const navigate=useNavigate();
       setLoading(true);
       const res = await authService.fetchUsers({
         page,
-        size
+        size,
+        userType: userTypeFilter
       });
       setUsers(res.userinfo || []);
       setTotalPages(res.totalPages || 1
@@ -96,8 +100,6 @@ const navigate=useNavigate();
   };
 
   const handleview=(userId:number,userType:number)=>{
-console.log(userId,userType,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-
 if(userType==1){
 navigate(`/customer/${userId}`)
 }else if(userType==2){
@@ -107,8 +109,15 @@ navigate(`/seller/${userId}`)
 }
   }
 
+  const handleUserAction=(userId:number,actionstatus:number)=>{
+    authService.changeUserStatus(userId,actionstatus).then(()=>{
+      loadUsers();
+      toast("User status updated successfully");
+    })
+  }
   return (
     <div className="p-6 bg-stone-200 h-full text-black space-y-8">
+      <Toaster/>
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
         <button
@@ -139,8 +148,6 @@ navigate(`/seller/${userId}`)
               <option value="1">Customer</option>
               <option value="2">Seller</option>
               <option value="3">Company</option>
-              <option value="4">Admin</option>
-              <option value="5">Other</option>
             </select>
 
             <button
@@ -175,6 +182,7 @@ navigate(`/seller/${userId}`)
                 <th className="px-4 py-1 border">Username</th>
                 <th className="px-4 py-1 border">Email</th>
                 <th className="px-4 py-1 border">User Type</th>
+                <th className="px-4 py-1 border">User Status</th>
                 <th className="px-4 py-1 border">Action</th>
               </tr>
             </thead>
@@ -201,6 +209,18 @@ navigate(`/seller/${userId}`)
                     <td className="px-4 py-2 border">{user.email}</td>
                     <td className="px-4 py-2 border">
                       {userTypeLabels[user.userType] || "Unknown"}
+                    </td>
+                    <td className="px-4 py-2 border">
+<select
+  className="bg-white border border-gray-300 rounded text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500"
+  defaultValue={user.active_status}
+  onChange={(e)=>{
+    handleUserAction(user.userId,Number(e.target.value))
+  }}
+>
+  <option value={0}>Active</option>
+  <option value={1}>Inactive</option>
+</select>
                     </td>
                     <td className="px-6 py-2 border cursor-pointer"onClick={()=>handleview(user.userId,user.userType)}>👁️</td>
                   </tr>

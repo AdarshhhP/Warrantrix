@@ -10,7 +10,6 @@ import {
 import type { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
 import { Toaster } from "../../components/ui/sonner";
-import axios from "axios";
 import companyService from "../../services/CompanyServices";
 
 type BatchResponse = {
@@ -22,20 +21,6 @@ type BatchResponse = {
   message?: string | null;
   statusCode?: string | null;
 };
-
-type PagedResponse<T> = {
-  content: T[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  pageable: any; // can refine later if needed
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
-  first: boolean;
-  last: boolean;
-  empty: boolean;
-};
-
 
 const BatchListPage = () => {
   const [batches, setBatches] = useState<BatchResponse[]>([]);

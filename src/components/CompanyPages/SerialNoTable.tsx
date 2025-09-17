@@ -314,7 +314,7 @@ const SerialNumbersPage = () => {
               <strong>Model No:</strong> {modelNo || "N/A"}
             </p>
           </div>
-          <div className="rounded-md border bg-white text-black">
+          <div className="border bg-white text-black h-[300px] overflow-y-auto">
             <Table>
               <TableHeader className="bg-stone-300 rounded-md p-1">
                 {table.getHeaderGroups().map((headerGroup) => (

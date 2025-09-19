@@ -545,8 +545,9 @@ const inputRef = useRef<HTMLInputElement | null>(null);
           >
             Requests
           </button>
+        </div>
           {activeTab === "products" && (
-            <div className="flex items-center justify-end gap-3 p-1 rounded-lg shadow-xs border border-none w-full">
+            <div className="flex flex-row justify-between gap-3 rounded-lg shadow-xs border border-none w-full">
               <div className="flex gap-1">
                 <input
                   type="text"
@@ -657,8 +658,6 @@ const inputRef = useRef<HTMLInputElement | null>(null);
               </div>
             </div>
           )}
-        </div>
-
         {/* Search Filters */}
         {activeTab === "requests" && (
           <div className="flex justify-between w-full gap-3 p-3 bg-white rounded-lg shadow-xs border border-gray-100">

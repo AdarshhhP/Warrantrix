@@ -30,7 +30,7 @@ const SerialNumbersPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [serialNo, setSerialNo] = useState<string>("");
   // const [filteredData, setFilteredData] = useState<SerialNumber[]>([]);
-  
+
   const [modelNo, setModelNo] = useState<string>("");
   const [productid, setProductid] = useState<number | null>(null);
   const [refetch, setRefetch] = useState(false);
@@ -52,13 +52,14 @@ const SerialNumbersPage = () => {
       setIsLoading(true);
 
       // Fetch unsold serials (is_sold = 0)
-      companyService.fetchSerialData(productId, 0, unsoldPage, pageSize, serialNo)
-      .then((response) => {
-        setUnsoldSerials(response.data.content);
-        setUnsoldTotalPages(response.data.totalPages || 1);
-        setProductid(productId);
-        setModelNo(response.data.content[0]?.model_No || "");
-      });
+      companyService
+        .fetchSerialData(productId, 0, unsoldPage, pageSize, serialNo)
+        .then((response) => {
+          setUnsoldSerials(response.data.content);
+          setUnsoldTotalPages(response.data.totalPages || 1);
+          setProductid(productId);
+          setModelNo(response.data.content[0]?.model_No || "");
+        });
 
       // Fetch sold serials (is_sold = 1)
       companyService
@@ -92,11 +93,11 @@ const SerialNumbersPage = () => {
   //   setFilteredData(filtered);
   // };
   const handleSearch = () => {
-  setSerialNo(searchTerm);   // this triggers useEffect and refetches from API
-  setUnsoldPage(0); // reset page to 0 when searching
-  setSoldPage(0);
-};
- 
+    setSerialNo(searchTerm); // this triggers useEffect and refetches from API
+    setUnsoldPage(0); // reset page to 0 when searching
+    setSoldPage(0);
+  };
+
   const toggleSelectSerial = (id: string) => {
     setSelectedSerials((prev) => {
       const newSet = new Set(prev);
@@ -108,11 +109,11 @@ const SerialNumbersPage = () => {
       return newSet;
     });
   };
- 
+
   const handleCreateBatch = () => {
     setShowConfirm(true);
   };
-  
+
   const confirmCreateBatch = async () => {
     try {
       const array = Array.from(selectedSerials);
@@ -168,9 +169,10 @@ const SerialNumbersPage = () => {
     {
       accessorKey: "index",
       header: "#",
-      cell: ({ row }) => (activeTab === "unsold" 
-        ? unsoldPage * pageSize + row.index + 1 
-        : soldPage * pageSize + row.index + 1),
+      cell: ({ row }) =>
+        activeTab === "unsold"
+          ? unsoldPage * pageSize + row.index + 1
+          : soldPage * pageSize + row.index + 1,
     },
     {
       accessorKey: "serialNo",
@@ -178,14 +180,14 @@ const SerialNumbersPage = () => {
     },
     {
       accessorKey: "man_date",
-      header: "Manufacture Date"
+      header: "Manufacture Date",
     },
   ];
- 
+
   const currentData = activeTab === "unsold" ? unsoldSerials : soldSerials;
   const currentPage = activeTab === "unsold" ? unsoldPage : soldPage;
   const totalPages = activeTab === "unsold" ? unsoldTotalPages : soldTotalPages;
-  
+
   const table = useReactTable({
     data: currentData,
     columns,
@@ -209,7 +211,7 @@ const SerialNumbersPage = () => {
       setSoldPage(0);
     }
   };
- 
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -219,7 +221,7 @@ const SerialNumbersPage = () => {
       </div>
     );
   }
- 
+
   return (
     <div className="container mx-auto px-4 py-8 bg-stone-200 min-h-full max-h-fit">
       <Toaster />
@@ -232,66 +234,73 @@ const SerialNumbersPage = () => {
         </button>
         <h1 className="text-2xl font-bold text-gray-800">Manage Batches</h1>
       </div>
- 
+
       {/* Tabs */}
       <div className="flex mb-4 border-b border-gray-200 gap-2 justify-between">
-        <div className="flex border-b border-gray-200 gap-2">
-          <button
-            onClick={() => setActiveTab("unsold")}
-            className={`px-4 py-1 font-medium ${
-              activeTab === "unsold"
-                ? "border-b-2 border-gray-500 text-white bg-stone-900"
-                : "hover:text-white bg-stone-500 text-white"
-            }`}
-          >
-            Unbatched Items
-          </button>
-          <button
-            onClick={() => setActiveTab("sold")}
-            className={`px-4 py-1 font-medium ${
-              activeTab === "sold"
-                ? "border-b-2 border-gray-500 text-white bg-stone-900"
-                : "hover:text-white bg-stone-500 text-white"
-            }`}
-          >
-            Batched Items
-          </button>
+        <div>
+          <div className="flex border-b border-gray-200 gap-2">
+            <button
+              onClick={() => setActiveTab("unsold")}
+              className={`px-4 py-1 font-medium ${
+                activeTab === "unsold"
+                  ? "border-b-2 border-gray-500 text-white bg-stone-900"
+                  : "hover:text-white bg-stone-500 text-white"
+              }`}
+            >
+              Unbatched Items
+            </button>
+            <button
+              onClick={() => setActiveTab("sold")}
+              className={`px-4 py-1 font-medium ${
+                activeTab === "sold"
+                  ? "border-b-2 border-gray-500 text-white bg-stone-900"
+                  : "hover:text-white bg-stone-500 text-white"
+              }`}
+            >
+              Batched Items
+            </button>
+          </div>
         </div>
-        {selectedSerials.size > 0 && (
-          <button
-            onClick={handleCreateBatch}
-            className="h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors flex justify-center items-center"
-          >
-            Create Batch
-          </button>
-        )}
-              {/* 🔍 Search bar */}
-      <div className="flex items-center gap-2 w-full sm:w-auto mb-4">
-        <input
-          type="text"
-          placeholder="Search Serial No"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSearch();
-            }
-          }}
-          className="px-3 py-1.5 text-black bg-white border border-gray-300 rounded-md 
+
+        {/* 🔍 Search bar */}
+
+        <div className="flex items-center gap-2 w-full sm:w-auto mb-4 flex-col">
+          <div className="flex flex-row gap-2">
+            <input
+              type="text"
+              placeholder="Search Serial No"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSearch();
+                }
+              }}
+              className="px-3 py-1.5 text-black bg-white border border-gray-300 rounded-md 
                      focus:outline-none focus:ring-1 focus:ring-gray-500 
                      focus:border-gray-500 w-full sm:w-64"
-        />
-        <button
-          onClick={handleSearch}
-          className="bg-teal-500 text-white px-3 py-1.5 text-sm rounded-md 
+            />
+            <button
+              onClick={handleSearch}
+              className="bg-teal-500 text-white px-3 py-1.5 text-sm rounded-md 
                      hover:bg-teal-700 transition"
-        >
-          Search
-        </button>
+            >
+              Search
+            </button>
+          </div>
+          {selectedSerials.size > 0 && (
+            <div className="flex justify-end w-full">
+              <button
+                onClick={handleCreateBatch}
+                className="h-10 bg-teal-600 text-white rounded-md transition-colors items-center"
+              >
+                Create Batch
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-      </div>
-      
- 
+
       {currentData.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500 text-lg">
@@ -314,7 +323,7 @@ const SerialNumbersPage = () => {
               <strong>Model No:</strong> {modelNo || "N/A"}
             </p>
           </div>
-          <div className="rounded-md border bg-white text-black">
+          <div className="border bg-white text-black max-h-[250px] overflow-y-auto">
             <Table>
               <TableHeader className="bg-stone-300 rounded-md p-1">
                 {table.getHeaderGroups().map((headerGroup) => (
@@ -376,7 +385,9 @@ const SerialNumbersPage = () => {
               currentPage + 1
             } of ${totalPages}`}</span>
             <button
-              onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages - 1))}
+              onClick={() =>
+                handlePageChange(Math.min(currentPage + 1, totalPages - 1))
+              }
               disabled={currentPage >= totalPages - 1}
               className="px-4 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
             >
@@ -426,5 +437,5 @@ const SerialNumbersPage = () => {
     </div>
   );
 };
- 
+
 export default SerialNumbersPage;

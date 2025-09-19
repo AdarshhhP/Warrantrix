@@ -1290,6 +1290,7 @@ const fetchInventory = async (x?: string) => {
                       <input
                         {...inventoryForm.register("price")}
                         type="number"
+                        placeholder="Price"
                         disabled
                         required
                         className="w-full cursor-not-allowed h-8 px-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
@@ -1302,6 +1303,7 @@ const fetchInventory = async (x?: string) => {
                       <input
                         {...inventoryForm.register("warranty")}
                         type="number"
+                        placeholder="Warranty"
                         disabled
                         required
                         className="cursor-not-allowed w-full h-8 px-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
@@ -1318,14 +1320,18 @@ const fetchInventory = async (x?: string) => {
                       type="date"
                       max={new Date().toISOString().split("T")[0]}
                       required
-                      className="w-full h-8 px-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-gray-300 text-black"
+                      className="w-60 h-8 px-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white text-black"
                     />
                   </div>
-
+                <div className="w-full flex justify-end">
+<div className="flex gap-4">
+                  <button className="w-48 py-2 rounded-md text-sm font-medium transition  bg-white border border-gray-300 hover:bg-gray-100 text-gray-700">
+                    Cancel
+                    </button>
                   <button
-                    type="submit"
+                    type="submit"                                                                                                                            
                     disabled={!inventoryModelValid}
-                    className={`w-full py-2 rounded-md text-white text-sm font-medium transition ${
+                    className={`w-48 py-2 rounded-md text-white text-sm font-medium transition ${
                       inventoryModelValid
                         ? "bg-teal-500 hover:bg-teal-700"
                         : "bg-teal-400 cursor-not-allowed"
@@ -1333,6 +1339,8 @@ const fetchInventory = async (x?: string) => {
                   >
                     {editingItem ? "Update Item" : "Acknowledge Delivery"}
                   </button>
+</div>
+                  </div>
                 </form>
               )}
             </div>

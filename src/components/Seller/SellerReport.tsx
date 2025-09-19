@@ -291,25 +291,25 @@ const enrichWithProductDetails = async (modelNos: string[]) => {
     <div className="overflow-auto flex-1">
       <table className="min-w-full table-auto text-sm text-left text-gray-800 bg-white">
         <thead className="bg-teal-100 text-gray-900 sticky top-0">
-          <tr>
-            <th className="px-2 border whitespace-nowrap">Sl No</th>
-            <th className="px-2 border whitespace-nowrap">Model No</th>
-            <th className="px-2 border whitespace-nowrap">Batch No</th>
-            <th className="px-2 border">Price</th>
-            <th className="px-2 border">Warranty (months)</th>
-            <th className="px-2 border whitespace-nowrap">Purchase Date</th>
-            <th className="px-2 border whitespace-nowrap">Product Name</th>
-            <th className="px-2 border whitespace-nowrap">Tenure (years)</th>
-            <th className="px-2 border whitespace-nowrap">Mfg Date</th>
-            <th className="px-2 border whitespace-nowrap">Company Name</th>
-            <th className="px-2 border ">Item Status</th>
+          <tr className="py-2">
+            <th className="px-2 py-2 border whitespace-nowrap">Sl No</th>
+            <th className="px-2 py-2 border whitespace-nowrap">Model No</th>
+            <th className="px-2 py-2 border whitespace-nowrap">Batch No</th>
+            <th className="px-2 py-2 border">Price</th>
+            <th className="px-2 py-2 border">Warranty (months)</th>
+            <th className="px-2 py-2 border whitespace-nowrap">Purchase Date</th>
+            <th className="px-2 py-2 border whitespace-nowrap">Product Name</th>
+            <th className="px-2 py-2 border whitespace-nowrap">Tenure (years)</th>
+            <th className="px-2 py-2 border whitespace-nowrap">Mfg Date</th>
+            <th className="px-2 py-2 border whitespace-nowrap">Company Name</th>
+            <th className="px-2 py-2 border ">Item Status</th>
           </tr>
         </thead>
         <tbody>
           {inventory.map((item, index) => {
             const prod = productDetailsMap[item.model_no] || {};
             return (
-              <tr key={index + 1} className="text-center hover:bg-teal-50">
+              <tr key={index + 1} className="text-center hover:bg-teal-50 py-2">
                 <td className="px-2 border">{inventoryPage * inventorySize + index + 1}</td>
                 <td className="px-2 border">{item.model_no}</td>
                 <td className="px-2 border">{item.addedbatch_no}</td>

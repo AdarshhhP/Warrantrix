@@ -73,7 +73,6 @@ const CompanyReport = () => {
         productCategory,
         modelNo,
       });
-      console.log(res,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
       setProducts(res.content || []);
       setTotalPages(res.totalPages || 1);
     } catch (err: any) {
@@ -400,7 +399,7 @@ const CompanyReport = () => {
                     </td>
                   </tr>
                 ) : (
-                  products.map((product, index) => (
+                  products.map((product:any, index:any) => (
                     <tr key={index} className="hover:bg-gray-50 border-t">
                       <td className="px-4 py-2 border">
                         {page * size + index + 1}

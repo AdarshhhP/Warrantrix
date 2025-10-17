@@ -235,7 +235,6 @@ const fetchInventory = async (x?: string) => {
       toast("Please fetch & validate model number first.");
       return;
     }
-    console.log(data,"faf du")
     const serial_noToPayload = serialData.map((item) => item.serialNo);
     const Payload = {
       modelNo: data.model_no,
@@ -1325,7 +1324,9 @@ const fetchInventory = async (x?: string) => {
                   </div>
                 <div className="w-full flex justify-end">
 <div className="flex gap-4">
-                  <button className="w-48 py-2 rounded-md text-sm font-medium transition  bg-white border border-gray-300 hover:bg-gray-100 text-gray-700">
+                  <button className="w-48 py-2 rounded-md text-sm font-medium transition  bg-white border border-gray-300 hover:bg-gray-100 text-gray-700"
+                    onClick={() => setShowInventoryForm(false)}
+                  >
                     Cancel
                     </button>
                   <button

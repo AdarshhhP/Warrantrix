@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import { toast } from "sonner";
 import { Toaster } from "../ui/sonner";
 import SmallLoader from "../Loader/SmallLoader";
+import authService from "../../services/AuthServices";
 
 const Admin = () => {
   const { register, handleSubmit, reset } = useForm();
@@ -22,12 +22,9 @@ const Admin = () => {
         userType: userType,
       };
 
-      const response = await axios.post(
-        "http://localhost:2089/createuser",
-        payload
-      );
+      const response = await authService.createUser(payload);
 
-      if (response.status === 200) {
+      if (response.statusCode === 200) {
         // alert("User created successfully!");
         toast.success("New user created");
         reset();

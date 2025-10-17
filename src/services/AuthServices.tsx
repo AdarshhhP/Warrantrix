@@ -16,7 +16,13 @@ class AuthService {
     }
   }
 
-  async getUsernamesByIds(userIds: number[]) {
+  async createUser(payload: any) {
+  // const ff="1,4,5,54"
+  const res = await axios.post(`${BASE_URL}/createuser`, payload);
+  return res.data;
+}
+
+ async getUsernamesByIds(userIds: number[]) {
   // const ff="1,4,5,54"
   const res = await axios.post(`${BASE_URL}/getusername`, userIds);
   return res.data;

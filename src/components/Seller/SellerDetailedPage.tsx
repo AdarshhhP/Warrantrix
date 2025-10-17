@@ -558,6 +558,8 @@ const SellerDetailedPage = () => {
       });
   };
 
+  console.log(inventory[0],"aaaaaaaaaaaaaaaaaaaa");
+
   return (
     <div className="p-4 md:p-6 mx-auto space-y-6 bg-stone-200 min-h-screen text-gray-900 max-w-7xl">
       
@@ -571,21 +573,50 @@ const SellerDetailedPage = () => {
         Model No : {reqmodelno}
       </h1>
       <div className="px-6 py-2 bg-white rounded-2xl shadow-md border border-gray-200">
-  {inventory[0] && (
+ {inventory[0] && (() => {
+  const prod = productDetailsMap[inventory[0].model_no] || {};
+
+  return (
     <div className="grid grid-cols-2 gap-6">
       {/* Left section */}
       <div>
-        <p className="text-xl font-semibold text-gray-900">Price : ₹{inventory[0].price}</p>
-        <p className="text-sm text-gray-500">Warranty : {inventory[0].warranty} months </p>
+        <p className="text-md text-gray-700">
+          Product Name : {prod.product_name}
+        </p>
+        <p className="text-md font-semibold text-gray-700">
+          Price: ₹{inventory[0].price}
+        </p>
+        <p className="text-sm text-gray-500">
+          Warranty: {inventory[0].warranty} months
+        </p>
+          {prod.productImages && prod.productImages.length > 0 && (
+        <div className="col-span-2">
+        </div>
+      )}
       </div>
 
       {/* Right section */}
       <div>
-        <p className="text-sm text-gray-600">Purchased Date: <span className="font-medium text-gray-800">{inventory[0].purchase_date}</span></p>
-        <p className="text-sm text-gray-600">Batch No: <span className="font-medium text-gray-800">{inventory[0].addedbatch_no}</span></p>
+        <p className="text-sm text-gray-600">
+          Purchased Date: <span className="font-medium text-gray-800">{inventory[0].purchase_date}</span>
+        </p>
+        <p className="text-sm text-gray-600">
+          Batch No: <span className="font-medium text-gray-800">{inventory[0].addedbatch_no}</span>
+        </p>
+         <button
+            onClick={() => setPreviewImage(prod.productImages[0])}
+            className="text-teal-700 py-1 text-sm rounded bg-white border-none"
+            title="View Image"
+          >
+           View Images
+          </button>
       </div>
+
+    
     </div>
-  )}
+  );
+})()}
+
 </div>
       <Toaster />
 
@@ -811,22 +842,22 @@ const SellerDetailedPage = () => {
       {activeTab === "inventory" && (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
           {inventory?.length > 0 ? (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-72">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50 sticky top-0">
                   <tr>
                     <th
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Product Info
+                      Serial No
                     </th>
                     {/* <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Details
               </th> */}
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-6 pl-9 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
                       Status
                     </th>
@@ -838,7 +869,7 @@ const SellerDetailedPage = () => {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white divide-y divide-gray-200 max-h-96 overflow-y-auto">
                   {inventory?.map((item) => {
                     const prod = productDetailsMap[item.model_no] || {};
                     const findSerialStatus = (serialNo: string) => {
@@ -848,12 +879,11 @@ const SellerDetailedPage = () => {
                     };
 
                     const itemStatus = findSerialStatus(item.serial_no);
-console.log(itemStatus,"itemStatusitemStatusitemStatusitemStatus");
                     return (
-                      <tr key={item.purchase_id}>
-                        <td className="px-6 whitespace-nowrap">
+                      <tr key={item.purchase_id} className="h-8">
+                        <td className="px-6 whitespace-nowrap h-8">
                           <div className="flex items-center">
-                            {prod.productImages && (
+                            {/* {prod.productImages && (
                               <div className="flex-shrink-0 h-10 w-10 mr-3">
                                 <img
                                   className="h-10 w-10 object-contain rounded-md"
@@ -861,19 +891,19 @@ console.log(itemStatus,"itemStatusitemStatusitemStatusitemStatus");
                                   alt={prod?.product_name || "Product image"}
                                 />
                               </div>
-                            )}
+                            )} */}
                             <div>
-                              <div className="text-sm font-medium text-gray-900">
+                              {/* <div className="text-sm font-medium text-gray-900">
                                 {prod?.product_name || "Unknown Product"}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                SN: {item.serial_no}
+                              </div> */}
+                              <div className="text-sm font-medium text-gray-500">
+                               {item.serial_no}
                               </div>
                             </div>
                           </div>
                         </td>
 
-                        <td className="px-6 py-1 whitespace-nowrap">
+                        <td className="px-6 whitespace-nowrap h-8">
                           <span
                             className={`inline-flex text-xs leading-5 font-semibold px-2.5 py-0.5 rounded-full ${
                               itemStatus === 2
@@ -894,10 +924,10 @@ console.log(itemStatus,"itemStatusitemStatusitemStatusitemStatus");
                               : "Unknown Status"}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td className="px-6 py-1 whitespace-nowrap text-sm font-medium h-8">
                           <div className="flex space-x-2">
                             {/* View Image Button */}
-                            {prod.productImages && (
+                            {/* {prod.productImages && (
                               <button
                                 onClick={() =>
                                   setPreviewImage(prod.productImages[0])
@@ -926,7 +956,7 @@ console.log(itemStatus,"itemStatusitemStatusitemStatusitemStatus");
                                   />
                                 </svg>
                               </button>
-                            )}
+                            )} */}
 
                             {/* Edit Button */}
                             {/* <button
@@ -987,7 +1017,7 @@ console.log(itemStatus,"itemStatusitemStatusitemStatusitemStatus");
                                 );
                               }}
                               className={`text-teal-700 hover:text-green-600 p-1 rounded bg-teal-100 ${itemStatus!== 2 ? "opacity-50 cursor-not-allowed" : ""}`}
-                              title="Mark Sold"
+                              title="Mark as Sold"
                               disabled={itemStatus !== 2}
                             >
                               <svg
@@ -1026,6 +1056,8 @@ console.log(itemStatus,"itemStatusitemStatusitemStatusitemStatus");
           {purchases.length > 0 ? (
             purchases.map((purchase) => {
               const prod = productDetailsMap[purchase.modelNo] || {};
+
+              console.log(prod,"prodprodprodprodprod");
               return (
                 <div
                   key={purchase.sale_id}
@@ -1069,6 +1101,8 @@ console.log(itemStatus,"itemStatusitemStatusitemStatusitemStatus");
                       <p>Manufactured: {prod.man_date}</p>
                     </div>
                   )}
+
+                  
 
                   <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
                     <span
